@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Table, 
@@ -11,7 +10,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ShoppingCart, Edit, Check } from 'lucide-react';
+import { ShoppingCart, Edit, Check, ArrowUp, Flag } from 'lucide-react';
 import { StockStatusBadge } from '@/components/product/StockStatusBadge';
 
 // Mock data for low stock items
