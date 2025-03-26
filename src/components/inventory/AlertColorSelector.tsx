@@ -26,7 +26,7 @@ export const AlertColorSelector: React.FC = () => {
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-full"
+          className="h-8 w-8 rounded-full bg-transparent"
           aria-label="Changer la couleur de la note"
         >
           <Settings className={`h-4 w-4 ${currentScheme.iconColor}`} />
