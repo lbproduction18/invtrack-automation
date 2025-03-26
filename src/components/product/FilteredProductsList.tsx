@@ -1,17 +1,21 @@
 
 import { type Product } from '@/types/product';
 
+export type SortOption = 'oldest' | 'newest' | 'low-stock' | 'high-stock';
+
 interface FilteredProductsListProps {
   products: Product[];
   searchQuery: string;
   stockFilter: string;
+  sortBy: SortOption;
 }
 
 // Fonction utilitaire pour filtrer les produits
 export const FilteredProductsList = ({
   products,
   searchQuery,
-  stockFilter
+  stockFilter,
+  sortBy = 'oldest' // Default to oldest items first
 }: FilteredProductsListProps): Product[] => {
   // Filtrer les produits en fonction de la recherche
   const filteredProducts = products.filter((product: Product) => {
@@ -24,5 +28,19 @@ export const FilteredProductsList = ({
     return matchesSearch;
   });
 
-  return filteredProducts;
+  // Sort the filtered products
+  return [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case 'oldest':
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      case 'newest':
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      case 'low-stock':
+        return a.current_stock - b.current_stock;
+      case 'high-stock':
+        return b.current_stock - a.current_stock;
+      default:
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    }
+  });
 };

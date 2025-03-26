@@ -1,8 +1,10 @@
+
 import React, { useState } from 'react';
 import { 
   Package, 
   ArrowDown,
-  Plus
+  Plus,
+  ArrowDownAZ
 } from 'lucide-react';
 import { 
   Card, 
@@ -22,18 +24,27 @@ import { useProducts } from '@/hooks/useProducts';
 import { ProductFilterControls } from '@/components/product/ProductFilterControls';
 import { ProductTable } from '@/components/product/ProductTable';
 import { Pagination } from '@/components/product/Pagination';
-import { FilteredProductsList } from '@/components/product/FilteredProductsList';
+import { FilteredProductsList, type SortOption } from '@/components/product/FilteredProductsList';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Products: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [stockFilter, setStockFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<SortOption>('oldest');
   
   const { products, isLoading } = useProducts();
   
   const filteredProducts = FilteredProductsList({
     products,
     searchQuery,
-    stockFilter
+    stockFilter,
+    sortBy
   });
 
   return (
@@ -67,12 +78,31 @@ const Products: React.FC = () => {
           <CardTitle className="text-xl font-medium">Catalogue de Produits</CardTitle>
         </CardHeader>
         <CardContent className="px-6 space-y-4">
-          <ProductFilterControls
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            stockFilter={stockFilter}
-            setStockFilter={setStockFilter}
-          />
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <ProductFilterControls
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              stockFilter={stockFilter}
+              setStockFilter={setStockFilter}
+            />
+            
+            <div className="flex items-center gap-2">
+              <Select
+                value={sortBy}
+                onValueChange={(value) => setSortBy(value as SortOption)}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Trier par" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="oldest">Plus ancien d'abord</SelectItem>
+                  <SelectItem value="newest">Plus récent d'abord</SelectItem>
+                  <SelectItem value="low-stock">Stock bas d'abord</SelectItem>
+                  <SelectItem value="high-stock">Stock élevé d'abord</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           
           <div className="rounded-md border border-border/50 overflow-hidden bg-card/50 backdrop-blur-sm">
             <Table>

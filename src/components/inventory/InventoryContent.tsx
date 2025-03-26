@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { AlertTriangle, MoreHorizontal } from 'lucide-react';
+import { AlertTriangle, ArrowDownAZ, MoreHorizontal } from 'lucide-react';
 import { 
   Table, 
   TableBody, 
@@ -12,29 +12,57 @@ import {
 import { CardContent } from '@/components/ui/card';
 import { ProductTable } from '@/components/product/ProductTable';
 import { ProductFilterControls } from '@/components/product/ProductFilterControls';
-import { FilteredProductsList } from '@/components/product/FilteredProductsList';
+import { FilteredProductsList, type SortOption } from '@/components/product/FilteredProductsList';
 import { useProducts } from '@/hooks/useProducts';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const InventoryContent: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [stockFilter, setStockFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<SortOption>('oldest');
   const { products, isLoading } = useProducts();
   
   const filteredProducts = FilteredProductsList({ 
     products, 
     searchQuery, 
-    stockFilter 
+    stockFilter,
+    sortBy
   });
 
   return (
     <CardContent className="p-4">
-      <ProductFilterControls 
-        searchQuery={searchQuery} 
-        setSearchQuery={setSearchQuery} 
-        stockFilter={stockFilter} 
-        setStockFilter={setStockFilter} 
-      />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <ProductFilterControls 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery} 
+          stockFilter={stockFilter} 
+          setStockFilter={setStockFilter} 
+        />
+        
+        <div className="flex items-center gap-2">
+          <Select
+            value={sortBy}
+            onValueChange={(value) => setSortBy(value as SortOption)}
+          >
+            <SelectTrigger className="w-[180px] bg-[#121212] border-[#272727] text-gray-300">
+              <SelectValue placeholder="Trier par" />
+            </SelectTrigger>
+            <SelectContent className="bg-[#161616] border-[#272727]">
+              <SelectItem value="oldest" className="text-gray-300 hover:bg-[#272727] focus:bg-[#272727]">Plus ancien d'abord</SelectItem>
+              <SelectItem value="newest" className="text-gray-300 hover:bg-[#272727] focus:bg-[#272727]">Plus récent d'abord</SelectItem>
+              <SelectItem value="low-stock" className="text-gray-300 hover:bg-[#272727] focus:bg-[#272727]">Stock bas d'abord</SelectItem>
+              <SelectItem value="high-stock" className="text-gray-300 hover:bg-[#272727] focus:bg-[#272727]">Stock élevé d'abord</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
       
       <div className="rounded-md border border-[#272727] overflow-hidden mt-4">
         <Table>
