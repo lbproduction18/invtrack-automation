@@ -8,9 +8,10 @@ import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { type SelectedSKU } from '@/types/product';
 import SimulationTableHeader from './SimulationTableHeader';
 import SimulationProductRow from './SimulationProductRow';
+import { type ProductPrice } from '@/hooks/useProductPrices';
 
 interface SimulationTableProps {
-  productPrices: any[]; // ProductPrice type array
+  productPrices: ProductPrice[]; 
   isLoading: boolean;
   quantityOptions: QuantityOption[];
   selectedSKUs: Record<string, SelectedSKU[]>;
@@ -83,11 +84,12 @@ const SimulationTable: React.FC<SimulationTableProps> = ({
             return (
               <SimulationProductRow
                 key={product.id}
-                product={product}
                 productName={productName}
+                productPrices={productPrices}
+                isLoading={isLoading}
                 quantityOptions={quantityOptions}
-                availableSKUs={availableSKUs}
-                selectedSKUs={selectedSKUs[productName] || []}
+                selectedSKUs={selectedSKUs}
+                groupedSKUs={availableSKUs}
                 onAddSKU={onAddSKU}
                 onQuantityChange={onQuantityChange}
                 onRemoveSKU={onRemoveSKU}

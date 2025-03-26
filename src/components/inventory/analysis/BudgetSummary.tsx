@@ -8,6 +8,7 @@ interface BudgetSummaryProps {
   productCount: number;
   totalBudget: number;
   configuredProductCount: number;
+  totalProductCount?: number;
   onCreateOrder: () => void;
   isLoading?: boolean;
   totalOrderAmount?: number;
@@ -20,6 +21,7 @@ const BudgetSummary: React.FC<BudgetSummaryProps> = ({
   productCount = 0,
   totalBudget = 0,
   configuredProductCount = 0,
+  totalProductCount = 0,
   onCreateOrder,
   isLoading = false,
   totalOrderAmount = 0,
@@ -69,7 +71,7 @@ const BudgetSummary: React.FC<BudgetSummaryProps> = ({
             <Skeleton className="h-4 w-16" />
           ) : (
             <span>
-              {configuredProductCount} / {productCount}
+              {configuredProductCount} / {totalProductCount || productCount}
             </span>
           )}
         </div>

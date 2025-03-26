@@ -101,10 +101,12 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
         <SimulationSKURow
           key={`${sku.SKU}-${index}`}
           sku={sku}
+          productName={productName}
+          index={index}
           quantityOptions={quantityOptions}
-          onQuantityChange={(quantity) => onQuantityChange(productName, index, quantity)}
-          onRemove={() => onRemoveSKU(productName, index)}
-          total={calculateSKUTotal(sku)}
+          onQuantityChange={onQuantityChange}
+          onRemoveSKU={onRemoveSKU}
+          calculateSKUTotal={calculateSKUTotal}
         />
       ))}
     </>

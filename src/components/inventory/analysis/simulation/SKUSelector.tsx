@@ -14,10 +14,10 @@ import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 export interface SKUSelectorProps {
   productName: string;
   skus?: Array<{ id: string; SKU: string; productName: string | null }>;
+  availableSKUs?: Array<{ id: string; SKU: string; productName: string | null }>;
   quantityOptions: QuantityOption[];
   prices?: Record<string, number | null>;
   onAdd: (productName: string, skuId: string, skuValue: string, quantity: QuantityOption) => void;
-  availableSKUs?: Array<{ id: string; SKU: string; productName: string | null }>;
 }
 
 const SKUSelector: React.FC<SKUSelectorProps> = ({
@@ -25,7 +25,8 @@ const SKUSelector: React.FC<SKUSelectorProps> = ({
   quantityOptions,
   onAdd,
   availableSKUs = [],
-  skus = []
+  skus = [],
+  prices = {}
 }) => {
   const [selectedSKU, setSelectedSKU] = useState<string>('');
   const [selectedSKUObject, setSelectedSKUObject] = useState<{ id: string; SKU: string; productName: string | null } | null>(null);
