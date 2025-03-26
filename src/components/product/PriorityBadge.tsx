@@ -21,12 +21,12 @@ export const PriorityBadge: React.FC<PriorityBadgeProps> = ({
   const getBadgeStyles = () => {
     switch (priority) {
       case 'prioritaire':
-        return "bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/30 dark:text-red-300 dark:border-red-800/30";
+        return "bg-red-900/30 text-red-400 border border-red-900/20";
       case 'moyen':
-        return "bg-orange-50 text-orange-700 border border-orange-200 dark:bg-orange-950/30 dark:text-orange-300 dark:border-orange-800/30";
+        return "bg-orange-900/30 text-orange-400 border border-orange-900/20";
       case 'standard':
       default:
-        return "bg-green-50 text-green-700 border border-green-200 dark:bg-green-950/30 dark:text-green-300 dark:border-green-800/30";
+        return "bg-green-900/30 text-green-400 border border-green-900/20";
     }
   };
 
@@ -36,14 +36,14 @@ export const PriorityBadge: React.FC<PriorityBadgeProps> = ({
     <Badge 
       variant="outline" 
       className={cn(
-        "px-2.5 py-0.5 font-normal text-xs rounded-full transition-all",
+        "px-2.5 py-0.5 font-medium text-xs rounded-full transition-all backdrop-blur-sm flex items-center gap-1",
         getBadgeStyles(),
-        isClickable && "cursor-pointer hover:brightness-105",
+        isClickable && "cursor-pointer hover:brightness-110",
         className
       )}
       onClick={onClick}
     >
-      {priority === 'prioritaire' && <Flag className="h-3 w-3 mr-1" />}
+      {priority === 'prioritaire' && <Flag className="h-3 w-3" />}
       {priority}
     </Badge>
   );

@@ -26,16 +26,16 @@ export const NoteContent: React.FC<NoteContentProps> = ({
 
   return (
     <div className={cn(
-      "m-2 p-4 rounded-lg",
-      "bg-white dark:bg-black/20", // Simple white/black background like Notion
-      "border border-gray-200 dark:border-gray-800" // Subtle border
+      "m-2 p-4 rounded-lg shadow-sm",
+      noteStyles.cardBg,
+      "border border-" + noteStyles.border
     )}>
       <div className="flex flex-col space-y-3">
         {/* En-tête de la note */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <IconComponent className={iconClassName} />
-            <span className={cn("font-medium text-sm", `text-${noteStyles.text}`)}>
+            <span className={cn("font-bold text-sm uppercase tracking-wider", `text-${noteStyles.text}`)}>
               {noteType === "warning" ? "Attention Requise" : 
                noteType === "success" ? "Traité & Validé" : 
                noteType === "pending" ? "En Attente de Suivi" : "Note Informative"}
@@ -46,9 +46,7 @@ export const NoteContent: React.FC<NoteContentProps> = ({
               variant={isNoteTreated ? "default" : "outline"}
               className={cn(
                 "cursor-pointer transition-colors",
-                isNoteTreated 
-                  ? "bg-green-50 text-green-700 hover:bg-green-100 dark:bg-green-950/20 dark:text-green-300 dark:hover:bg-green-900/30" 
-                  : "bg-transparent hover:bg-muted/10"
+                isNoteTreated ? "bg-success hover:bg-success/80" : "border-muted-foreground hover:bg-muted/20"
               )}
               onClick={() => setIsNoteTreated(!isNoteTreated)}
             >
@@ -68,12 +66,12 @@ export const NoteContent: React.FC<NoteContentProps> = ({
         </div>
         
         {/* Contenu de la note */}
-        <div className={cn("text-foreground font-normal text-sm px-2 py-1")}>
+        <div className={cn("text-foreground font-medium text-sm px-2 py-1")}>
           <div dangerouslySetInnerHTML={{ __html: formattedNoteText }} />
         </div>
         
         {/* Pied de la note */}
-        <div className="flex justify-between items-center text-xs text-muted-foreground pt-2 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex justify-between items-center text-xs text-muted-foreground pt-2 border-t border-border/30">
           <div>
             Ajouté le {formattedDate}
           </div>
