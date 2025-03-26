@@ -2,7 +2,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Flag, ArrowUp } from 'lucide-react';
+import { Flag } from 'lucide-react';
 
 interface StockStatusBadgeProps {
   stock: number;
@@ -29,23 +29,13 @@ export const StockStatusBadge: React.FC<StockStatusBadgeProps> = ({ stock, thres
     statusText = 'Moyenne';
   }
   
-  // Les classes spécifiques en suivant la même logique que pour l'âge des produits
+  // Les classes spécifiques au style Supabase
   const baseClasses = "px-2.5 py-0.5 font-medium text-xs rounded-full transition-all backdrop-blur-sm flex items-center gap-1";
   
   const statusClasses = {
     low: "bg-green-900/30 text-green-400 border border-green-900/20",
     medium: "bg-yellow-900/30 text-yellow-400 border border-yellow-900/20",
     high: "bg-red-900/30 text-red-400 border border-red-900/20"
-  };
-
-  // Ajouter un icône approprié selon le niveau de priorité
-  const renderIcon = () => {
-    if (status === 'high') {
-      return <Flag className="h-3 w-3" />;
-    } else if (status === 'medium') {
-      return <ArrowUp className="h-3 w-3" />;
-    }
-    return null;
   };
 
   return (
@@ -56,7 +46,7 @@ export const StockStatusBadge: React.FC<StockStatusBadgeProps> = ({ stock, thres
         statusClasses[status]
       )}
     >
-      {renderIcon()}
+      {status === 'high' && <Flag className="h-3 w-3" />}
       {statusText}
     </Badge>
   );
