@@ -8,7 +8,7 @@ import { PriorityBadge } from './PriorityBadge';
 import { PriorityDialog } from './PriorityDialog';
 import { NoteContent } from './NoteContent';
 import { getDaysSinceAdded, getAgingColor, formatDate } from './utils/dateUtils';
-import { getNoteType } from './utils/noteUtils';
+import { getNoteType, getNoteIconInfo } from './utils/noteUtils';
 import { getPriorityStyles } from './utils/priorityUtils';
 
 interface ProductTableRowProps {
@@ -116,7 +116,10 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
                       )}
                       aria-label="Voir la note"
                     >
-                      {getNoteType(product.note) && getNoteIcon(getNoteType(product.note))}
+                      {(() => {
+                        const { icon: IconComponent, className } = getNoteIconInfo(getNoteType(product.note || ""));
+                        return <IconComponent className={className} />;
+                      })()}
                     </button>
                   ) : null}
                 </TableCell>

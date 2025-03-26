@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { CheckIcon, ClockIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { type NoteType, getNoteIcon, getNoteStyles, formatNoteText } from './utils/noteUtils';
+import { type NoteType, getNoteIconInfo, getNoteStyles, formatNoteText } from './utils/noteUtils';
 import { formatDate } from './utils/dateUtils';
 
 interface NoteContentProps {
@@ -20,7 +20,7 @@ export const NoteContent: React.FC<NoteContentProps> = ({
   const [isNoteTreated, setIsNoteTreated] = useState(false);
   
   const noteStyles = getNoteStyles(noteType);
-  const noteIcon = getNoteIcon(noteType);
+  const { icon: IconComponent, className: iconClassName } = getNoteIconInfo(noteType);
   const formattedNoteText = formatNoteText(noteText);
   const formattedDate = formatDate(createdAt);
 
@@ -34,7 +34,7 @@ export const NoteContent: React.FC<NoteContentProps> = ({
         {/* En-tête de la note */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {noteIcon}
+            <IconComponent className={iconClassName} />
             <span className={cn("font-bold text-sm uppercase tracking-wider", `text-${noteStyles.text}`)}>
               {noteType === "warning" ? "Attention Requise" : 
                noteType === "success" ? "Traité & Validé" : 

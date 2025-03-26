@@ -20,18 +20,24 @@ export const getNoteType = (noteText: string): NoteType => {
   }
 };
 
+// Define NoteIcon type to store icon information
+export type NoteIconInfo = {
+  icon: typeof AlertTriangle | typeof CheckCircle | typeof Clock | typeof InfoIcon;
+  className: string;
+};
+
 // Obtenir l'icône de la note en fonction de son type
-export const getNoteIcon = (type: NoteType) => {
+export const getNoteIconInfo = (type: NoteType): NoteIconInfo => {
   switch (type) {
     case "warning":
-      return <AlertTriangle className="h-5 w-5 text-warning" />;
+      return { icon: AlertTriangle, className: "h-5 w-5 text-warning" };
     case "success":
-      return <CheckCircle className="h-5 w-5 text-success" />;
+      return { icon: CheckCircle, className: "h-5 w-5 text-success" };
     case "pending":
-      return <Clock className="h-5 w-5 text-info" />;
+      return { icon: Clock, className: "h-5 w-5 text-info" };
     case "info":
     default:
-      return <InfoIcon className="h-5 w-5 text-info" />;
+      return { icon: InfoIcon, className: "h-5 w-5 text-info" };
   }
 };
 
