@@ -1,21 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { ChevronRight, Save, Sparkles } from "lucide-react";
-
-interface BudgetSettings {
-  id: string;
-  total_budget: number;
-  deposit_percentage: number;
-  notes: string | null;
-}
+import { useBudgetSettings } from "@/hooks/useBudgetSettings";
 
 interface BudgetSettingsPanelProps {
   totalOrderAmount: number;
@@ -26,101 +18,50 @@ const BudgetSettingsPanel: React.FC<BudgetSettingsPanelProps> = ({
   totalOrderAmount,
   onCreateOrder
 }) => {
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
-  const [settings, setSettings] = useState<BudgetSettings>({
-    id: '',
-    total_budget: 300000,
-    deposit_percentage: 50,
-    notes: ''
-  });
-  const [isSaving, setIsSaving] = useState(false);
+  const { 
+    budgetSettings, 
+    isLoading,
+    updateBudgetSettings
+  } = useBudgetSettings();
 
-  // Fetch budget settings from Supabase
-  useEffect(() => {
-    const fetchBudgetSettings = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('budget_settings')
-          .select('*')
-          .limit(1)
-          .single();
-          
-        if (error) {
-          console.error('Error fetching budget settings:', error);
-          throw error;
-        }
-        
-        if (data) {
-          setSettings(data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch budget settings:', err);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les paramètres budgétaires.",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // Handle form input changes
+  const handleSettingChange = (field: string, value: string | number) => {
+    if (!budgetSettings) return;
     
-    fetchBudgetSettings();
-  }, [toast]);
-
-  // Handle saving budget settings
-  const handleSaveSettings = async () => {
-    setIsSaving(true);
+    const updates: any = { ...budgetSettings };
+    updates[field] = value;
     
-    try {
-      const { error } = await supabase
-        .from('budget_settings')
-        .update({
-          total_budget: settings.total_budget,
-          deposit_percentage: settings.deposit_percentage,
-          notes: settings.notes
-        })
-        .eq('id', settings.id);
-        
-      if (error) throw error;
-      
-      toast({
-        title: "Paramètres enregistrés",
-        description: "Les paramètres budgétaires ont été mis à jour avec succès."
-      });
-    } catch (err) {
-      console.error('Error saving budget settings:', err);
-      toast({
-        title: "Erreur",
-        description: "Impossible d'enregistrer les paramètres budgétaires.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSaving(false);
-    }
+    updateBudgetSettings.mutate(updates);
   };
 
   // Calculate budget metrics
-  const depositAmount = totalOrderAmount * (settings.deposit_percentage / 100);
-  const remainingBudget = settings.total_budget - totalOrderAmount;
-  const budgetPercentage = (totalOrderAmount / settings.total_budget) * 100;
+  const depositAmount = budgetSettings ? totalOrderAmount * (budgetSettings.deposit_percentage / 100) : 0;
+  const remainingBudget = budgetSettings ? budgetSettings.total_budget - totalOrderAmount : 0;
+  const budgetPercentage = budgetSettings ? (totalOrderAmount / budgetSettings.total_budget) * 100 : 0;
+
+  if (isLoading) {
+    return (
+      <Card className="border border-[#272727] bg-[#161616] shadow-sm">
+        <CardContent className="p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-[#272727] rounded w-1/2"></div>
+            <div className="h-10 bg-[#272727] rounded"></div>
+            <div className="h-10 bg-[#272727] rounded"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-[#272727] rounded w-full"></div>
+              <div className="h-4 bg-[#272727] rounded w-3/4"></div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="border border-[#272727] bg-[#161616] shadow-sm">
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-medium flex items-center justify-between">
           <span>Résumé Budgétaire</span>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-8"
-            onClick={handleSaveSettings}
-            disabled={isSaving}
-          >
-            <Save className="h-3.5 w-3.5 mr-1" />
-            Enregistrer
-          </Button>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -133,8 +74,8 @@ const BudgetSettingsPanel: React.FC<BudgetSettingsPanelProps> = ({
             <Input
               id="budget"
               type="number"
-              value={settings.total_budget}
-              onChange={(e) => setSettings({...settings, total_budget: parseFloat(e.target.value) || 0})}
+              value={budgetSettings?.total_budget || 0}
+              onChange={(e) => handleSettingChange('total_budget', parseFloat(e.target.value) || 0)}
               className="bg-[#1A1A1A]"
             />
             <span className="text-sm">€</span>
@@ -150,8 +91,8 @@ const BudgetSettingsPanel: React.FC<BudgetSettingsPanelProps> = ({
             <Input
               id="deposit"
               type="number"
-              value={settings.deposit_percentage}
-              onChange={(e) => setSettings({...settings, deposit_percentage: parseFloat(e.target.value) || 0})}
+              value={budgetSettings?.deposit_percentage || 0}
+              onChange={(e) => handleSettingChange('deposit_percentage', parseFloat(e.target.value) || 0)}
               min="0"
               max="100"
               className="bg-[#1A1A1A]"
@@ -168,7 +109,7 @@ const BudgetSettingsPanel: React.FC<BudgetSettingsPanelProps> = ({
           </div>
           
           <div className="flex justify-between text-sm border-b border-[#272727] pb-1">
-            <span className="text-gray-400">TOTAL DÉPÔT ({settings.deposit_percentage}%)</span>
+            <span className="text-gray-400">TOTAL DÉPÔT ({budgetSettings?.deposit_percentage || 0}%)</span>
             <span className="font-medium">{depositAmount.toLocaleString()} €</span>
           </div>
           
@@ -195,8 +136,8 @@ const BudgetSettingsPanel: React.FC<BudgetSettingsPanelProps> = ({
           </Label>
           <Textarea
             id="notes"
-            value={settings.notes || ''}
-            onChange={(e) => setSettings({...settings, notes: e.target.value})}
+            value={budgetSettings?.notes || ''}
+            onChange={(e) => handleSettingChange('notes', e.target.value)}
             placeholder="Ajoutez des notes concernant le budget..."
             className="mt-1 h-24 bg-[#1A1A1A]"
           />

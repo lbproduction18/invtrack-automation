@@ -244,6 +244,45 @@ export type Database = {
           },
         ]
       }
+      product_prices: {
+        Row: {
+          created_at: string | null
+          id: string
+          price_1000: number | null
+          price_2000: number | null
+          price_3000: number | null
+          price_4000: number | null
+          price_5000: number | null
+          price_8000: number | null
+          product_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          price_1000?: number | null
+          price_2000?: number | null
+          price_3000?: number | null
+          price_4000?: number | null
+          price_5000?: number | null
+          price_8000?: number | null
+          product_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          price_1000?: number | null
+          price_2000?: number | null
+          price_3000?: number | null
+          price_4000?: number | null
+          price_5000?: number | null
+          price_8000?: number | null
+          product_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       suppliers: {
         Row: {
           address: string | null
