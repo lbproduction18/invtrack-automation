@@ -62,6 +62,24 @@ export type Database = {
           },
         ]
       }
+      low_stock_last_updated: {
+        Row: {
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           actual_delivery_date: string | null
