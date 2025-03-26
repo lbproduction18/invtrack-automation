@@ -32,26 +32,26 @@ const Sidebar: React.FC = () => {
   return (
     <aside 
       className={cn(
-        "bg-sidebar h-screen transition-all duration-300 ease-in-out overflow-y-auto overflow-x-hidden border-r border-sidebar-border backdrop-blur-sm",
+        "bg-[#0F0F0F] h-screen transition-all duration-300 ease-in-out overflow-y-auto overflow-x-hidden border-r border-[#272727]",
         collapsed ? "w-[70px]" : "w-[240px]"
       )}
     >
-      <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
+      <div className="flex items-center justify-between p-4 border-b border-[#272727]">
         <div className={cn("flex items-center", collapsed && "justify-center w-full")}>
           <div className="flex-shrink-0">
-            <div className="h-8 w-8 rounded-md flex items-center justify-center text-sidebar-primary-foreground font-bold bg-sidebar-primary/90">
+            <div className="h-8 w-8 rounded-md flex items-center justify-center text-white font-bold bg-[#3ECF8E]">
               IM
             </div>
           </div>
           {!collapsed && (
-            <span className="text-lg font-medium ml-2 text-sidebar-foreground">InvTrack</span>
+            <span className="text-lg font-medium ml-2 text-white">InvTrack</span>
           )}
         </div>
         <Button 
           variant="ghost" 
           size="sm"
           className={cn(
-            "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground p-1 h-auto",
+            "text-gray-400 hover:bg-[#272727] hover:text-white p-1 h-auto",
             collapsed && "hidden"
           )}
           onClick={() => setCollapsed(true)}
@@ -62,7 +62,7 @@ const Sidebar: React.FC = () => {
           variant="ghost" 
           size="sm"
           className={cn(
-            "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground p-1 h-auto",
+            "text-gray-400 hover:bg-[#272727] hover:text-white p-1 h-auto",
             !collapsed && "hidden"
           )}
           onClick={() => setCollapsed(false)}
@@ -79,10 +79,10 @@ const Sidebar: React.FC = () => {
                 to={link.path}
                 className={({ isActive }) => 
                   cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground transition-colors",
+                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm text-gray-300 transition-colors",
                     isActive 
-                      ? "bg-sidebar-primary/90 text-sidebar-primary-foreground font-medium" 
-                      : "hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground",
+                      ? "bg-[#3ECF8E] text-white font-medium" 
+                      : "hover:bg-[#272727] hover:text-white",
                     collapsed && "justify-center px-2"
                   )
                 }
@@ -95,19 +95,19 @@ const Sidebar: React.FC = () => {
         </ul>
       </nav>
 
-      <div className="p-4 border-t border-sidebar-border">
+      <div className="p-4 border-t border-[#272727]">
         <div className={cn(
-          "rounded-md bg-sidebar-accent/50 backdrop-blur-sm p-3",
+          "rounded-md bg-[#161616] p-3",
           collapsed ? "text-center" : "text-left"
         )}>
           {collapsed ? (
             <div className="flex flex-col items-center">
-              <ShoppingCart className="h-5 w-5 text-sidebar-primary" />
+              <ShoppingCart className="h-5 w-5 text-[#3ECF8E]" />
             </div>
           ) : (
             <>
-              <h4 className="text-sm font-medium text-sidebar-accent-foreground">Pro Version</h4>
-              <p className="text-xs mt-1 text-sidebar-foreground opacity-70">
+              <h4 className="text-sm font-medium text-white">Pro Version</h4>
+              <p className="text-xs mt-1 text-gray-400">
                 Upgrade for AI recommendations and advanced analytics
               </p>
             </>

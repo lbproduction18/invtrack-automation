@@ -25,9 +25,9 @@ export const StockStatusBadge: React.FC<StockStatusBadgeProps> = ({ stock, thres
   const baseClasses = "px-2.5 py-0.5 font-medium text-xs rounded-full transition-all backdrop-blur-sm";
   
   const statusClasses = {
-    success: "bg-success/10 text-success border border-success/20 hover:bg-success/15",
-    warning: "bg-warning/10 text-warning border border-warning/20 hover:bg-warning/15",
-    danger: "bg-danger/10 text-danger border border-danger/20 hover:bg-danger/15"
+    success: "bg-green-900/30 text-green-400 border border-green-900/20",
+    warning: "bg-yellow-900/30 text-yellow-400 border border-yellow-900/20",
+    danger: "bg-red-900/30 text-red-400 border border-red-900/20"
   };
 
   return (
