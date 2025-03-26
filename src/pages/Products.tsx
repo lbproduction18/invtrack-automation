@@ -8,7 +8,8 @@ import {
   MoreHorizontal,
   Pencil,
   Trash2,
-  ArrowDown
+  ArrowDown,
+  Loader2
 } from 'lucide-react';
 import { 
   Card, 
@@ -44,6 +45,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 // Type pour les produits
@@ -87,57 +89,52 @@ const StockStatusBadge: React.FC<{ stock: number; threshold: number }> = ({ stoc
 };
 
 const Products: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [stockFilter, setStockFilter] = useState<string>('all');
   const { toast } = useToast();
 
-  // Récupération des produits depuis Supabase
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
+  // Fetch products using react-query
+  const { data: products = [], isLoading, error } = useQuery({
+    queryKey: ['products'],
+    queryFn: async () => {
+      console.log('Fetching products from Supabase...');
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+          suppliers:supplier_id (name)
+        `)
+        .order('name');
         
-        // Requête pour obtenir les produits avec le nom du fournisseur
-        const { data, error } = await supabase
-          .from('products')
-          .select(`
-            *,
-            suppliers:supplier_id (name)
-          `)
-          .order('name');
-        
-        if (error) {
-          throw error;
-        }
-        
-        // Transformation des données pour inclure les informations du fournisseur
-        const productsWithSuppliers = data.map((product: any) => ({
-          ...product,
-          supplier_name: product.suppliers?.name || 'Fournisseur inconnu'
-        }));
-        
-        setProducts(productsWithSuppliers);
-        
-        console.log('Products fetched:', productsWithSuppliers);
-      } catch (error: any) {
-        console.error('Erreur lors de la récupération des produits:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les produits. Veuillez réessayer.",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
+      if (error) {
+        console.error('Error fetching products:', error);
+        throw error;
       }
-    };
-    
-    fetchProducts();
-  }, [toast]);
+      
+      console.log('Products fetched:', data);
+      
+      // Transform data to include supplier name
+      return data.map((product: any) => ({
+        ...product,
+        supplier_name: product.suppliers?.name || 'Fournisseur inconnu'
+      }));
+    },
+    refetchOnWindowFocus: false
+  });
+
+  useEffect(() => {
+    if (error) {
+      console.error('Error in products query:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les produits. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    }
+  }, [error, toast]);
 
   // Filtrer les produits en fonction de la recherche et du filtre de stock
-  const filteredProducts = products.filter(product => {
+  const filteredProducts = products.filter((product: Product) => {
     const matchesSearch = 
       searchQuery === '' || 
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -231,11 +228,11 @@ const Products: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loading ? (
+                {isLoading ? (
                   <TableRow>
                     <TableCell colSpan={8} className="h-24 text-center">
                       <div className="flex flex-col items-center justify-center">
-                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
                         <p className="mt-2 text-sm text-muted-foreground">Chargement des produits...</p>
                       </div>
                     </TableCell>
@@ -246,12 +243,12 @@ const Products: React.FC = () => {
                       <div className="flex flex-col items-center justify-center text-muted-foreground">
                         <Package className="h-8 w-8 mb-2 opacity-50" />
                         <p>Aucun produit trouvé</p>
-                        <p className="text-sm">Essayez d'ajuster votre recherche ou vos filtres</p>
+                        <p className="text-sm">Essayez d'ajuster votre recherche ou vos filtres, ou ajoutez des produits à la base de données</p>
                       </div>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredProducts.map((product) => (
+                  filteredProducts.map((product: Product) => (
                     <TableRow key={product.id} className="table-row-glass">
                       <TableCell className="font-medium">{product.product_id}</TableCell>
                       <TableCell>{product.name}</TableCell>
@@ -282,7 +279,7 @@ const Products: React.FC = () => {
                               Ajuster le stock
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-danger">
+                            <DropdownMenuItem className="text-destructive">
                               <Trash2 className="mr-2 h-4 w-4" />
                               Supprimer
                             </DropdownMenuItem>
@@ -301,13 +298,13 @@ const Products: React.FC = () => {
               Affichage de {filteredProducts.length} sur {products.length} produits
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" disabled={loading || products.length === 0}>
+              <Button variant="outline" size="sm" disabled={isLoading || products.length === 0}>
                 Précédent
               </Button>
               <Button variant="outline" size="sm" className="bg-primary/10">
                 1
               </Button>
-              <Button variant="outline" size="sm" disabled={loading || products.length === 0}>
+              <Button variant="outline" size="sm" disabled={isLoading || products.length === 0}>
                 Suivant
               </Button>
             </div>
