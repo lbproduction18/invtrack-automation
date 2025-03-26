@@ -55,7 +55,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
     <>
       <TableRow className={cn(
         "bg-transparent transition-colors", 
-        hasNote ? "hover:bg-warning/10" : "hover:bg-muted/30",
+        hasNote ? "bg-warning/10 hover:bg-warning/20" : "hover:bg-muted/30",
         hasNote && "border-l-4 border-l-warning"
       )}>
         {sortedColumns.map(column => {
