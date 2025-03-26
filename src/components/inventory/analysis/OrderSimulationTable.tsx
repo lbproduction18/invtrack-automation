@@ -15,6 +15,8 @@ import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { useProducts } from '@/hooks/useProducts';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { useProductPrices } from '@/hooks/useProductPrices';
+import { InfoIcon } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface OrderSimulationTableProps {
   selectedQuantities: Record<string, QuantityOption>;
@@ -154,9 +156,21 @@ const OrderSimulationTable: React.FC<OrderSimulationTableProps> = ({
                       
                       return (
                         <TableCell key={qty} className="text-center">
-                          {price ? `${price.toLocaleString()} $` : 
-                            <span title="Prix non disponible" className="text-gray-500">-</span>
-                          }
+                          {price ? `${price.toLocaleString()} $` : (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="text-gray-500 cursor-help inline-flex items-center">
+                                    -
+                                    <InfoIcon className="h-3 w-3 ml-1 opacity-50" />
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Prix non disponible</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
                         </TableCell>
                       );
                     })}
@@ -164,7 +178,7 @@ const OrderSimulationTable: React.FC<OrderSimulationTableProps> = ({
                     {/* Quantity selector */}
                     <TableCell>
                       <Select
-                        value={selectedQty?.toString() || undefined}
+                        value={selectedQty?.toString() || ""}
                         onValueChange={(value) => {
                           if (value) {
                             onQuantityChange(product.id, parseInt(value) as QuantityOption);

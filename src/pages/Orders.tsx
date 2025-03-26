@@ -42,9 +42,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 
 // Définition du type pour les données des commandes
 type Order = {
@@ -103,14 +102,13 @@ const Orders: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const { toast } = useToast();
 
-  // Fetch orders using react-query
+  // Fetch orders using react-query with mock data
   const { data: orders = [], isLoading: loading, error } = useQuery({
     queryKey: ['orders'],
     queryFn: async () => {
-      console.log('Fetching orders from Supabase...');
+      console.log('Fetching orders (mock data)...');
       
-      // Mock orders data until we have an actual orders table
-      // In a real implementation, this would query the actual orders table
+      // Mock orders data
       const mockOrders: Order[] = [
         {
           id: '1',
@@ -250,7 +248,7 @@ const Orders: React.FC = () => {
                   <TableHead>Fournisseur</TableHead>
                   <TableHead className="text-right">Articles</TableHead>
                   <TableHead className="text-right">Montant</TableHead>
-                  <TableHead className="text-right">Statut</TableHead>
+                  <TableHead className="text-center">Statut</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -282,7 +280,7 @@ const Orders: React.FC = () => {
                       <TableCell>{order.supplier_name}</TableCell>
                       <TableCell className="text-right">{order.items_count}</TableCell>
                       <TableCell className="text-right">{order.total_amount} $ CAD</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         <StatusBadge status={order.status} />
                       </TableCell>
                       <TableCell className="text-right">
