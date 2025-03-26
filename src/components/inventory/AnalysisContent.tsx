@@ -1,12 +1,15 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductDetailsTable from './analysis/ProductDetailsTable';
 import ProductSummary from './analysis/ProductSummary';
 import ProductDetailsDrawer from './analysis/ProductDetailsDrawer';
-import BudgetSimulation from './analysis/BudgetSimulation';
+import BudgetSettingsPanel from './analysis/BudgetSettingsPanel';
+import OrderSimulationTable from './analysis/OrderSimulationTable';
 import { useProducts } from '@/hooks/useProducts';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { type Product } from '@/types/product';
+import { Button } from '@/components/ui/button';
+import { Sparkles } from 'lucide-react';
 
 // Define QuantityOption type consistently in this file
 export type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000 | 8000;
@@ -78,25 +81,58 @@ export const AnalysisContent: React.FC = () => {
     // Implement order creation logic
   };
 
+  // AI optimization function
+  const handleAIOptimize = () => {
+    console.log('Optimize with AI');
+    // Will be implemented later
+  };
+
   return (
     <div className="space-y-6 p-4">
-      {/* Budget Simulation Component */}
-      <BudgetSimulation onCreateOrder={handleCreateOrder} />
+      {/* Budget Settings Panel - Now at the top */}
+      <div className="mb-8">
+        <BudgetSettingsPanel 
+          totalOrderAmount={totalOrderAmount}
+          onCreateOrder={handleCreateOrder}
+        />
+      </div>
       
+      {/* Order Simulation Table */}
+      <div className="mb-8">
+        <OrderSimulationTable 
+          selectedQuantities={selectedQuantities}
+          onQuantityChange={handleQuantityChange}
+          onSimulationTotalChange={setTotalOrderAmount}
+        />
+      </div>
+      
+      {/* AI Optimization Button */}
+      <div className="flex justify-end mb-8">
+        <Button 
+          variant="outline" 
+          className="flex items-center gap-2"
+          onClick={handleAIOptimize}
+        >
+          <Sparkles className="h-4 w-4" />
+          Optimiser avec l'IA
+        </Button>
+      </div>
+      
+      {/* Product Details Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <ProductDetailsTable 
-            products={analysisProducts as any}
+            products={analysisProducts}
             isLoading={false}
             onQuantityChange={handleQuantityChange}
-            getTotalPrice={getTotalPrice as any}
+            getTotalPrice={getTotalPrice}
             onShowDetails={handleShowDetails}
           />
         </div>
         
         <div className="lg:col-span-1">
           <ProductSummary 
-            products={analysisProducts as any}
+            products={analysisProducts}
             isLoading={false}
             onShowDetails={handleShowDetails}
           />
@@ -125,7 +161,7 @@ export const AnalysisContent: React.FC = () => {
             console.log('Update product:', productId, updates);
             // Implement product update logic
           }}
-          getTotalPrice={getTotalPrice as any}
+          getTotalPrice={getTotalPrice}
           onCreateOrder={handleCreateOrder}
         />
       )}

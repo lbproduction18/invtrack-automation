@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import React, { useState, useEffect } from 'react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Info } from "lucide-react";
+import { Info, FileDown } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 import { useProductPrices, type ProductPrice } from '@/hooks/useProductPrices';
 
 // Quantity options
@@ -21,6 +22,7 @@ const OrderSimulationTable: React.FC<OrderSimulationTableProps> = ({
   onSimulationTotalChange
 }) => {
   const { productPrices, isLoading } = useProductPrices();
+  const [trancheTotals, setTrancheTotals] = useState<Record<number, number>>({});
   
   // Filter out products with no price data
   const validProducts = productPrices.filter(product => 
@@ -68,8 +70,25 @@ const OrderSimulationTable: React.FC<OrderSimulationTableProps> = ({
     return ((highestPricePerUnit - selectedPrice) / highestPricePerUnit * 100);
   };
 
+  // Calculate the total for each quantity tranche
+  useEffect(() => {
+    const trancheAmounts: Record<number, number> = {};
+    
+    quantityOptions.forEach(qty => {
+      const total = validProducts.reduce((sum, product) => {
+        const priceKey = `price_${qty}` as keyof ProductPrice;
+        const price = product[priceKey] as number | null;
+        return sum + (price ? price * qty : 0);
+      }, 0);
+      
+      trancheAmounts[qty] = total;
+    });
+    
+    setTrancheTotals(trancheAmounts);
+  }, [validProducts]);
+
   // Calculate the total order amount
-  React.useEffect(() => {
+  useEffect(() => {
     const total = validProducts.reduce((sum, product) => {
       const qty = selectedQuantities[product.product_name] || 0;
       return sum + calculateProductTotal(product, qty);
@@ -77,6 +96,66 @@ const OrderSimulationTable: React.FC<OrderSimulationTableProps> = ({
     
     onSimulationTotalChange(total);
   }, [selectedQuantities, validProducts, onSimulationTotalChange]);
+
+  // Export data to CSV
+  const handleExportCSV = () => {
+    const headers = [
+      'Produit', 
+      'Prix 1000', 
+      'Prix 2000', 
+      'Prix 3000', 
+      'Prix 4000', 
+      'Prix 5000', 
+      'Prix 8000', 
+      'Quantité choisie', 
+      'Total'
+    ];
+    
+    const rows = validProducts.map(product => {
+      const selectedQty = selectedQuantities[product.product_name] || 0;
+      const total = calculateProductTotal(product, selectedQty);
+      
+      return [
+        product.product_name,
+        product.price_1000 || '',
+        product.price_2000 || '',
+        product.price_3000 || '',
+        product.price_4000 || '',
+        product.price_5000 || '',
+        product.price_8000 || '',
+        selectedQty || '',
+        total || ''
+      ];
+    });
+    
+    // Add total row
+    rows.push([
+      'TOTAL',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      validProducts.reduce((sum, product) => {
+        const qty = selectedQuantities[product.product_name] || 0;
+        return sum + calculateProductTotal(product, qty);
+      }, 0)
+    ]);
+    
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'simulation-commande.csv');
+    a.click();
+  };
 
   if (isLoading) {
     return (
@@ -91,94 +170,204 @@ const OrderSimulationTable: React.FC<OrderSimulationTableProps> = ({
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
-      <Table className="w-full">
-        <TableHeader className="bg-[#1E1E1E]">
-          <TableRow>
-            <TableHead className="w-[250px] text-left pl-4">Produit</TableHead>
-            <TableHead className="text-center">Prix 1000</TableHead>
-            <TableHead className="text-center">Prix 2000</TableHead>
-            <TableHead className="text-center">Prix 3000</TableHead>
-            <TableHead className="text-center">Prix 4000</TableHead>
-            <TableHead className="text-center">Prix 5000</TableHead>
-            <TableHead className="text-center">Prix 8000</TableHead>
-            <TableHead className="text-center">Quantité choisie</TableHead>
-            <TableHead className="text-center">Total</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {validProducts.map((product) => {
-            const selectedQty = selectedQuantities[product.product_name] || 0;
-            const total = calculateProductTotal(product, selectedQty);
-            const savings = calculateSavings(product, selectedQty);
-            
-            return (
-              <TableRow key={product.id} className="border-b border-[#272727]">
-                <TableCell className="pl-4 py-3 font-medium">
-                  <div className="flex items-center">
-                    {product.product_name}
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-medium">Grille de Simulation</h2>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="flex items-center gap-2"
+          onClick={handleExportCSV}
+        >
+          <FileDown className="h-4 w-4" />
+          Exporter CSV
+        </Button>
+      </div>
+      
+      <div className="overflow-x-auto rounded-lg border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
+        <Table className="w-full">
+          <TableHeader className="bg-[#1E1E1E] sticky top-0 z-10">
+            <TableRow>
+              <TableHead className="w-[250px] text-left pl-4">Produit (sans saveur)</TableHead>
+              <TableHead className="text-right">Prix 1000</TableHead>
+              <TableHead className="text-right">Prix 2000</TableHead>
+              <TableHead className="text-right">Prix 3000</TableHead>
+              <TableHead className="text-right">Prix 4000</TableHead>
+              <TableHead className="text-right">Prix 5000</TableHead>
+              <TableHead className="text-right">Prix 8000</TableHead>
+              <TableHead className="text-center">Quantité choisie</TableHead>
+              <TableHead className="text-right pr-4">Total $ CAD</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {validProducts.map((product) => {
+              const selectedQty = selectedQuantities[product.product_name] || 0;
+              const total = calculateProductTotal(product, selectedQty);
+              const savings = calculateSavings(product, selectedQty);
+              
+              return (
+                <TableRow key={product.id} className="border-b border-[#272727]">
+                  <TableCell className="pl-4 py-3 font-medium">
+                    <div className="flex items-center">
+                      {product.product_name}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Info className="h-4 w-4 text-gray-400 ml-2" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <div className="space-y-1 max-w-xs">
+                              <p className="text-xs font-semibold">Détails du produit</p>
+                              <p className="text-xs">ID: {product.id}</p>
+                              <p className="text-xs">Prix par unité (1000): {product.price_1000 || 'N/A'} $ CAD</p>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger>
-                          <Info className="h-4 w-4 text-gray-400 ml-2" />
+                        <TooltipTrigger className="w-full text-right">
+                          {product.price_1000 ? `${product.price_1000} $` : '-'}
                         </TooltipTrigger>
-                        <TooltipContent>
-                          <div className="space-y-1 max-w-xs">
-                            <p className="text-xs font-semibold">Détails du produit</p>
-                            <p className="text-xs">ID: {product.id}</p>
-                            <p className="text-xs">Prix par unité (1000): {product.price_1000 || 'N/A'} €</p>
-                          </div>
-                        </TooltipContent>
+                        {!product.price_1000 && (
+                          <TooltipContent>
+                            <p className="text-xs">Prix non disponible pour cette quantité</p>
+                          </TooltipContent>
+                        )}
                       </Tooltip>
                     </TooltipProvider>
-                  </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="w-full text-right">
+                          {product.price_2000 ? `${product.price_2000} $` : '-'}
+                        </TooltipTrigger>
+                        {!product.price_2000 && (
+                          <TooltipContent>
+                            <p className="text-xs">Prix non disponible pour cette quantité</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="w-full text-right">
+                          {product.price_3000 ? `${product.price_3000} $` : '-'}
+                        </TooltipTrigger>
+                        {!product.price_3000 && (
+                          <TooltipContent>
+                            <p className="text-xs">Prix non disponible pour cette quantité</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="w-full text-right">
+                          {product.price_4000 ? `${product.price_4000} $` : '-'}
+                        </TooltipTrigger>
+                        {!product.price_4000 && (
+                          <TooltipContent>
+                            <p className="text-xs">Prix non disponible pour cette quantité</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="w-full text-right">
+                          {product.price_5000 ? `${product.price_5000} $` : '-'}
+                        </TooltipTrigger>
+                        {!product.price_5000 && (
+                          <TooltipContent>
+                            <p className="text-xs">Prix non disponible pour cette quantité</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="w-full text-right">
+                          {product.price_8000 ? `${product.price_8000} $` : '-'}
+                        </TooltipTrigger>
+                        {!product.price_8000 && (
+                          <TooltipContent>
+                            <p className="text-xs">Prix non disponible pour cette quantité</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell className="text-center py-3">
+                    <Select
+                      value={selectedQty === 0 ? "" : selectedQty.toString()}
+                      onValueChange={(value) => onQuantityChange(product.product_name, parseInt(value, 10) || 0)}
+                    >
+                      <SelectTrigger className="w-24 mx-auto">
+                        <SelectValue placeholder="Quantité" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">0</SelectItem>
+                        {quantityOptions.map((qty) => {
+                          const priceKey = `price_${qty}` as keyof ProductPrice;
+                          const hasPrice = product[priceKey] !== null;
+                          
+                          if (!hasPrice) return null;
+                          
+                          return (
+                            <SelectItem key={qty} value={qty.toString()}>
+                              {qty}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell className="text-right py-3 pr-4">
+                    <div>
+                      <span className="font-semibold">{total.toLocaleString()} $</span>
+                      {savings > 0 && (
+                        <div className="text-[#3ECF8E] text-xs font-medium">
+                          Économie: {savings.toFixed(1)}%
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+          <TableFooter className="bg-[#161616]">
+            <TableRow>
+              <TableCell className="pl-4 font-medium">Total par tranche</TableCell>
+              {quantityOptions.map(qty => (
+                <TableCell key={qty} className="text-right font-medium">
+                  {trancheTotals[qty]?.toLocaleString()} $
                 </TableCell>
-                <TableCell className="text-center">{product.price_1000 ? `${product.price_1000} €` : '-'}</TableCell>
-                <TableCell className="text-center">{product.price_2000 ? `${product.price_2000} €` : '-'}</TableCell>
-                <TableCell className="text-center">{product.price_3000 ? `${product.price_3000} €` : '-'}</TableCell>
-                <TableCell className="text-center">{product.price_4000 ? `${product.price_4000} €` : '-'}</TableCell>
-                <TableCell className="text-center">{product.price_5000 ? `${product.price_5000} €` : '-'}</TableCell>
-                <TableCell className="text-center">{product.price_8000 ? `${product.price_8000} €` : '-'}</TableCell>
-                <TableCell className="text-center py-3">
-                  <Select
-                    value={selectedQty === 0 ? undefined : selectedQty.toString()}
-                    onValueChange={(value) => onQuantityChange(product.product_name, parseInt(value, 10) || 0)}
-                  >
-                    <SelectTrigger className="w-24 mx-auto">
-                      <SelectValue placeholder="Quantité" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0">0</SelectItem>
-                      {quantityOptions.map((qty) => {
-                        const priceKey = `price_${qty}` as keyof ProductPrice;
-                        const hasPrice = product[priceKey] !== null;
-                        
-                        if (!hasPrice) return null;
-                        
-                        return (
-                          <SelectItem key={qty} value={qty.toString()}>
-                            {qty}
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell className="text-center py-3">
-                  <div>
-                    <span className="font-semibold">{total.toLocaleString()} €</span>
-                    {savings > 0 && (
-                      <div className="text-[#3ECF8E] text-xs font-medium">
-                        Économie: {savings.toFixed(1)}%
-                      </div>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+              ))}
+              <TableCell></TableCell>
+              <TableCell className="text-right pr-4 font-bold text-lg">
+                {validProducts.reduce((sum, product) => {
+                  const qty = selectedQuantities[product.product_name] || 0;
+                  return sum + calculateProductTotal(product, qty);
+                }, 0).toLocaleString()} $
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        </Table>
+      </div>
     </div>
   );
 };

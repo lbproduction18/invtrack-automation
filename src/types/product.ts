@@ -21,4 +21,3 @@ export type Product = {
   estimated_delivery_date?: string | null;
   status?: string;
 };
-

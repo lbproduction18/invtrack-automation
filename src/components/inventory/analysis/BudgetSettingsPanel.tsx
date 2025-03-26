@@ -41,7 +41,7 @@ const BudgetSettingsPanel: React.FC<BudgetSettingsPanelProps> = ({
 
   if (isLoading) {
     return (
-      <Card className="border border-[#272727] bg-[#161616] shadow-sm">
+      <Card className="border border-[#272727] bg-[#161616] shadow-md">
         <CardContent className="p-6">
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-[#272727] rounded w-1/2"></div>
@@ -58,110 +58,103 @@ const BudgetSettingsPanel: React.FC<BudgetSettingsPanelProps> = ({
   }
 
   return (
-    <Card className="border border-[#272727] bg-[#161616] shadow-sm">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base font-medium flex items-center justify-between">
-          <span>Résumé Budgétaire</span>
-        </CardTitle>
+    <Card className="border border-[#272727] bg-[#1A1A1A] shadow-md">
+      <CardHeader className="pb-2 border-b border-[#272727]">
+        <CardTitle className="text-lg font-medium">Résumé Budgétaire</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Budget Input */}
-        <div>
-          <Label htmlFor="budget" className="text-sm text-gray-400">
-            BUDGET POUR LE BON DE COMMANDE
-          </Label>
-          <div className="flex items-center gap-2 mt-1">
-            <Input
-              id="budget"
-              type="number"
-              value={budgetSettings?.total_budget || 0}
-              onChange={(e) => handleSettingChange('total_budget', parseFloat(e.target.value) || 0)}
-              className="bg-[#1A1A1A]"
-            />
-            <span className="text-sm">€</span>
-          </div>
-        </div>
-        
-        {/* Deposit Percentage */}
-        <div>
-          <Label htmlFor="deposit" className="text-sm text-gray-400">
-            POURCENTAGE DU DÉPÔT
-          </Label>
-          <div className="flex items-center gap-2 mt-1">
-            <Input
-              id="deposit"
-              type="number"
-              value={budgetSettings?.deposit_percentage || 0}
-              onChange={(e) => handleSettingChange('deposit_percentage', parseFloat(e.target.value) || 0)}
-              min="0"
-              max="100"
-              className="bg-[#1A1A1A]"
-            />
-            <span className="text-sm">%</span>
-          </div>
-        </div>
-        
-        {/* Budget Summary */}
-        <div className="space-y-2 pt-2">
-          <div className="flex justify-between text-sm border-b border-[#272727] pb-1">
-            <span className="text-gray-400">TOTAL DU BON DE COMMANDE</span>
-            <span className="font-medium">{totalOrderAmount.toLocaleString()} €</span>
-          </div>
-          
-          <div className="flex justify-between text-sm border-b border-[#272727] pb-1">
-            <span className="text-gray-400">TOTAL DÉPÔT ({budgetSettings?.deposit_percentage || 0}%)</span>
-            <span className="font-medium">{depositAmount.toLocaleString()} €</span>
-          </div>
-          
-          <div className="flex justify-between text-sm border-b border-[#272727] pb-1">
-            <span className="text-gray-400">BUDGET CASH RESTANT</span>
-            <span className={`font-medium ${remainingBudget < 0 ? 'text-red-400' : ''}`}>
-              {remainingBudget.toLocaleString()} €
-            </span>
-          </div>
-          
-          <div className="text-sm pb-1">
-            <div className="flex justify-between mb-1">
-              <span className="text-gray-400">% DÉPENSÉ DU BUDGET</span>
-              <span className="font-medium">{budgetPercentage.toFixed(1)}%</span>
+      <CardContent className="p-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Left Column - Budget Settings */}
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="budget" className="text-sm text-gray-400">
+                BUDGET POUR LE BON DE COMMANDE
+              </Label>
+              <div className="flex items-center gap-2 mt-1">
+                <Input
+                  id="budget"
+                  type="number"
+                  value={budgetSettings?.total_budget || 0}
+                  onChange={(e) => handleSettingChange('total_budget', parseFloat(e.target.value) || 0)}
+                  className="bg-[#212121]"
+                />
+                <span className="text-sm">$ CAD</span>
+              </div>
             </div>
-            <Progress value={Math.min(budgetPercentage, 100)} className="h-2" />
+            
+            <div>
+              <Label htmlFor="deposit" className="text-sm text-gray-400">
+                POURCENTAGE DU DÉPÔT
+              </Label>
+              <div className="flex items-center gap-2 mt-1">
+                <Input
+                  id="deposit"
+                  type="number"
+                  value={budgetSettings?.deposit_percentage || 0}
+                  onChange={(e) => handleSettingChange('deposit_percentage', parseFloat(e.target.value) || 0)}
+                  min="0"
+                  max="100"
+                  className="bg-[#212121]"
+                />
+                <span className="text-sm">%</span>
+              </div>
+            </div>
           </div>
-        </div>
-        
-        {/* Notes */}
-        <div>
-          <Label htmlFor="notes" className="text-sm text-gray-400">
-            NOTES
-          </Label>
-          <Textarea
-            id="notes"
-            value={budgetSettings?.notes || ''}
-            onChange={(e) => handleSettingChange('notes', e.target.value)}
-            placeholder="Ajoutez des notes concernant le budget..."
-            className="mt-1 h-24 bg-[#1A1A1A]"
-          />
-        </div>
-        
-        {/* Action buttons */}
-        <div className="space-y-2 pt-2">
-          <Button 
-            className="w-full"
-            onClick={onCreateOrder}
-            disabled={totalOrderAmount <= 0}
-          >
-            <ChevronRight className="mr-1 h-4 w-4" />
-            Passer à la commande
-          </Button>
           
-          <Button 
-            variant="outline" 
-            className="w-full"
-            disabled={true} // Will be enabled in future
-          >
-            <Sparkles className="mr-1 h-4 w-4" />
-            Optimiser avec l'IA
-          </Button>
+          {/* Middle Column - Budget Metrics */}
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm border-b border-[#272727] pb-1">
+              <span className="text-gray-400">TOTAL DU BON DE COMMANDE</span>
+              <span className="font-medium">{totalOrderAmount.toLocaleString()} $ CAD</span>
+            </div>
+            
+            <div className="flex justify-between text-sm border-b border-[#272727] pb-1">
+              <span className="text-gray-400">TOTAL DÉPÔT ({budgetSettings?.deposit_percentage || 0}%)</span>
+              <span className="font-medium">{depositAmount.toLocaleString()} $ CAD</span>
+            </div>
+            
+            <div className="flex justify-between text-sm border-b border-[#272727] pb-1">
+              <span className="text-gray-400">BUDGET CASH RESTANT</span>
+              <span className={`font-medium ${remainingBudget < 0 ? 'text-red-400' : ''}`}>
+                {remainingBudget.toLocaleString()} $ CAD
+              </span>
+            </div>
+            
+            <div className="text-sm pb-1">
+              <div className="flex justify-between mb-1">
+                <span className="text-gray-400">% DÉPENSÉ DU BUDGET</span>
+                <span className="font-medium">{budgetPercentage.toFixed(1)}%</span>
+              </div>
+              <Progress value={Math.min(budgetPercentage, 100)} className="h-2" />
+            </div>
+          </div>
+          
+          {/* Right Column - Notes and Actions */}
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="notes" className="text-sm text-gray-400">
+                NOTES
+              </Label>
+              <Textarea
+                id="notes"
+                value={budgetSettings?.notes || ''}
+                onChange={(e) => handleSettingChange('notes', e.target.value)}
+                placeholder="Ajoutez des notes concernant le budget..."
+                className="mt-1 h-24 bg-[#212121]"
+              />
+            </div>
+            
+            <div>
+              <Button 
+                className="w-full"
+                onClick={onCreateOrder}
+                disabled={totalOrderAmount <= 0}
+              >
+                <ChevronRight className="mr-1 h-4 w-4" />
+                Passer à la commande
+              </Button>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>

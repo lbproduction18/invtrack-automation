@@ -155,95 +155,6 @@ export type Database = {
         }
         Relationships: []
       }
-      order_items: {
-        Row: {
-          actual_delivery_date: string | null
-          created_at: string
-          expected_delivery_date: string | null
-          id: string
-          order_id: string | null
-          product_id: string | null
-          quantity: number
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          actual_delivery_date?: string | null
-          created_at?: string
-          expected_delivery_date?: string | null
-          id?: string
-          order_id?: string | null
-          product_id?: string | null
-          quantity?: number
-          status: string
-          updated_at?: string
-        }
-        Update: {
-          actual_delivery_date?: string | null
-          created_at?: string
-          expected_delivery_date?: string | null
-          id?: string
-          order_id?: string | null
-          product_id?: string | null
-          quantity?: number
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "order_items_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "order_items_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "Low stock product"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      orders: {
-        Row: {
-          created_at: string
-          date: string
-          id: string
-          order_id: string
-          status: string
-          supplier_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          date: string
-          id?: string
-          order_id: string
-          status: string
-          supplier_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          date?: string
-          id?: string
-          order_id?: string
-          status?: string
-          supplier_id?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "orders_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "suppliers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       product_prices: {
         Row: {
           created_at: string | null
@@ -280,39 +191,6 @@ export type Database = {
           price_8000?: number | null
           product_name?: string
           updated_at?: string | null
-        }
-        Relationships: []
-      }
-      suppliers: {
-        Row: {
-          address: string | null
-          contact_person: string | null
-          created_at: string
-          email: string | null
-          id: string
-          name: string
-          phone: string | null
-          updated_at: string
-        }
-        Insert: {
-          address?: string | null
-          contact_person?: string | null
-          created_at?: string
-          email?: string | null
-          id?: string
-          name: string
-          phone?: string | null
-          updated_at?: string
-        }
-        Update: {
-          address?: string | null
-          contact_person?: string | null
-          created_at?: string
-          email?: string | null
-          id?: string
-          name?: string
-          phone?: string | null
-          updated_at?: string
         }
         Relationships: []
       }
