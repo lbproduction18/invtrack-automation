@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -41,8 +42,11 @@ export const LowStockItem: React.FC<LowStockItemProps> = ({
   onEditStatus,
   onCancelEdit
 }) => {
+  // Fonction pour changer le statut lors du clic sur le badge
   const toggleStatus = () => {
+    console.log("Badge clicked! Current status:", manualStatus);
     const nextStatus = getNextStatus(manualStatus);
+    console.log("Next status will be:", nextStatus);
     onChangeStatus(item.id, nextStatus);
   };
 

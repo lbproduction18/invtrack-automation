@@ -3,7 +3,6 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Flag, ArrowUp } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 interface StockStatusBadgeProps {
   stock: number;
@@ -75,15 +74,17 @@ export const StockStatusBadge: React.FC<StockStatusBadgeProps> = ({
     </Badge>
   );
 
+  // Si le badge est cliquable, le wraper dans un div avec un gestionnaire de clic
   if (isClickable && onClick) {
     return (
-      <div 
+      <button 
         onClick={onClick} 
         className="inline-block"
-        style={{ cursor: 'pointer' }}  // Garantir que le curseur change en pointeur
+        style={{ cursor: 'pointer' }}
+        type="button"
       >
         {BadgeComponent}
-      </div>
+      </button>
     );
   }
 
