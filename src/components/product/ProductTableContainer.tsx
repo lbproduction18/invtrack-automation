@@ -18,6 +18,7 @@ interface ProductTableContainerProps {
   filteredProducts: Product[];
   columnVisibility: ColumnVisibility[];
   onProductUpdate: (productId: string, updatedData: Partial<Product>) => void;
+  onRefetch?: () => void;
 }
 
 export const ProductTableContainer: React.FC<ProductTableContainerProps> = ({
@@ -25,13 +26,17 @@ export const ProductTableContainer: React.FC<ProductTableContainerProps> = ({
   isLoading,
   filteredProducts,
   columnVisibility,
-  onProductUpdate
+  onProductUpdate,
+  onRefetch = () => {}
 }) => {
   return (
     <div className="rounded-md border border-border/50 overflow-hidden bg-card/50 backdrop-blur-sm">
       <Table>
         <TableHeader className="bg-muted/30">
           <TableRow className="hover:bg-transparent border-b border-border/50">
+            <TableHead className="w-[40px] p-1 text-center">
+              {/* Header for checkboxes */}
+            </TableHead>
             {columnVisibility
               .sort((a, b) => a.order - b.order)
               .map(column => (

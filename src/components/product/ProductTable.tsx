@@ -13,6 +13,8 @@ interface ProductTableProps {
   filteredProducts: Product[];
   columnVisibility: ColumnVisibility[];
   onProductUpdate?: (productId: string, updatedData: Partial<Product>) => void;
+  selectedProducts?: string[];
+  onSelectProduct?: (productId: string) => void;
 }
 
 export const ProductTable: React.FC<ProductTableProps> = ({
@@ -20,7 +22,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   isLoading,
   filteredProducts,
   columnVisibility,
-  onProductUpdate = () => {}
+  onProductUpdate = () => {},
+  selectedProducts = [],
+  onSelectProduct = () => {}
 }) => {
   const { toast } = useToast();
   
@@ -47,6 +51,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           product={product}
           columnVisibility={columnVisibility}
           onPriorityChange={handlePriorityChange}
+          isSelected={selectedProducts.includes(product.id)}
+          onSelect={() => onSelectProduct(product.id)}
         />
       ))}
     </>

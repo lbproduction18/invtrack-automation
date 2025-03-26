@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { type Product } from '@/types/product';
 import { type ColumnVisibility } from './ColumnVisibilityDropdown';
@@ -15,12 +16,16 @@ interface ProductTableRowProps {
   product: Product;
   columnVisibility: ColumnVisibility[];
   onPriorityChange?: (productId: string, newPriority: 'standard' | 'moyen' | 'prioritaire') => void;
+  isSelected?: boolean;
+  onSelect?: () => void;
 }
 
 export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   product,
   columnVisibility,
-  onPriorityChange = () => {}
+  onPriorityChange = () => {},
+  isSelected = false,
+  onSelect = () => {}
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   
@@ -50,8 +55,17 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         priorityStyles.hover || (hasNote ? `hover:bg-${noteType}/20` : "hover:bg-muted/30"),
         hasNote && `border-l-4 ${priorityStyles.border || `border-${noteType}`}`,
         product.priority_badge === 'prioritaire' && "font-semibold",  // Bold text for high priority items
-        priorityStyles.text // Add the text color class
+        priorityStyles.text, // Add the text color class
+        isSelected && "bg-primary/5 hover:bg-primary/10" // Highlight selected rows
       )}>
+        <TableCell className="w-[40px] p-1 text-center">
+          <Checkbox 
+            checked={isSelected}
+            onCheckedChange={onSelect}
+            aria-label={`Select ${product.SKU}`}
+            className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+          />
+        </TableCell>
         {sortedColumns.map(column => {
           if (!column.isVisible) return null;
           
@@ -151,7 +165,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
           "border-t-0",
           `border-l-4 ${priorityStyles.border || `border-${noteType}`}`
         )}>
-          <TableCell colSpan={sortedColumns.filter(col => col.isVisible).length} className="p-0">
+          <TableCell colSpan={sortedColumns.filter(col => col.isVisible).length + 1} className="p-0">
             <NoteContent 
               noteText={product.note}
               noteType={noteType}

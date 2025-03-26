@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -128,6 +129,7 @@ const Products: React.FC = () => {
             filteredProducts={filteredProducts}
             columnVisibility={columnVisibility}
             onProductUpdate={handleProductUpdate}
+            onRefetch={refetch}
           />
           
           <Pagination 

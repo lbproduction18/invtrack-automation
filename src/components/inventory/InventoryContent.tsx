@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { CardContent } from '@/components/ui/card';
 import { FilteredProductsList, type SortOption } from '@/components/product/FilteredProductsList';
@@ -111,6 +112,7 @@ export const InventoryContent: React.FC = () => {
         filteredProducts={filteredProducts}
         columnVisibility={columnVisibility}
         onProductUpdate={handleProductUpdate}
+        onRefetch={refetch}
       />
       
       <InventoryPagination
