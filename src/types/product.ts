@@ -1,5 +1,9 @@
 
+// This is the type used in the frontend UI
 export type PriorityLevel = 'standard' | 'moyen' | 'prioritaire' | 'important';
+
+// This type represents what's actually allowed in the Supabase database
+export type DatabasePriorityLevel = 'standard' | 'moyen' | 'prioritaire';
 
 export interface Product {
   id: string;

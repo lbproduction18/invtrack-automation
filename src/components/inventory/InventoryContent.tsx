@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { CardContent } from '@/components/ui/card';
 import { FilteredProductsList, type SortOption } from '@/components/product/FilteredProductsList';
 import { useProducts } from '@/hooks/useProducts';
 import { type ColumnVisibility } from '@/components/product/ColumnVisibilityDropdown';
-import { Product } from '@/types/product';
+import { Product, DatabasePriorityLevel } from '@/types/product';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { InventoryFilterSection } from './InventoryFilterSection';
@@ -58,10 +59,13 @@ export const InventoryContent: React.FC = () => {
 
   const handleProductUpdate = async (productId: string, updatedData: Partial<Product>) => {
     try {
-      const dataToSubmit = { ...updatedData };
+      const dataToSubmit: Record<string, any> = { ...updatedData };
       
-      if (dataToSubmit.priority_badge === 'important') {
-        dataToSubmit.priority_badge = 'prioritaire';
+      // Convert 'important' to 'prioritaire' before sending to database
+      if (updatedData.priority_badge) {
+        dataToSubmit.priority_badge = updatedData.priority_badge === 'important' 
+          ? 'prioritaire' as DatabasePriorityLevel
+          : updatedData.priority_badge as DatabasePriorityLevel;
       }
       
       const { error } = await supabase

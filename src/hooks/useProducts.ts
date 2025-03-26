@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { type Product, type PriorityLevel } from '@/types/product';
+import { type Product, type PriorityLevel, type DatabasePriorityLevel } from '@/types/product';
 
 export function useProducts(statusFilter: string = 'low_stock') {
   const { toast } = useToast();
@@ -57,11 +57,19 @@ export function useProducts(statusFilter: string = 'low_stock') {
         }
         
         console.log('Products fetched:', data);
-        // Ensure the priority_badge is of type PriorityLevel
-        const typedData = data.map(item => ({
-          ...item,
-          priority_badge: item.priority_badge as PriorityLevel
-        }));
+        
+        // Map database priority values to our frontend PriorityLevel type
+        const typedData = data.map(item => {
+          let priorityBadge: PriorityLevel = item.priority_badge as DatabasePriorityLevel;
+          
+          // Add any additional mapping logic if needed here
+          // For now, we're just ensuring the type is correctly mapped
+          
+          return {
+            ...item,
+            priority_badge: priorityBadge
+          };
+        });
         
         return typedData;
       } catch (err) {

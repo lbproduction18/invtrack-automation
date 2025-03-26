@@ -15,7 +15,7 @@ import { FilteredProductsList, type SortOption } from '@/components/product/Filt
 import { type ColumnVisibility } from '@/components/product/ColumnVisibilityDropdown';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { type Product } from '@/types/product';
+import { type Product, type DatabasePriorityLevel } from '@/types/product';
 
 const Products: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -76,11 +76,13 @@ const Products: React.FC = () => {
 
   const handleProductUpdate = async (productId: string, updatedData: Partial<Product>) => {
     try {
-      // Convert 'important' priority to 'prioritaire' when sending to the database
-      const dataToSubmit = { ...updatedData };
+      const dataToSubmit: Record<string, any> = { ...updatedData };
       
-      if (dataToSubmit.priority_badge === 'important') {
-        dataToSubmit.priority_badge = 'prioritaire';
+      // Convert 'important' priority to 'prioritaire' when sending to the database
+      if (updatedData.priority_badge) {
+        dataToSubmit.priority_badge = updatedData.priority_badge === 'important' 
+          ? 'prioritaire' as DatabasePriorityLevel
+          : updatedData.priority_badge as DatabasePriorityLevel;
       }
       
       const { error } = await supabase
