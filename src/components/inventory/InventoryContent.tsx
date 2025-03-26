@@ -40,6 +40,9 @@ export const InventoryContent: React.FC = () => {
   ]);
 
   const handleColumnVisibilityChange = (columnId: string, isVisible: boolean) => {
+    // Ensure SKU is always visible
+    if (columnId === 'SKU') return;
+    
     setColumnVisibility(prev => 
       prev.map(col => col.id === columnId ? { ...col, isVisible } : col)
     );

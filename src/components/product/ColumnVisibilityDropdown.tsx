@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Columns, ArrowUp, ArrowDown } from 'lucide-react';
@@ -48,13 +47,24 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
           .sort((a, b) => a.order - b.order)
           .map((column) => (
             <div key={column.id} className="flex items-center px-2 py-1.5">
-              <DropdownMenuCheckboxItem
-                className="flex-1 text-gray-300 focus:text-white focus:bg-[#272727]"
-                checked={column.isVisible}
-                onCheckedChange={(checked) => onColumnVisibilityChange(column.id, checked)}
-              >
-                {column.title}
-              </DropdownMenuCheckboxItem>
+              {column.id === 'SKU' ? (
+                <DropdownMenuCheckboxItem
+                  className="flex-1 text-gray-300 focus:text-white focus:bg-[#272727]"
+                  checked={true}
+                  disabled={true}
+                  onCheckedChange={() => {}}
+                >
+                  {column.title} (obligatoire)
+                </DropdownMenuCheckboxItem>
+              ) : (
+                <DropdownMenuCheckboxItem
+                  className="flex-1 text-gray-300 focus:text-white focus:bg-[#272727]"
+                  checked={column.isVisible}
+                  onCheckedChange={(checked) => onColumnVisibilityChange(column.id, checked)}
+                >
+                  {column.title}
+                </DropdownMenuCheckboxItem>
+              )}
               
               {onColumnOrderChange && (
                 <div className="flex ml-2">
