@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   Carousel,
   CarouselContent,
@@ -14,6 +14,7 @@ import { AnalysisContent } from '@/components/inventory/AnalysisContent';
 import { OrderContent } from '@/components/inventory/OrderContent';
 import { DeliveryContent } from '@/components/inventory/DeliveryContent';
 import { Progress } from "@/components/ui/progress";
+import { useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +22,6 @@ const Index = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const totalSteps = 4;
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
-  const containerRef = useRef<HTMLDivElement>(null);
   
   const steps = [
     { name: "1. Observation", description: "Produits à faible stock" },
@@ -29,19 +29,6 @@ const Index = () => {
     { name: "3. Commande", description: "Création et validation du bon de commande" },
     { name: "4. Livraison", description: "Suivi et détails de la livraison" }
   ];
-
-  // Fonction pour mettre à jour les variables CSS pour la position des flèches
-  const updateArrowPositions = () => {
-    if (containerRef.current) {
-      const container = containerRef.current;
-      const rect = container.getBoundingClientRect();
-      const leftOffset = rect.left;
-      const rightOffset = rect.right;
-      
-      document.documentElement.style.setProperty('--main-container-left', `${leftOffset}px`);
-      document.documentElement.style.setProperty('--main-container-right', `${rightOffset}px`);
-    }
-  };
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -57,20 +44,6 @@ const Index = () => {
       carouselApi.off("select", handleSelect);
     };
   }, [carouselApi]);
-
-  // Ajout des effets pour mettre à jour la position des flèches
-  useEffect(() => {
-    // Initial update
-    updateArrowPositions();
-    
-    // Update on resize
-    window.addEventListener('resize', updateArrowPositions);
-    
-    // Cleanup
-    return () => {
-      window.removeEventListener('resize', updateArrowPositions);
-    };
-  }, []);
 
   const handleStepClick = (index: number) => {
     if (carouselApi) {
@@ -130,7 +103,21 @@ const Index = () => {
       </div>
       
       {/* Container principal avec position relative pour les flèches */}
-      <div ref={containerRef} className="relative max-w-[calc(100%-80px)] mx-auto container-main">
+      <div className="relative max-w-[calc(100%-80px)] mx-auto container-main">
+        {/* Flèche de gauche */}
+        <button
+          onClick={() => carouselApi?.scrollPrev()}
+          disabled={currentStep === 0}
+          className={cn(
+            "carousel-arrow left",
+            "absolute left-[-20px] top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-[#1E1E1E] border border-[#272727] text-white shadow-md transition-all duration-300",
+            currentStep === 0 ? "opacity-50 cursor-not-allowed" : "hover:bg-[#272727] hover:scale-105"
+          )}
+          aria-label="Étape précédente"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        
         {/* Carousel principal */}
         <Carousel 
           className="w-full" 
@@ -200,32 +187,21 @@ const Index = () => {
             </CarouselItem>
           </CarouselContent>
         </Carousel>
+        
+        {/* Flèche de droite */}
+        <button
+          onClick={() => carouselApi?.scrollNext()}
+          disabled={currentStep === totalSteps - 1}
+          className={cn(
+            "carousel-arrow right",
+            "absolute right-[-20px] top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-[#1E1E1E] border border-[#272727] text-white shadow-md transition-all duration-300",
+            currentStep === totalSteps - 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-[#272727] hover:scale-105"
+          )}
+          aria-label="Étape suivante"
+        >
+          <ChevronRight size={20} />
+        </button>
       </div>
-      
-      {/* Flèches en position fixe, à l'extérieur du conteneur */}
-      <button
-        onClick={() => carouselApi?.scrollPrev()}
-        disabled={currentStep === 0}
-        className={cn(
-          "carousel-arrow left",
-          currentStep === 0 ? "opacity-50" : ""
-        )}
-        aria-label="Étape précédente"
-      >
-        <ChevronLeft size={24} />
-      </button>
-      
-      <button
-        onClick={() => carouselApi?.scrollNext()}
-        disabled={currentStep === totalSteps - 1}
-        className={cn(
-          "carousel-arrow right",
-          currentStep === totalSteps - 1 ? "opacity-50" : ""
-        )}
-        aria-label="Étape suivante"
-      >
-        <ChevronRight size={24} />
-      </button>
     </div>
   );
 };
