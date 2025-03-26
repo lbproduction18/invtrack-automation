@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { type SortOption } from '@/components/product/FilteredProductsList';
+import { ArrowUpDown } from 'lucide-react';
 
 interface InventoryFilterSectionProps {
   searchQuery: string;
@@ -39,7 +40,7 @@ export const InventoryFilterSection: React.FC<InventoryFilterSectionProps> = ({
   onColumnOrderChange
 }) => {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-4">
       <ProductFilterControls 
         searchQuery={searchQuery} 
         setSearchQuery={setSearchQuery} 
@@ -49,25 +50,30 @@ export const InventoryFilterSection: React.FC<InventoryFilterSectionProps> = ({
         setPriorityFilter={setPriorityFilter}
       />
       
-      <div className="flex items-center gap-2">
-        <ColumnVisibilityDropdown 
-          columns={columnVisibility}
-          onColumnVisibilityChange={onColumnVisibilityChange}
-          onColumnOrderChange={onColumnOrderChange}
-        />
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <ColumnVisibilityDropdown 
+            columns={columnVisibility}
+            onColumnVisibilityChange={onColumnVisibilityChange}
+            onColumnOrderChange={onColumnOrderChange}
+          />
+        </div>
         
         <Select
           value={sortBy}
           onValueChange={(value) => setSortBy(value as SortOption)}
         >
-          <SelectTrigger className="w-[180px] bg-[#121212] border-[#272727] text-gray-300">
-            <SelectValue placeholder="Trier par" />
+          <SelectTrigger className="w-[200px] bg-background border-input">
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+              <SelectValue placeholder="Trier par" />
+            </div>
           </SelectTrigger>
-          <SelectContent className="bg-[#161616] border-[#272727]">
-            <SelectItem value="oldest" className="text-gray-300 hover:bg-[#272727] focus:bg-[#272727]">Plus ancien d'abord</SelectItem>
-            <SelectItem value="newest" className="text-gray-300 hover:bg-[#272727] focus:bg-[#272727]">Plus récent d'abord</SelectItem>
-            <SelectItem value="low-stock" className="text-gray-300 hover:bg-[#272727] focus:bg-[#272727]">Stock bas d'abord</SelectItem>
-            <SelectItem value="high-stock" className="text-gray-300 hover:bg-[#272727] focus:bg-[#272727]">Stock élevé d'abord</SelectItem>
+          <SelectContent className="bg-popover border-input">
+            <SelectItem value="oldest">Plus ancien d'abord</SelectItem>
+            <SelectItem value="newest">Plus récent d'abord</SelectItem>
+            <SelectItem value="low-stock">Stock bas d'abord</SelectItem>
+            <SelectItem value="high-stock">Stock élevé d'abord</SelectItem>
           </SelectContent>
         </Select>
       </div>
