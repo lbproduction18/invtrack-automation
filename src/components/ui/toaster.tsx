@@ -1,3 +1,5 @@
+
+// Modify toaster to import from the real source to avoid circular dependencies
 import { useToast } from "@/hooks/use-toast"
 import {
   Toast,
