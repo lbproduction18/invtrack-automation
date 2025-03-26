@@ -41,10 +41,10 @@ export const InventoryContent: React.FC = () => {
           <TableHeader className="bg-[#161616]">
             <TableRow className="hover:bg-transparent border-b border-[#272727]">
               <TableHead className="text-xs font-medium text-gray-400">SKU</TableHead>
-              <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Stock Actuel</TableHead>
-              <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Seuil</TableHead>
               <TableHead className="text-xs font-medium text-gray-400">Date Ajoutée</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-right">Statut</TableHead>
+              <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Stock Actuel</TableHead>
+              <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Seuil</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>

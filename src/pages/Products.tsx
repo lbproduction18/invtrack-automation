@@ -82,10 +82,10 @@ const Products: React.FC = () => {
               <TableHeader className="bg-muted/30">
                 <TableRow className="hover:bg-transparent border-b border-border/50">
                   <TableHead className="text-xs font-medium">SKU</TableHead>
-                  <TableHead className="text-xs font-medium text-right w-24">Stock Actuel</TableHead>
-                  <TableHead className="text-xs font-medium text-right w-24">Seuil</TableHead>
                   <TableHead className="text-xs font-medium">Date Ajoutée</TableHead>
                   <TableHead className="text-xs font-medium text-right">Statut</TableHead>
+                  <TableHead className="text-xs font-medium text-right w-24">Stock Actuel</TableHead>
+                  <TableHead className="text-xs font-medium text-right w-24">Seuil</TableHead>
                   <TableHead className="text-xs font-medium text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
