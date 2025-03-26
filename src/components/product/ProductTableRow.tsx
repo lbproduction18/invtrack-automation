@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
@@ -115,6 +114,31 @@ const formatNoteText = (text: string) => {
   return formattedText;
 };
 
+// Obtenir les styles en fonction de la priorité
+const getPriorityStyles = (priority: 'standard' | 'moyen' | 'prioritaire') => {
+  switch (priority) {
+    case 'prioritaire':
+      return {
+        bg: "bg-red-900/20",
+        hover: "hover:bg-red-900/30",
+        border: "border-red-900/30"
+      };
+    case 'moyen':
+      return {
+        bg: "bg-orange-900/20",
+        hover: "hover:bg-orange-900/30",
+        border: "border-orange-900/30"
+      };
+    case 'standard':
+    default:
+      return {
+        bg: "",
+        hover: "hover:bg-muted/30",
+        border: ""
+      };
+  }
+};
+
 interface ProductTableRowProps {
   product: Product;
   columnVisibility: ColumnVisibility[];
@@ -147,6 +171,9 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   const noteIcon = getNoteIcon(noteType);
   const formattedNoteText = hasNote ? formatNoteText(product.note || "") : "";
 
+  // Obtenir les styles basés sur la priorité
+  const priorityStyles = getPriorityStyles(product.priority_badge);
+
   // Format de la date pour l'affichage dans la note
   const formattedDate = new Date(product.created_at).toLocaleDateString('fr-FR', {
     year: 'numeric',
@@ -160,8 +187,9 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
     <>
       <TableRow className={cn(
         "transition-colors", 
-        hasNote ? `${noteStyles.bg} ${noteStyles.hover}` : "hover:bg-muted/30",
-        hasNote && `border-l-4 border-l-${noteStyles.border}`
+        priorityStyles.bg || (hasNote ? `${noteStyles.bg}` : ""),
+        priorityStyles.hover || (hasNote ? `${noteStyles.hover}` : "hover:bg-muted/30"),
+        hasNote && `border-l-4 ${priorityStyles.border || `border-l-${noteStyles.border}`}`
       )}>
         {sortedColumns.map(column => {
           if (!column.isVisible) return null;
@@ -241,7 +269,11 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
       </TableRow>
       
       {isExpanded && product.note && (
-        <TableRow className={cn(`${noteStyles.bg} border-t-0 border-l-4 border-l-${noteStyles.border}`)}>
+        <TableRow className={cn(
+          priorityStyles.bg || `${noteStyles.bg}`,
+          "border-t-0",
+          `border-l-4 ${priorityStyles.border || `border-l-${noteStyles.border}`}`
+        )}>
           <TableCell colSpan={sortedColumns.filter(col => col.isVisible).length} className="p-0">
             <div className={cn(
               "m-2 p-4 rounded-lg shadow-sm",
