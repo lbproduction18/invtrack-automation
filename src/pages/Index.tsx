@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Carousel,
   CarouselContent,
@@ -21,6 +21,7 @@ const Index = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const totalSteps = 4;
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const containerRef = useRef<HTMLDivElement>(null);
   
   const steps = [
     { name: "1. Observation", description: "Produits à faible stock" },
@@ -28,6 +29,19 @@ const Index = () => {
     { name: "3. Commande", description: "Création et validation du bon de commande" },
     { name: "4. Livraison", description: "Suivi et détails de la livraison" }
   ];
+
+  // Fonction pour mettre à jour les variables CSS pour la position des flèches
+  const updateArrowPositions = () => {
+    if (containerRef.current) {
+      const container = containerRef.current;
+      const rect = container.getBoundingClientRect();
+      const leftOffset = rect.left;
+      const rightOffset = rect.right;
+      
+      document.documentElement.style.setProperty('--main-container-left', `${leftOffset}px`);
+      document.documentElement.style.setProperty('--main-container-right', `${rightOffset}px`);
+    }
+  };
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -43,6 +57,20 @@ const Index = () => {
       carouselApi.off("select", handleSelect);
     };
   }, [carouselApi]);
+
+  // Ajout des effets pour mettre à jour la position des flèches
+  useEffect(() => {
+    // Initial update
+    updateArrowPositions();
+    
+    // Update on resize
+    window.addEventListener('resize', updateArrowPositions);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', updateArrowPositions);
+    };
+  }, []);
 
   const handleStepClick = (index: number) => {
     if (carouselApi) {
@@ -102,7 +130,7 @@ const Index = () => {
       </div>
       
       {/* Container principal avec position relative pour les flèches */}
-      <div className="relative max-w-[calc(100%-80px)] mx-auto">
+      <div ref={containerRef} className="relative max-w-[calc(100%-80px)] mx-auto container-main">
         {/* Carousel principal */}
         <Carousel 
           className="w-full" 
