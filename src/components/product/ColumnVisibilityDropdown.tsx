@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Columns, ArrowUp, ArrowDown } from 'lucide-react';
+import { Columns, ArrowUp, ArrowDown, GripVertical } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -15,20 +15,63 @@ export interface ColumnVisibility {
   id: string;
   title: string;
   isVisible: boolean;
-  order: number;  // Ajout d'un ordre pour permettre la réorganisation
+  order: number;
 }
 
 interface ColumnVisibilityDropdownProps {
   columns: ColumnVisibility[];
   onColumnVisibilityChange: (columnId: string, isVisible: boolean) => void;
   onColumnOrderChange?: (columnId: string, direction: 'up' | 'down') => void;
+  onColumnReorder?: (sourceIndex: number, destinationIndex: number) => void;
 }
 
 export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> = ({
   columns,
   onColumnVisibilityChange,
-  onColumnOrderChange
+  onColumnOrderChange,
+  onColumnReorder
 }) => {
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
+
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: string) => {
+    setDraggedItem(id);
+    e.dataTransfer.effectAllowed = 'move';
+    
+    // Need to set some data for Firefox to enable drag
+    e.dataTransfer.setData('text/plain', id); 
+    
+    // Add a visual effect
+    if (e.currentTarget.classList) {
+      setTimeout(() => {
+        e.currentTarget.classList.add('opacity-50');
+      }, 0);
+    }
+  };
+
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    setDraggedItem(null);
+    e.currentTarget.classList.remove('opacity-50');
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, targetId: string) => {
+    e.preventDefault();
+    
+    if (!draggedItem || draggedItem === targetId) return;
+    
+    const sortedColumns = [...columns].sort((a, b) => a.order - b.order);
+    const sourceIndex = sortedColumns.findIndex(c => c.id === draggedItem);
+    const destinationIndex = sortedColumns.findIndex(c => c.id === targetId);
+    
+    if (sourceIndex !== -1 && destinationIndex !== -1 && onColumnReorder) {
+      onColumnReorder(sourceIndex, destinationIndex);
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -47,7 +90,19 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
         {columns
           .sort((a, b) => a.order - b.order)
           .map((column) => (
-            <div key={column.id} className="flex items-center px-2 py-1.5">
+            <div 
+              key={column.id} 
+              className="flex items-center px-2 py-1.5 cursor-move"
+              draggable={true}
+              onDragStart={(e) => handleDragStart(e, column.id)}
+              onDragEnd={handleDragEnd}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, column.id)}
+            >
+              <div className="flex items-center mr-2 text-gray-400">
+                <GripVertical className="h-4 w-4" />
+              </div>
+              
               <DropdownMenuCheckboxItem
                 className="flex-1 text-gray-300 focus:text-white focus:bg-[#272727]"
                 checked={column.isVisible}
