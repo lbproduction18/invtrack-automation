@@ -42,6 +42,17 @@ export const LowStockItem: React.FC<LowStockItemProps> = ({
   onEditStatus,
   onCancelEdit
 }) => {
+  // Fonction pour passer au statut suivant en cliquant directement sur le badge
+  const toggleStatus = () => {
+    if (manualStatus === null || manualStatus === 'high') {
+      onChangeStatus(item.id, 'low'); // De haute à basse
+    } else if (manualStatus === 'low') {
+      onChangeStatus(item.id, 'medium'); // De basse à moyenne
+    } else if (manualStatus === 'medium') {
+      onChangeStatus(item.id, 'high'); // De moyenne à haute
+    }
+  };
+
   return (
     <TableRow key={item.id} className="table-row-glass">
       <TableCell>
@@ -72,7 +83,9 @@ export const LowStockItem: React.FC<LowStockItemProps> = ({
           <StockStatusBadge 
             stock={item.current} 
             threshold={item.minimum} 
-            manualStatus={manualStatus} 
+            manualStatus={manualStatus}
+            onClick={toggleStatus}
+            isClickable={true}
           />
         )}
       </TableCell>

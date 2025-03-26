@@ -3,17 +3,22 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Flag, ArrowUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface StockStatusBadgeProps {
   stock: number;
   threshold: number;
   manualStatus?: 'high' | 'medium' | 'low' | null;
+  onClick?: () => void;
+  isClickable?: boolean;
 }
 
 export const StockStatusBadge: React.FC<StockStatusBadgeProps> = ({ 
   stock, 
   threshold, 
-  manualStatus = null 
+  manualStatus = null,
+  onClick,
+  isClickable = false
 }) => {
   // Déterminer le statut et le style du badge en fonction du niveau de priorité
   // ou utiliser le statut manuel s'il est fourni
@@ -55,12 +60,13 @@ export const StockStatusBadge: React.FC<StockStatusBadgeProps> = ({
     high: "bg-red-900/30 text-red-400 border border-red-900/20"
   };
 
-  return (
+  const BadgeComponent = (
     <Badge 
       variant="outline" 
       className={cn(
         baseClasses,
-        statusClasses[status]
+        statusClasses[status],
+        isClickable && "cursor-pointer hover:brightness-110"
       )}
     >
       {status === 'high' && <Flag className="h-3 w-3" />}
@@ -68,4 +74,14 @@ export const StockStatusBadge: React.FC<StockStatusBadgeProps> = ({
       {statusText}
     </Badge>
   );
+
+  if (isClickable && onClick) {
+    return (
+      <div onClick={onClick} className="inline-block">
+        {BadgeComponent}
+      </div>
+    );
+  }
+
+  return BadgeComponent;
 };
