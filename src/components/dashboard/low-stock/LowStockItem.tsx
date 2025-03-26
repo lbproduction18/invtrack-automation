@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -6,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ShoppingCart, Edit, Check, ArrowUp, Flag } from 'lucide-react';
 import { StockStatusBadge } from '@/components/product/StockStatusBadge';
-import { formatDate } from './utils';
+import { formatDate, getNextStatus } from './utils';
 
 interface StockItem {
   id: string;
@@ -42,15 +41,9 @@ export const LowStockItem: React.FC<LowStockItemProps> = ({
   onEditStatus,
   onCancelEdit
 }) => {
-  // Fonction pour passer au statut suivant en cliquant directement sur le badge
   const toggleStatus = () => {
-    if (manualStatus === null || manualStatus === 'high') {
-      onChangeStatus(item.id, 'low'); // De haute à basse
-    } else if (manualStatus === 'low') {
-      onChangeStatus(item.id, 'medium'); // De basse à moyenne
-    } else if (manualStatus === 'medium') {
-      onChangeStatus(item.id, 'high'); // De moyenne à haute
-    }
+    const nextStatus = getNextStatus(manualStatus);
+    onChangeStatus(item.id, nextStatus);
   };
 
   return (

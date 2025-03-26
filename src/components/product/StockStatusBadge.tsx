@@ -77,7 +77,11 @@ export const StockStatusBadge: React.FC<StockStatusBadgeProps> = ({
 
   if (isClickable && onClick) {
     return (
-      <div onClick={onClick} className="inline-block">
+      <div 
+        onClick={onClick} 
+        className="inline-block"
+        style={{ cursor: 'pointer' }}  // Garantir que le curseur change en pointeur
+      >
         {BadgeComponent}
       </div>
     );
