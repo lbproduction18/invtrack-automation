@@ -139,10 +139,15 @@ export const AnalysisContent: React.FC = () => {
                   <div className="flex items-center gap-2">
                     {item.sku}
                     {hasMissingInfo(item) && (
-                      <AlertCircle 
-                        className="h-4 w-4 text-yellow-500" 
-                        title="Informations manquantes"
-                      />
+                      <span className="relative">
+                        <AlertCircle 
+                          className="h-4 w-4 text-yellow-500"
+                          aria-label="Informations manquantes"
+                        >
+                          <span className="sr-only">Informations manquantes</span>
+                        </AlertCircle>
+                        <span className="sr-only">Informations manquantes</span>
+                      </span>
                     )}
                   </div>
                 </TableCell>
