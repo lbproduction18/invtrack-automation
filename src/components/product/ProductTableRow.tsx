@@ -46,10 +46,10 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
     <>
       <TableRow className={cn(
         "transition-colors", 
-        priorityStyles.bg || (hasNote ? `bg-${noteType}/10` : ""),
-        priorityStyles.hover || (hasNote ? `hover:bg-${noteType}/20` : "hover:bg-muted/30"),
-        hasNote && `border-l-4 ${priorityStyles.border || `border-${noteType}`}`,
-        product.priority_badge === 'prioritaire' && "font-semibold",  // Bold text for high priority items
+        priorityStyles.bg || (hasNote ? `bg-${noteType}/5` : ""), // Much lighter note background (5% opacity)
+        priorityStyles.hover || (hasNote ? `hover:bg-${noteType}/10` : "hover:bg-muted/30"), // Lighter hover
+        hasNote && `border-l-2 ${priorityStyles.border || `border-${noteType}`}`, // Thinner border
+        product.priority_badge === 'prioritaire' && "font-medium", // Changed from semibold to medium for subtlety
         priorityStyles.text // Add the text color class
       )}>
         {sortedColumns.map(column => {
@@ -62,7 +62,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
                   key={`${product.id}-${column.id}`} 
                   className={cn(
                     "font-medium whitespace-nowrap p-1 text-left pl-3",
-                    priorityStyles.text || (product.priority_badge === 'prioritaire' ? "text-white" : "") // Use white text for high priority
+                    priorityStyles.text // Apply the text color
                   )}
                 >
                   {product.SKU}
@@ -146,10 +146,10 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
       
       {isExpanded && product.note && (
         <TableRow className={cn(
-          priorityStyles.bg || `bg-${noteType}/10`,
+          priorityStyles.bg || `bg-${noteType}/5`, // Much lighter background for expanded note
           priorityStyles.text,
           "border-t-0",
-          `border-l-4 ${priorityStyles.border || `border-${noteType}`}`
+          `border-l-2 ${priorityStyles.border || `border-${noteType}`}` // Thinner border
         )}>
           <TableCell colSpan={sortedColumns.filter(col => col.isVisible).length} className="p-0">
             <NoteContent 

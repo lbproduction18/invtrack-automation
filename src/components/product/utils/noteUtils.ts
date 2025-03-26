@@ -46,36 +46,36 @@ export const getNoteStyles = (type: NoteType) => {
   switch (type) {
     case "warning":
       return {
-        bg: "bg-warning/10",
-        hover: "hover:bg-warning/20",
-        border: "border-warning",
+        bg: "bg-warning/5",  // Much lighter backgrounds (5% opacity)
+        hover: "hover:bg-warning/10",
+        border: "border-warning/30", // More transparent borders
         text: "text-warning-foreground",
-        cardBg: "bg-warning/15"
+        cardBg: "bg-warning/5"
       };
     case "success":
       return {
-        bg: "bg-success/10",
-        hover: "hover:bg-success/20",
-        border: "border-success",
+        bg: "bg-success/5",
+        hover: "hover:bg-success/10",
+        border: "border-success/30",
         text: "text-success-foreground",
-        cardBg: "bg-success/15"
+        cardBg: "bg-success/5"
       };
     case "pending":
       return {
-        bg: "bg-info/10",
-        hover: "hover:bg-info/20",
-        border: "border-info",
+        bg: "bg-info/5",
+        hover: "hover:bg-info/10",
+        border: "border-info/30",
         text: "text-info-foreground",
-        cardBg: "bg-info/15"
+        cardBg: "bg-info/5"
       };
     case "info":
     default:
       return {
-        bg: "bg-primary/10",
-        hover: "hover:bg-primary/20",
-        border: "border-primary",
+        bg: "bg-primary/5",
+        hover: "hover:bg-primary/10",
+        border: "border-primary/30",
         text: "text-primary-foreground",
-        cardBg: "bg-primary/15"
+        cardBg: "bg-primary/5"
       };
   }
 };
