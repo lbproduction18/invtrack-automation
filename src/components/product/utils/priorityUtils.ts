@@ -6,17 +6,17 @@ export const getPriorityStyles = (priority: Product['priority_badge']) => {
   switch (priority) {
     case 'prioritaire':
       return {
-        bg: "bg-red-700/50",  // Stronger red with higher opacity
-        hover: "hover:bg-red-700/60",  // More prominent hover
-        border: "border-red-600/60",   // Brighter red border
-        text: "text-white"             // White text for better contrast on red
+        bg: "bg-red-100/60",  // Much lighter red background
+        hover: "hover:bg-red-100/80",  // Subtle hover effect
+        border: "border-red-200/60",   // Lighter border
+        text: "text-red-800"           // Darker red text for contrast on light background
       };
     case 'moyen':
       return {
-        bg: "bg-orange-400/40",  // Brighter orange with good opacity
-        hover: "hover:bg-orange-400/50",
-        border: "border-orange-400/50",
-        text: "text-white"       // White text for better contrast on orange
+        bg: "bg-orange-100/60",  // Much lighter orange background
+        hover: "hover:bg-orange-100/80",
+        border: "border-orange-200/60",
+        text: "text-orange-800"  // Darker orange text for contrast
       };
     case 'standard':
     default:

@@ -21,12 +21,12 @@ export const PriorityBadge: React.FC<PriorityBadgeProps> = ({
   const getBadgeStyles = () => {
     switch (priority) {
       case 'prioritaire':
-        return "bg-red-900/30 text-red-400 border border-red-900/20";
+        return "bg-red-50 text-red-700 border border-red-100";
       case 'moyen':
-        return "bg-orange-900/30 text-orange-400 border border-orange-900/20";
+        return "bg-orange-50 text-orange-700 border border-orange-100";
       case 'standard':
       default:
-        return "bg-green-900/30 text-green-400 border border-green-900/20";
+        return "bg-green-50 text-green-700 border border-green-100";
     }
   };
 
