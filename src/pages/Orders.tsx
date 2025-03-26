@@ -44,6 +44,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 // Définition du type pour les données des commandes
@@ -99,56 +100,55 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
 };
 
 const Orders: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const { toast } = useToast();
 
-  // Récupération des commandes depuis Supabase
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        
-        // Requête pour obtenir les commandes avec le nom du fournisseur
-        const { data, error } = await supabase
-          .from('orders')
-          .select(`
-            *,
-            suppliers:supplier_id (name)
-          `)
-          .order('date', { ascending: false });
-        
-        if (error) {
-          throw error;
-        }
-        
-        // Transformation des données pour inclure les informations du fournisseur
-        const ordersWithSuppliers = data.map((order: any) => ({
-          ...order,
-          supplier_name: order.suppliers?.name || 'Fournisseur inconnu',
-          // Valeurs temporaires pour le nombre d'articles et le montant total
-          // Dans une application réelle, nous les obtiendrions via une autre requête
-          items_count: Math.floor(Math.random() * 25) + 1,
-          total_amount: (Math.random() * 5000 + 100).toFixed(2)
-        }));
-        
-        setOrders(ordersWithSuppliers);
-      } catch (error: any) {
-        console.error('Erreur lors de la récupération des commandes:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les commandes. Veuillez réessayer.",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
+  // Fetch orders using react-query
+  const { data: orders = [], isLoading: loading, error } = useQuery({
+    queryKey: ['orders'],
+    queryFn: async () => {
+      console.log('Fetching orders from Supabase...');
+      
+      // Requête pour obtenir les commandes avec le nom du fournisseur
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          suppliers:supplier_id (name)
+        `)
+        .order('date', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching orders:', error);
+        throw error;
       }
-    };
-    
-    fetchOrders();
-  }, [toast]);
+      
+      console.log('Orders fetched:', data);
+      
+      // Transformation des données pour inclure les informations du fournisseur
+      return data.map((order: any) => ({
+        ...order,
+        supplier_name: order.suppliers?.name || 'Fournisseur inconnu',
+        // Valeurs temporaires pour le nombre d'articles et le montant total
+        // Dans une application réelle, nous les obtiendrions via une autre requête
+        items_count: Math.floor(Math.random() * 25) + 1,
+        total_amount: (Math.random() * 5000 + 100).toFixed(2)
+      }));
+    },
+    refetchOnWindowFocus: false
+  });
+
+  useEffect(() => {
+    if (error) {
+      console.error('Error in orders query:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les commandes. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    }
+  }, [error, toast]);
 
   // Filtrer les commandes en fonction de la recherche et du filtre de statut
   const filteredOrders = orders.filter(order => {
