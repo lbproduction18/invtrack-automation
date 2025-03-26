@@ -6,15 +6,15 @@ export const getPriorityStyles = (priority: Product['priority_badge']) => {
   switch (priority) {
     case 'prioritaire':
       return {
-        bg: "bg-red-900/20",
-        hover: "hover:bg-red-900/30",
-        border: "border-red-900/30"
+        bg: "bg-red-900/40",  // Increased opacity/saturation
+        hover: "hover:bg-red-900/50",  // Darker hover state
+        border: "border-red-900/50"    // More visible border
       };
     case 'moyen':
       return {
-        bg: "bg-orange-900/20",
-        hover: "hover:bg-orange-900/30",
-        border: "border-orange-900/30"
+        bg: "bg-orange-500/30",  // Changed from orange-900 to orange-500 for more distinction
+        hover: "hover:bg-orange-500/40",
+        border: "border-orange-500/40"
       };
     case 'standard':
     default:
