@@ -21,7 +21,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden">
         <TopBar />
-        <main className="flex-1 overflow-auto bg-background p-4">
+        <main className="flex-1 overflow-auto bg-background/70 backdrop-blur-sm p-4">
           <div className="page-container">
             {children}
           </div>

@@ -31,19 +31,19 @@ const Sidebar: React.FC = () => {
   return (
     <aside 
       className={cn(
-        "bg-sidebar h-screen transition-all duration-300 ease-in-out overflow-y-auto overflow-x-hidden border-r border-sidebar-border flex flex-col",
+        "bg-sidebar h-screen transition-all duration-300 ease-in-out overflow-y-auto overflow-x-hidden border-r border-sidebar-border backdrop-blur-sm",
         collapsed ? "w-[70px]" : "w-[240px]"
       )}
     >
       <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
         <div className={cn("flex items-center", collapsed && "justify-center w-full")}>
           <div className="flex-shrink-0">
-            <div className="h-8 w-8 bg-primary rounded-md flex items-center justify-center text-primary-foreground font-bold">
+            <div className="h-8 w-8 rounded-md flex items-center justify-center text-sidebar-primary-foreground font-bold bg-sidebar-primary/90">
               IM
             </div>
           </div>
           {!collapsed && (
-            <span className="text-lg font-semibold ml-2 text-sidebar-foreground">InvTrack</span>
+            <span className="text-lg font-medium ml-2 text-sidebar-foreground">InvTrack</span>
           )}
         </div>
         <Button 
@@ -78,8 +78,10 @@ const Sidebar: React.FC = () => {
                 to={link.path}
                 className={({ isActive }) => 
                   cn(
-                    "sidebar-item",
-                    isActive && "sidebar-item-active",
+                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground transition-colors",
+                    isActive 
+                      ? "bg-sidebar-primary/90 text-sidebar-primary-foreground font-medium" 
+                      : "hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground",
                     collapsed && "justify-center px-2"
                   )
                 }
@@ -94,12 +96,12 @@ const Sidebar: React.FC = () => {
 
       <div className="p-4 border-t border-sidebar-border">
         <div className={cn(
-          "rounded-md bg-sidebar-accent p-3",
+          "rounded-md bg-sidebar-accent/50 backdrop-blur-sm p-3",
           collapsed ? "text-center" : "text-left"
         )}>
           {collapsed ? (
             <div className="flex flex-col items-center">
-              <ShoppingCart className="h-5 w-5 text-primary" />
+              <ShoppingCart className="h-5 w-5 text-sidebar-primary" />
             </div>
           ) : (
             <>

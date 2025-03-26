@@ -7,7 +7,7 @@ import UserMenu from './UserMenu';
 
 const TopBar: React.FC = () => {
   return (
-    <header className="border-b border-border bg-card/50 backdrop-blur-sm">
+    <header className="border-b border-border/50 bg-card/30 backdrop-blur-sm">
       <div className="flex items-center justify-between h-16 px-6">
         <div className="flex items-center">
           <div className="relative max-w-md w-full hidden md:block">
@@ -15,15 +15,15 @@ const TopBar: React.FC = () => {
             <Input
               type="search"
               placeholder="Search..."
-              className="pl-8 bg-background/50 border-muted w-[250px] lg:w-[350px]"
+              className="pl-8 bg-background/50 border-input w-[250px] lg:w-[350px]"
             />
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
+          <Button variant="ghost" size="icon" className="text-muted-foreground hover:bg-muted/30">
             <Bell className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
+          <Button variant="ghost" size="icon" className="text-muted-foreground hover:bg-muted/30">
             <Settings className="h-5 w-5" />
           </Button>
           <UserMenu />
