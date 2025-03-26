@@ -6,22 +6,29 @@ import {
   CarouselItem,
   CarouselApi
 } from "@/components/ui/carousel";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { InventoryHeader } from '@/components/inventory/InventoryHeader';
 import { LastUpdatedAlert } from '@/components/inventory/LastUpdatedAlert';
 import { InventoryContent } from '@/components/inventory/InventoryContent';
 import { AnalysisContent } from '@/components/inventory/AnalysisContent';
 import { OrderContent } from '@/components/inventory/OrderContent';
 import { DeliveryContent } from '@/components/inventory/DeliveryContent';
-import { StepNavigation } from '@/components/inventory/steps/StepNavigation';
-import { NavigationArrows } from '@/components/inventory/steps/NavigationArrows';
-import { StepContainer } from '@/components/inventory/steps/StepContainer';
-import { INVENTORY_STEPS } from '@/components/inventory/steps/stepsConfig';
+import { Progress } from "@/components/ui/progress";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const totalSteps = INVENTORY_STEPS.length;
+  const totalSteps = 4;
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   
+  const steps = [
+    { name: "1. Observation", description: "Produits à faible stock" },
+    { name: "2. Analyse", description: "Analyse des besoins et recommandations" },
+    { name: "3. Commande", description: "Création et validation du bon de commande" },
+    { name: "4. Livraison", description: "Suivi et détails de la livraison" }
+  ];
+
   useEffect(() => {
     if (!carouselApi) return;
     
@@ -45,73 +52,152 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] text-white relative">
-      {/* Navigation steps */}
-      <StepNavigation 
-        steps={INVENTORY_STEPS}
-        currentStep={currentStep}
-        onStepClick={handleStepClick}
-      />
+      {/* Menu d'étapes amélioré */}
+      <div className="mb-8 mt-4">
+        <div className="flex flex-col space-y-4">
+          {/* Étapes numérotées avec design amélioré */}
+          <div className="flex justify-between px-4 items-center">
+            {steps.map((step, index) => (
+              <button
+                key={index}
+                onClick={() => handleStepClick(index)}
+                className={cn(
+                  "flex flex-col items-center cursor-pointer transition-all duration-300 px-3 py-2 rounded-md", 
+                  currentStep === index 
+                    ? "bg-[#1E1E1E]/50 text-[#3ECF8E] font-semibold" 
+                    : "text-gray-400 hover:text-white hover:bg-[#1E1E1E]/30"
+                )}
+              >
+                <div className="text-base">{step.name}</div>
+                <div className={cn(
+                  "text-xs mt-1",
+                  currentStep === index ? "text-gray-300" : "text-gray-500"
+                )}>
+                  {step.description}
+                </div>
+              </button>
+            ))}
+          </div>
+          
+          {/* Barre de progression améliorée */}
+          <div className="px-4 pt-2">
+            <Progress 
+              value={(currentStep / (totalSteps - 1)) * 100} 
+              className="h-1.5" 
+            />
+            <div className="flex justify-between mt-1">
+              {steps.map((_, index) => (
+                <div 
+                  key={index}
+                  className={cn(
+                    "w-4 h-4 rounded-full transition-all duration-300",
+                    currentStep >= index ? "bg-[#3ECF8E]" : "bg-[#272727]",
+                    index === currentStep && "ring-2 ring-offset-2 ring-offset-[#0F0F0F] ring-[#3ECF8E]/50"
+                  )}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
       
-      {/* Main carousel */}
+      {/* Container principal avec position relative pour les flèches */}
       <div className="relative max-w-[calc(100%-80px)] mx-auto">
+        {/* Carousel principal */}
         <Carousel 
           className="w-full" 
           setApi={setCarouselApi}
         >
           <CarouselContent>
-            {/* Step 1: Low Stock Products */}
+            {/* Low Stock Products */}
             <CarouselItem>
               <div className="space-y-4 p-4">
                 <InventoryHeader />
                 <LastUpdatedAlert />
-                <StepContainer 
-                  title={INVENTORY_STEPS[0].title}
-                  description={INVENTORY_STEPS[0].detailedDescription}
-                >
+                <Card className="border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
+                  <CardHeader className="px-4 py-3 border-b border-[#272727]">
+                    <CardTitle className="text-sm font-medium text-white">Produits à Faible Stock</CardTitle>
+                    <CardDescription className="text-xs text-gray-400">
+                      Étape 1: Identification des produits nécessitant un réapprovisionnement
+                    </CardDescription>
+                  </CardHeader>
                   <InventoryContent />
-                </StepContainer>
+                </Card>
               </div>
             </CarouselItem>
 
-            {/* Step 2: Restock Analysis */}
+            {/* Restock Analysis */}
             <CarouselItem>
-              <StepContainer 
-                title={INVENTORY_STEPS[1].title}
-                description={INVENTORY_STEPS[1].detailedDescription}
-              >
-                <AnalysisContent />
-              </StepContainer>
+              <div className="space-y-4 p-4">
+                <Card className="border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
+                  <CardHeader className="px-4 py-3 border-b border-[#272727]">
+                    <CardTitle className="text-sm font-medium text-white">Analyse de Restock</CardTitle>
+                    <CardDescription className="text-xs text-gray-400">
+                      Étape 2: Analyse des besoins et recommandations
+                    </CardDescription>
+                  </CardHeader>
+                  <AnalysisContent />
+                </Card>
+              </div>
             </CarouselItem>
 
-            {/* Step 3: Purchase Order */}
+            {/* Purchase Order */}
             <CarouselItem>
-              <StepContainer 
-                title={INVENTORY_STEPS[2].title}
-                description={INVENTORY_STEPS[2].detailedDescription}
-              >
-                <OrderContent />
-              </StepContainer>
+              <div className="space-y-4 p-4">
+                <Card className="border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
+                  <CardHeader className="px-4 py-3 border-b border-[#272727]">
+                    <CardTitle className="text-sm font-medium text-white">Bon de Commande</CardTitle>
+                    <CardDescription className="text-xs text-gray-400">
+                      Étape 3: Création et validation du bon de commande
+                    </CardDescription>
+                  </CardHeader>
+                  <OrderContent />
+                </Card>
+              </div>
             </CarouselItem>
 
-            {/* Step 4: Delivery Details */}
+            {/* Delivery Details */}
             <CarouselItem>
-              <StepContainer 
-                title={INVENTORY_STEPS[3].title}
-                description={INVENTORY_STEPS[3].detailedDescription}
-              >
-                <DeliveryContent />
-              </StepContainer>
+              <div className="space-y-4 p-4">
+                <Card className="border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
+                  <CardHeader className="px-4 py-3 border-b border-[#272727]">
+                    <CardTitle className="text-sm font-medium text-white">Détails de Livraison</CardTitle>
+                    <CardDescription className="text-xs text-gray-400">
+                      Étape 4: Suivi et détails de la livraison
+                    </CardDescription>
+                  </CardHeader>
+                  <DeliveryContent />
+                </Card>
+              </div>
             </CarouselItem>
           </CarouselContent>
         </Carousel>
       </div>
       
-      {/* Navigation arrows */}
-      <NavigationArrows 
-        currentStep={currentStep}
-        totalSteps={totalSteps}
-        carouselApi={carouselApi || null}
-      />
+      {/* Flèches en position fixe, à l'extérieur du conteneur */}
+      <button
+        onClick={() => carouselApi?.scrollPrev()}
+        disabled={currentStep === 0}
+        className={cn(
+          "carousel-arrow left",
+          currentStep === 0 ? "opacity-50" : ""
+        )}
+        aria-label="Étape précédente"
+      >
+        <ChevronLeft size={24} />
+      </button>
+      
+      <button
+        onClick={() => carouselApi?.scrollNext()}
+        disabled={currentStep === totalSteps - 1}
+        className={cn(
+          "carousel-arrow right",
+          currentStep === totalSteps - 1 ? "opacity-50" : ""
+        )}
+        aria-label="Étape suivante"
+      >
+        <ChevronRight size={24} />
+      </button>
     </div>
   );
 };
