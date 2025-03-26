@@ -46,7 +46,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           key={product.id}
           product={product}
           columnVisibility={columnVisibility}
-          onProductUpdate={onProductUpdate}
           onPriorityChange={handlePriorityChange}
         />
       ))}

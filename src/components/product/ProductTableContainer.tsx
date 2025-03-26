@@ -40,7 +40,7 @@ export const ProductTableContainer: React.FC<ProductTableContainerProps> = ({
                     key={column.id} 
                     className={cn(
                       "text-xs font-medium p-0 text-center",
-                      column.id === 'SKU' && "w-[30%] text-right pr-3",
+                      column.id === 'SKU' && "w-[30%] text-left pl-3",
                       column.id === 'date' && "w-[15%]",
                       column.id === 'age' && "w-[10%]",
                       column.id === 'priority' && "w-[10%]",
