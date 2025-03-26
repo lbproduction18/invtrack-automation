@@ -1,146 +1,83 @@
 
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
-import { 
+import React, { useState, useEffect } from 'react';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue 
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { type QuantityOption } from '@/components/inventory/AnalysisContent';
+  SelectValue,
+} from "@/components/ui/select";
 
 interface SKUSelectorProps {
-  availableSKUs: Array<{ id: string, SKU: string, productName: string | null }>;
+  productGroups: Record<string, Array<{ id: string, SKU: string, productName: string | null }>>;
   productName: string;
-  quantityOptions: QuantityOption[];
-  onAdd: (productName: string, skuId: string, skuValue: string, quantity: number) => void;
-  prices: Record<number, number | null>;
+  onAddSKU: (productName: string, sku: string, skuId: string) => void;
+  disabled?: boolean;
 }
 
-const SKUSelector: React.FC<SKUSelectorProps> = ({
-  availableSKUs,
+const SKUSelector: React.FC<SKUSelectorProps> = ({ 
+  productGroups, 
   productName,
-  quantityOptions,
-  onAdd,
-  prices
+  onAddSKU,
+  disabled = false
 }) => {
-  const [selectedSKU, setSelectedSKU] = useState<string | undefined>();
-  const [selectedSKUData, setSelectedSKUData] = useState<{ id: string, SKU: string } | null>(null);
-  const [selectedQuantity, setSelectedQuantity] = useState<QuantityOption>(quantityOptions[0]);
-  const [calculatedTotal, setCalculatedTotal] = useState<number>(0);
+  const [availableSKUs, setAvailableSKUs] = useState<Array<{ id: string, SKU: string, productName: string | null }>>([]);
+  const [selectedSKU, setSelectedSKU] = useState<string>('');
+  
+  // Filter SKUs based on the current product
+  useEffect(() => {
+    // Extract base product name (before any dash) to match with product groups
+    const baseProductName = productName.split('–')[0]?.trim() || productName;
+    
+    // Find matching product group
+    const matchingSKUs = productGroups[baseProductName] || [];
+    setAvailableSKUs(matchingSKUs);
+  }, [productGroups, productName]);
   
   // Handle SKU selection
-  const handleSKUChange = (value: string) => {
+  const handleSkuChange = (value: string) => {
     setSelectedSKU(value);
-    const skuData = availableSKUs.find(sku => sku.SKU === value);
-    if (skuData) {
-      setSelectedSKUData({
-        id: skuData.id,
-        SKU: skuData.SKU
-      });
+    
+    // Find the selected SKU object
+    const selectedSkuObject = availableSKUs.find(sku => sku.SKU === value);
+    
+    if (selectedSkuObject) {
+      // Call the onAddSKU with the selected SKU information
+      onAddSKU(productName, value, selectedSkuObject.id);
     }
     
-    // Recalculate total
-    calculateTotal(selectedQuantity, value);
+    // Reset selection after adding
+    setSelectedSKU('');
   };
-  
-  // Handle quantity selection
-  const handleQuantityChange = (value: string) => {
-    const quantity = parseInt(value) as QuantityOption;
-    setSelectedQuantity(quantity);
-    
-    // Recalculate total
-    calculateTotal(quantity, selectedSKU);
-  };
-  
-  // Calculate total
-  const calculateTotal = (quantity: QuantityOption, sku?: string) => {
-    if (!sku) return;
-    
-    const priceKey = `price_${quantity}` as keyof typeof prices;
-    const price = prices[quantity] || 0;
-    
-    setCalculatedTotal(quantity * price);
-  };
-  
-  // Handle add button click
-  const handleAddClick = () => {
-    if (selectedSKUData && selectedQuantity) {
-      onAdd(
-        productName, 
-        selectedSKUData.id, 
-        selectedSKUData.SKU, 
-        selectedQuantity
-      );
-      
-      // Reset selection after adding
-      setSelectedSKU(undefined);
-      setSelectedSKUData(null);
-      setCalculatedTotal(0);
-    }
-  };
-  
-  // Check if there are any available SKUs
-  if (availableSKUs.length === 0) {
-    return (
-      <span className="text-gray-500 text-sm">Aucun SKU disponible</span>
-    );
-  }
   
   return (
-    <div className="flex items-center space-x-2">
-      {/* SKU Selection */}
-      <Select value={selectedSKU} onValueChange={handleSKUChange}>
-        <SelectTrigger className="w-44">
-          <SelectValue placeholder="Sélectionner un SKU" />
+    <div className="w-full">
+      <Select
+        value={selectedSKU}
+        onValueChange={(value) => handleSkuChange(value)}
+        disabled={disabled || availableSKUs.length === 0}
+      >
+        <SelectTrigger className="w-full bg-[#121212] border-[#272727] text-gray-300">
+          <SelectValue placeholder="SKU..." />
         </SelectTrigger>
-        <SelectContent className="z-50 bg-[#161616] border-[#272727]">
-          {availableSKUs.map(sku => (
-            <SelectItem key={sku.id} value={sku.SKU}>
-              {sku.SKU}
+        <SelectContent className="bg-[#161616] border-[#272727]">
+          {availableSKUs.length > 0 ? (
+            availableSKUs.map((sku) => (
+              <SelectItem 
+                key={sku.id} 
+                value={sku.SKU}
+                className="text-gray-300 hover:bg-[#272727] focus:bg-[#272727]"
+              >
+                {sku.SKU}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem value="none" disabled className="text-gray-500">
+              Aucun SKU disponible
             </SelectItem>
-          ))}
+          )}
         </SelectContent>
       </Select>
-      
-      {/* Quantity Selection - Only shown when SKU is selected */}
-      {selectedSKU && (
-        <>
-          <Select 
-            value={selectedQuantity.toString()} 
-            onValueChange={handleQuantityChange}
-          >
-            <SelectTrigger className="w-28">
-              <SelectValue placeholder="Quantité" />
-            </SelectTrigger>
-            <SelectContent className="z-50 bg-[#161616] border-[#272727]">
-              {quantityOptions.map(qty => (
-                <SelectItem key={qty} value={qty.toString()}>
-                  {qty.toLocaleString()}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          {/* Total Amount Display */}
-          <div className="w-28 px-3 py-2 bg-[#1A1A1A] border border-[#272727] rounded-md">
-            {calculatedTotal.toLocaleString()} $
-          </div>
-          
-          {/* Add Button */}
-          <Button 
-            size="sm" 
-            className="ml-2"
-            onClick={handleAddClick}
-          >
-            <PlusCircle className="h-4 w-4 mr-1" />
-            Ajouter
-          </Button>
-        </>
-      )}
     </div>
   );
 };

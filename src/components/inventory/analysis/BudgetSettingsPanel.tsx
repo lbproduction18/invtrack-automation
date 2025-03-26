@@ -1,76 +1,70 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useBudgetSettings } from "@/hooks/useBudgetSettings";
-import BudgetSettingsForm from './budget/BudgetSettingsForm';
-import BudgetMetrics from './budget/BudgetMetrics';
-import BudgetNotesActions from './budget/BudgetNotesActions';
-import BudgetLoadingState from './budget/BudgetLoadingState';
+import { Button } from '@/components/ui/button';
+import { BookCheck, ArrowRight } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import BudgetSummary from './BudgetSummary';
+import { useBudgetSettings } from '@/hooks/useBudgetSettings';
 
-interface BudgetSettingsPanelProps {
+export interface BudgetSettingsPanelProps {
   totalOrderAmount: number;
+  depositAmount: number;
+  budgetPercentage: number;
   onCreateOrder: () => void;
+  configuredProductCount?: number;
+  totalProductCount?: number;
 }
 
 const BudgetSettingsPanel: React.FC<BudgetSettingsPanelProps> = ({
   totalOrderAmount,
-  onCreateOrder
+  depositAmount,
+  budgetPercentage,
+  onCreateOrder,
+  configuredProductCount = 0,
+  totalProductCount = 0
 }) => {
-  const { 
-    budgetSettings, 
-    isLoading,
-    updateBudgetSettings
-  } = useBudgetSettings();
-
-  // Handle form input changes
-  const handleSettingChange = (field: string, value: string | number) => {
-    if (!budgetSettings) return;
-    
-    const updates: any = { ...budgetSettings };
-    updates[field] = value;
-    
-    updateBudgetSettings.mutate(updates);
-  };
-
-  // Calculate budget metrics
-  const depositAmount = budgetSettings ? totalOrderAmount * (budgetSettings.deposit_percentage / 100) : 0;
-  const remainingBudget = budgetSettings ? budgetSettings.total_budget - totalOrderAmount : 0;
-  const budgetPercentage = budgetSettings ? (totalOrderAmount / budgetSettings.total_budget) * 100 : 0;
-
-  if (isLoading) {
-    return <BudgetLoadingState />;
-  }
-
+  const { budgetSettings, isLoading } = useBudgetSettings();
+  
   return (
-    <Card className="border border-[#272727] bg-[#1A1A1A] shadow-md">
-      <CardHeader className="pb-2 border-b border-[#272727]">
-        <CardTitle className="text-lg font-medium">Résumé Budgétaire</CardTitle>
-      </CardHeader>
-      <CardContent className="p-5">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Left Column - Budget Settings */}
-          <BudgetSettingsForm 
-            budgetSettings={budgetSettings} 
-            onSettingChange={handleSettingChange} 
-          />
+    <Card className="border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
+      <CardContent className="p-4">
+        <div className="flex flex-col md:flex-row justify-between gap-6">
+          {/* Budget Summary Section */}
+          <div className="flex-1">
+            <BudgetSummary
+              isLoading={isLoading}
+              totalOrderAmount={totalOrderAmount}
+              depositAmount={depositAmount}
+              budgetPercentage={budgetPercentage}
+              configuredProductCount={configuredProductCount}
+              totalProductCount={totalProductCount}
+              budgetAmount={budgetSettings?.budgetAmount || 300000}
+            />
+          </div>
           
-          {/* Middle Column - Budget Metrics */}
-          <BudgetMetrics 
-            totalOrderAmount={totalOrderAmount}
-            depositPercentage={budgetSettings?.deposit_percentage || 0}
-            totalBudget={budgetSettings?.total_budget || 0}
-            depositAmount={depositAmount}
-            remainingBudget={remainingBudget}
-            budgetPercentage={budgetPercentage}
-          />
-          
-          {/* Right Column - Notes and Actions */}
-          <BudgetNotesActions 
-            budgetSettings={budgetSettings} 
-            totalOrderAmount={totalOrderAmount}
-            onSettingChange={handleSettingChange}
-            onCreateOrder={onCreateOrder}
-          />
+          {/* Actions Section */}
+          <div className="flex flex-col justify-between">
+            <div className="space-y-2">
+              <p className="text-sm text-gray-400">Vous pouvez créer un bon de commande à tout moment.</p>
+              <Button 
+                onClick={onCreateOrder}
+                className="w-full"
+                disabled={totalOrderAmount <= 0}
+              >
+                <BookCheck className="mr-2 h-4 w-4" />
+                Créer bon de commande
+              </Button>
+            </div>
+            
+            <Button 
+              variant="outline" 
+              className="mt-2 w-full"
+              disabled={totalOrderAmount <= 0}
+            >
+              <ArrowRight className="mr-2 h-4 w-4" />
+              Passer à la prochaine étape
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
