@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { type Product } from '@/types/product';
 import { type ColumnVisibility } from './ColumnVisibilityDropdown';
@@ -18,6 +20,8 @@ interface ProductTableRowProps {
   onPriorityChange?: (productId: string, newPriority: 'standard' | 'moyen' | 'prioritaire') => void;
   isSelected?: boolean;
   onSelect?: () => void;
+  showAnalysisButton?: boolean;
+  onSendToAnalysis?: (productId: string) => void;
 }
 
 export const ProductTableRow: React.FC<ProductTableRowProps> = ({
@@ -25,7 +29,9 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   columnVisibility,
   onPriorityChange = () => {},
   isSelected = false,
-  onSelect = () => {}
+  onSelect = () => {},
+  showAnalysisButton = false,
+  onSendToAnalysis = () => {}
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   
@@ -156,6 +162,19 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
               return null;
           }
         })}
+        <TableCell className="text-right whitespace-nowrap p-1">
+          {showAnalysisButton && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-7 px-2"
+              onClick={() => onSendToAnalysis(product.id)}
+            >
+              <ChevronRight className="mr-1 h-3 w-3" />
+              Analyser
+            </Button>
+          )}
+        </TableCell>
       </TableRow>
       
       {isExpanded && product.note && (
@@ -165,7 +184,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
           "border-t-0",
           `border-l-4 ${priorityStyles.border || `border-${noteType}`}`
         )}>
-          <TableCell colSpan={sortedColumns.filter(col => col.isVisible).length + 1} className="p-0">
+          <TableCell colSpan={sortedColumns.filter(col => col.isVisible).length + 2} className="p-0">
             <NoteContent 
               noteText={product.note}
               noteType={noteType}

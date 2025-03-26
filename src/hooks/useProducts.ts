@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { type Product } from '@/types/product';
 
-export function useProducts() {
+export function useProducts(statusFilter: string = 'low_stock') {
   const { toast } = useToast();
 
   // Fetch products using react-query
@@ -15,11 +15,11 @@ export function useProducts() {
     error,
     refetch
   } = useQuery({
-    queryKey: ['products'],
+    queryKey: ['products', statusFilter],
     queryFn: async () => {
-      console.log('Fetching products from Supabase...');
+      console.log(`Fetching products from Supabase with status: ${statusFilter}...`);
       try {
-        const { data, error } = await supabase
+        const query = supabase
           .from('Low stock product')
           .select(`
             id,
@@ -39,9 +39,17 @@ export function useProducts() {
             last_order_quantity,
             last_order_date,
             lab_status,
-            estimated_delivery_date
+            estimated_delivery_date,
+            status
           `)
           .order('SKU');
+          
+        // Apply status filter if specified
+        if (statusFilter !== 'all') {
+          query.eq('status', statusFilter);
+        }
+        
+        const { data, error } = await query;
           
         if (error) {
           console.error('Error fetching products:', error);

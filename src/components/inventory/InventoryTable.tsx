@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { AlertTriangle, Trash2 } from 'lucide-react';
+import { AlertTriangle, Trash2, ChevronRight } from 'lucide-react';
 import { 
   Table, 
   TableBody, 
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 
 interface InventoryTableProps {
   products: Product[];
@@ -48,6 +49,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
+  const { addToAnalysis } = useAnalysisItems();
 
   const handleSelectAll = () => {
     if (selectedProducts.length === filteredProducts.length) {
@@ -92,6 +94,23 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
     }
   };
 
+  const handleSendToAnalysis = () => {
+    if (selectedProducts.length === 0) {
+      toast({
+        title: "Aucun produit sélectionné",
+        description: "Veuillez sélectionner au moins un produit à envoyer à l'analyse.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    addToAnalysis.mutate(selectedProducts, {
+      onSuccess: () => {
+        setSelectedProducts([]);
+      }
+    });
+  };
+
   return (
     <div className="space-y-2">
       {selectedProducts.length > 0 && (
@@ -99,15 +118,27 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
           <span className="text-sm font-medium px-2">
             {selectedProducts.length} produit(s) sélectionné(s)
           </span>
-          <Button 
-            variant="destructive" 
-            size="sm" 
-            onClick={() => setIsDeleteDialogOpen(true)}
-            className="gap-1"
-          >
-            <Trash2 className="h-4 w-4" /> 
-            Supprimer
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSendToAnalysis}
+              className="gap-1"
+              disabled={addToAnalysis.isPending}
+            >
+              <ChevronRight className="h-4 w-4" /> 
+              Envoyer à l'analyse
+            </Button>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={() => setIsDeleteDialogOpen(true)}
+              className="gap-1"
+            >
+              <Trash2 className="h-4 w-4" /> 
+              Supprimer
+            </Button>
+          </div>
         </div>
       )}
       
@@ -144,6 +175,9 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                     </TableHead>
                   )
                 ))}
+              <TableHead className="w-[100px] text-xs font-medium text-gray-400 p-1 text-center">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -153,12 +187,12 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                   <TableCell className="w-[40px] p-1 text-center">
                     <div className="w-4 h-4 rounded animate-pulse bg-[#161616]/50" />
                   </TableCell>
-                  <TableCell colSpan={columnVisibility.filter(col => col.isVisible).length} className="h-12 animate-pulse bg-[#161616]/50"></TableCell>
+                  <TableCell colSpan={columnVisibility.filter(col => col.isVisible).length + 1} className="h-12 animate-pulse bg-[#161616]/50"></TableCell>
                 </TableRow>
               ))
             ) : filteredProducts.length === 0 ? (
               <TableRow className="hover:bg-[#161616]">
-                <TableCell colSpan={columnVisibility.filter(col => col.isVisible).length + 1} className="h-24 text-center text-gray-400">
+                <TableCell colSpan={columnVisibility.filter(col => col.isVisible).length + 2} className="h-24 text-center text-gray-400">
                   <div className="flex flex-col items-center justify-center">
                     <AlertTriangle className="h-8 w-8 text-gray-400 mb-2" />
                     <p>Aucun produit trouvé</p>
@@ -174,6 +208,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                 onProductUpdate={onProductUpdate}
                 selectedProducts={selectedProducts}
                 onSelectProduct={handleSelectProduct}
+                showAnalysisButton={true}
               />
             )}
           </TableBody>

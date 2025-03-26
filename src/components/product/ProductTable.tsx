@@ -6,6 +6,7 @@ import { type ColumnVisibility } from './ColumnVisibilityDropdown';
 import { LoadingState, EmptyState } from './TableStates';
 import { ProductTableRow } from './ProductTableRow';
 import { useToast } from '@/hooks/use-toast';
+import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 
 interface ProductTableProps {
   products: Product[];
@@ -15,6 +16,7 @@ interface ProductTableProps {
   onProductUpdate?: (productId: string, updatedData: Partial<Product>) => void;
   selectedProducts?: string[];
   onSelectProduct?: (productId: string) => void;
+  showAnalysisButton?: boolean;
 }
 
 export const ProductTable: React.FC<ProductTableProps> = ({
@@ -24,12 +26,25 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   columnVisibility,
   onProductUpdate = () => {},
   selectedProducts = [],
-  onSelectProduct = () => {}
+  onSelectProduct = () => {},
+  showAnalysisButton = false
 }) => {
   const { toast } = useToast();
+  const { addToAnalysis } = useAnalysisItems();
   
   const handlePriorityChange = (productId: string, newPriority: 'standard' | 'moyen' | 'prioritaire') => {
     onProductUpdate(productId, { priority_badge: newPriority });
+  };
+
+  const handleSendToAnalysis = (productId: string) => {
+    addToAnalysis.mutate([productId], {
+      onSuccess: () => {
+        toast({
+          title: "Produit ajouté à l'analyse",
+          description: "Le produit a été transféré avec succès."
+        });
+      }
+    });
   };
 
   // Calculate visible columns count for proper colSpan in loading and empty states
@@ -53,6 +68,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           onPriorityChange={handlePriorityChange}
           isSelected={selectedProducts.includes(product.id)}
           onSelect={() => onSelectProduct(product.id)}
+          showAnalysisButton={showAnalysisButton}
+          onSendToAnalysis={handleSendToAnalysis}
         />
       ))}
     </>

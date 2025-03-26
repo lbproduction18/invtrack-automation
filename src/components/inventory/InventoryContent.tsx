@@ -16,7 +16,8 @@ export const InventoryContent: React.FC = () => {
   const [stockFilter, setStockFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('oldest');
-  const { products, isLoading, refetch } = useProducts();
+  // Only show products with status 'low_stock'
+  const { products, isLoading, refetch } = useProducts('low_stock');
   const { toast } = useToast();
   
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility[]>([

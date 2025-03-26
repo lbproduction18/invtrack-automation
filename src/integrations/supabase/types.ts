@@ -9,6 +9,41 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      analysis_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_id: string | null
+          quantity_selected: number | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          quantity_selected?: number | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          quantity_selected?: number | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "Low stock product"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       budget_settings: {
         Row: {
           created_at: string | null
@@ -54,6 +89,7 @@ export type Database = {
           priority_badge: Database["public"]["Enums"]["priority_level"]
           product_name: string | null
           SKU: string
+          status: string | null
           threshold: number
           updated_at: string | null
         }
@@ -74,6 +110,7 @@ export type Database = {
           priority_badge?: Database["public"]["Enums"]["priority_level"]
           product_name?: string | null
           SKU: string
+          status?: string | null
           threshold?: number
           updated_at?: string | null
         }
@@ -94,6 +131,7 @@ export type Database = {
           priority_badge?: Database["public"]["Enums"]["priority_level"]
           product_name?: string | null
           SKU?: string
+          status?: string | null
           threshold?: number
           updated_at?: string | null
         }
