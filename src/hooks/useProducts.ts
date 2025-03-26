@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { type Product } from '@/types/product';
+import { type Product, type PriorityLevel } from '@/types/product';
 
 export function useProducts(statusFilter: string = 'low_stock') {
   const { toast } = useToast();
@@ -57,7 +57,13 @@ export function useProducts(statusFilter: string = 'low_stock') {
         }
         
         console.log('Products fetched:', data);
-        return data;
+        // Ensure the priority_badge is of type PriorityLevel
+        const typedData = data.map(item => ({
+          ...item,
+          priority_badge: item.priority_badge as PriorityLevel
+        }));
+        
+        return typedData;
       } catch (err) {
         console.error('Exception when fetching products:', err);
         throw err;

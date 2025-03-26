@@ -23,3 +23,12 @@ export interface Product {
   estimated_delivery_date: string | null;
   status: string | null;
 }
+
+// Define type for SKU selection
+export interface SelectedSKU {
+  productId: string;
+  SKU: string;
+  productName: string | null;
+  quantity: number;
+  price: number;
+}
