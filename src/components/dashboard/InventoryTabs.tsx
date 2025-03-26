@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { ChevronRight, ShoppingCart } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { LowStockTable } from '@/components/dashboard/LowStockTable';
+import { LowStockTable } from '@/components/dashboard/low-stock/LowStockTable';
 import { RecentOrdersTable } from '@/components/dashboard/RecentOrdersTable';
 
 export const InventoryTabs: React.FC = () => {
