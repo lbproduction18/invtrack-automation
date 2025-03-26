@@ -9,12 +9,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Product } from "@/types/product";
 import { useAnalysisItems } from "@/hooks/useAnalysisItems";
+import { useBudgetSettings } from "@/hooks/useBudgetSettings";
 
-// Import our new components
+// Import our components
 import BudgetSummary from './analysis/BudgetSummary';
 import ProductSummary from './analysis/ProductSummary';
 import ProductDetailsTable from './analysis/ProductDetailsTable';
 import ProductDetailsDrawer from './analysis/ProductDetailsDrawer';
+import OrderSimulationTable from './analysis/OrderSimulationTable';
+import BudgetSettingsPanel from './analysis/BudgetSettingsPanel';
 
 // Types
 type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000;
@@ -27,11 +30,15 @@ export const AnalysisContent: React.FC = () => {
   // Fetch products with status 'analysis'
   const { products: analysisProducts, isLoading, refetch } = useProducts('analysis');
   const { analysisItems } = useAnalysisItems();
+  const { budgetSettings } = useBudgetSettings();
   const { toast } = useToast();
   
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
   const [selectedProductIndex, setSelectedProductIndex] = useState<number | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  
+  // Store grouped product quantities
+  const [groupedQuantities, setGroupedQuantities] = useState<Record<string, number>>({});
   
   // When products load, initialize selected products with analysis ones
   useEffect(() => {
@@ -47,10 +54,29 @@ export const AnalysisContent: React.FC = () => {
       });
       
       setSelectedProducts(initialSelectedProducts);
+      
+      // Initialize grouped quantities
+      const groupedProducts = initialSelectedProducts.reduce((acc, product) => {
+        // Extract base product name (assuming format is "ProductName - Flavor")
+        const baseName = product.product_name?.split('-')[0]?.trim() || product.product_name || '';
+        
+        if (!acc[baseName]) {
+          acc[baseName] = 0;
+        }
+        
+        // If this product has a selected quantity, use it
+        if (product.selectedQuantity) {
+          acc[baseName] = product.selectedQuantity;
+        }
+        
+        return acc;
+      }, {} as Record<string, number>);
+      
+      setGroupedQuantities(groupedProducts);
     }
   }, [analysisProducts, analysisItems]);
   
-  // Get total price based on quantity
+  // Get total price based on quantity for a single product
   const getTotalPrice = (product: SelectedProduct) => {
     if (!product.selectedQuantity) return 0;
     
@@ -58,14 +84,44 @@ export const AnalysisContent: React.FC = () => {
     return product[priceKey] as number || 0;
   };
   
-  // Calculate total budget
+  // Calculate total budget for individual products
   const calculateTotalBudget = () => {
     return selectedProducts.reduce((total, product) => {
       return total + getTotalPrice(product);
     }, 0);
   };
   
-  // Handle quantity selection
+  // Calculate total budget for grouped simulation
+  const calculateSimulationTotal = () => {
+    // Group products by name
+    const groupedProducts = selectedProducts.reduce((acc, product) => {
+      const baseName = product.product_name?.split('-')[0]?.trim() || product.product_name || '';
+      
+      if (!acc[baseName]) {
+        acc[baseName] = [];
+      }
+      
+      acc[baseName].push(product);
+      return acc;
+    }, {} as Record<string, Product[]>);
+    
+    // Calculate total for all groups
+    return Object.entries(groupedProducts).reduce((total, [groupName, products]) => {
+      const selectedQty = groupedQuantities[groupName] || 0;
+      
+      if (selectedQty === 0) return total;
+      
+      const priceKey = `price_${selectedQty}` as keyof Product;
+      const validProducts = products.filter(p => p[priceKey] !== null && p[priceKey] !== undefined);
+      
+      if (validProducts.length === 0) return total;
+      
+      const avgPrice = validProducts.reduce((sum, p) => sum + (p[priceKey] as number || 0), 0) / validProducts.length;
+      return total + (avgPrice * selectedQty);
+    }, 0);
+  };
+  
+  // Handle quantity selection for individual products
   const handleQuantityChange = async (productId: string, quantity: QuantityOption) => {
     // Update the state
     setSelectedProducts(prev => 
@@ -92,6 +148,23 @@ export const AnalysisContent: React.FC = () => {
         variant: "destructive"
       });
     }
+  };
+  
+  // Handle quantity selection for grouped products simulation
+  const handleGroupQuantityChange = (groupName: string, quantity: number) => {
+    setGroupedQuantities(prev => ({
+      ...prev,
+      [groupName]: quantity
+    }));
+    
+    // Also update individual product quantities if they match this group
+    selectedProducts.forEach(product => {
+      const baseName = product.product_name?.split('-')[0]?.trim() || product.product_name || '';
+      
+      if (baseName === groupName && quantity > 0) {
+        handleQuantityChange(product.id, quantity as QuantityOption);
+      }
+    });
   };
   
   // Show product details
@@ -155,54 +228,75 @@ export const AnalysisContent: React.FC = () => {
   const selectedProduct = selectedProductIndex !== null 
     ? selectedProducts[selectedProductIndex] 
     : null;
+    
+  // Calculate total for the budget panel
+  const totalOrderAmount = calculateSimulationTotal();
 
   return (
     <CardContent className="p-4">
-      <Tabs defaultValue="summary" className="space-y-4">
-        <TabsList className="grid grid-cols-2">
-          <TabsTrigger value="summary">Résumé</TabsTrigger>
-          <TabsTrigger value="detailed">Détaillé</TabsTrigger>
-        </TabsList>
+      <div className="space-y-6">
+        {/* Simulation Table Panel */}
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium">Simulation de Commande</h3>
+          <OrderSimulationTable 
+            products={selectedProducts}
+            selectedQuantities={groupedQuantities}
+            onQuantityChange={handleGroupQuantityChange}
+          />
+        </div>
         
-        {/* Summary Tab */}
-        <TabsContent value="summary" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Budget Summary */}
-            <BudgetSummary
-              productCount={selectedProducts.length}
-              totalBudget={calculateTotalBudget()}
-              configuredProductCount={selectedProducts.filter(p => p.selectedQuantity).length}
+        {/* Two Column Layout for Budget and Detailed Views */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Budget Settings */}
+          <div className="lg:col-span-1">
+            <BudgetSettingsPanel
+              totalOrderAmount={totalOrderAmount}
               onCreateOrder={handleCreateOrder}
-            />
-            
-            {/* Product Summary */}
-            <ProductSummary
-              products={selectedProducts}
-              isLoading={isLoading}
-              onShowDetails={handleShowDetails}
             />
           </div>
           
-          {/* Proceed Button */}
-          <div className="flex justify-end mt-4">
-            <Button className="gap-1" size="sm" onClick={handleCreateOrder}>
-              Passer à la Commande
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+          {/* Right Column - Product Details */}
+          <div className="lg:col-span-2">
+            <Tabs defaultValue="summary" className="space-y-4">
+              <TabsList className="grid grid-cols-2">
+                <TabsTrigger value="summary">Résumé</TabsTrigger>
+                <TabsTrigger value="detailed">Détaillé</TabsTrigger>
+              </TabsList>
+              
+              {/* Summary Tab */}
+              <TabsContent value="summary" className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Product Summary */}
+                  <ProductSummary
+                    products={selectedProducts}
+                    isLoading={isLoading}
+                    onShowDetails={handleShowDetails}
+                  />
+                  
+                  {/* Budget Summary - Using our original component */}
+                  <BudgetSummary
+                    productCount={selectedProducts.length}
+                    totalBudget={calculateTotalBudget()}
+                    configuredProductCount={selectedProducts.filter(p => p.selectedQuantity).length}
+                    onCreateOrder={handleCreateOrder}
+                  />
+                </div>
+              </TabsContent>
+              
+              {/* Detailed Tab */}
+              <TabsContent value="detailed">
+                <ProductDetailsTable 
+                  products={selectedProducts}
+                  isLoading={isLoading}
+                  onQuantityChange={handleQuantityChange}
+                  getTotalPrice={getTotalPrice}
+                  onShowDetails={handleShowDetails}
+                />
+              </TabsContent>
+            </Tabs>
           </div>
-        </TabsContent>
-        
-        {/* Detailed Tab */}
-        <TabsContent value="detailed">
-          <ProductDetailsTable 
-            products={selectedProducts}
-            isLoading={isLoading}
-            onQuantityChange={handleQuantityChange}
-            getTotalPrice={getTotalPrice}
-            onShowDetails={handleShowDetails}
-          />
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
       
       {/* Product Details Drawer */}
       <ProductDetailsDrawer
