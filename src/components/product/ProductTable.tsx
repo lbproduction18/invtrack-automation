@@ -29,7 +29,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   };
 
   // Calculate visible columns count for proper colSpan in loading and empty states
-  const visibleColumnsCount = columnVisibility.filter(col => col.isVisible).length + 1; // +1 for actions column
+  const visibleColumnsCount = columnVisibility.filter(col => col.isVisible).length;
 
   if (isLoading) {
     return <LoadingState colSpan={visibleColumnsCount} />;

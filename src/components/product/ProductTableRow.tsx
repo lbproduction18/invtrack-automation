@@ -6,7 +6,6 @@ import { type Product } from '@/types/product';
 import { type ColumnVisibility } from './ColumnVisibilityDropdown';
 import { PriorityBadge } from './PriorityBadge';
 import { PriorityDialog } from './PriorityDialog';
-import { ProductRowActions } from './ProductRowActions';
 
 // Helper functions
 const getDaysSinceAdded = (createdDate: string): number => {
@@ -62,18 +61,6 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
                 })}
               </TableCell>
             );
-          case 'stock':
-            return (
-              <TableCell key={`${product.id}-${column.id}`} className="text-center font-medium whitespace-nowrap p-1">
-                {product.current_stock}
-              </TableCell>
-            );
-          case 'threshold':
-            return (
-              <TableCell key={`${product.id}-${column.id}`} className="text-center font-medium whitespace-nowrap p-1">
-                {product.threshold}
-              </TableCell>
-            );
           case 'age':
             return (
               <TableCell 
@@ -97,19 +84,22 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
                 </PriorityDialog>
               </TableCell>
             );
+          case 'stock':
+            return (
+              <TableCell key={`${product.id}-${column.id}`} className="text-center font-medium whitespace-nowrap p-1">
+                {product.current_stock}
+              </TableCell>
+            );
+          case 'threshold':
+            return (
+              <TableCell key={`${product.id}-${column.id}`} className="text-center font-medium whitespace-nowrap p-1">
+                {product.threshold}
+              </TableCell>
+            );
           default:
             return null;
         }
       })}
-      
-      <TableCell className="text-center whitespace-nowrap p-1">
-        <div className="flex justify-center">
-          <ProductRowActions 
-            product={product} 
-            onPriorityChange={onPriorityChange} 
-          />
-        </div>
-      </TableCell>
     </TableRow>
   );
 };

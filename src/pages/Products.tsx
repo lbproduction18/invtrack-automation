@@ -25,10 +25,10 @@ const Products: React.FC = () => {
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility[]>([
     { id: 'SKU', title: 'SKU', isVisible: true, order: 0 },
     { id: 'date', title: 'Date Ajoutée', isVisible: true, order: 1 },
-    { id: 'stock', title: 'Stock Actuel', isVisible: true, order: 2 },
-    { id: 'threshold', title: 'Seuil', isVisible: true, order: 3 },
-    { id: 'priority', title: 'Priorité', isVisible: true, order: 4 },
-    { id: 'age', title: 'Âge', isVisible: true, order: 5 }
+    { id: 'age', title: 'Âge', isVisible: true, order: 2 },
+    { id: 'priority', title: 'Priorité', isVisible: true, order: 3 },
+    { id: 'stock', title: 'Stock Actuel', isVisible: true, order: 4 },
+    { id: 'threshold', title: 'Seuil', isVisible: true, order: 5 }
   ]);
   
   const { products, isLoading, refetch } = useProducts();

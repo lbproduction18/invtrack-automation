@@ -41,32 +41,31 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                   <TableHead 
                     key={column.id} 
                     className={cn(
-                      "text-xs font-medium text-gray-400 p-1 text-center",
-                      column.id === 'SKU' && "w-[30%]",
-                      column.id === 'date' && "w-[15%]",
-                      column.id === 'stock' && "w-[10%]",
-                      column.id === 'threshold' && "w-[10%]",
-                      column.id === 'age' && "w-[10%]",
-                      column.id === 'priority' && "w-[10%]"
+                      "text-xs font-medium text-gray-400 p-1",
+                      column.id === 'SKU' && "w-[30%] text-left pl-3",
+                      column.id === 'date' && "w-[15%] text-center",
+                      column.id === 'age' && "w-[10%] text-center",
+                      column.id === 'priority' && "w-[10%] text-center",
+                      column.id === 'stock' && "w-[10%] text-center",
+                      column.id === 'threshold' && "w-[10%] text-center"
                     )}
                   >
                     {column.title}
                   </TableHead>
                 )
               ))}
-            <TableHead className="text-xs font-medium text-gray-400 text-center w-[10%] p-1">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {isLoading ? (
             Array.from({ length: 5 }).map((_, index) => (
               <TableRow key={`loading-${index}`} className="border-b border-[#272727] hover:bg-[#161616]">
-                <TableCell colSpan={columnVisibility.filter(col => col.isVisible).length + 1} className="h-12 animate-pulse bg-[#161616]/50"></TableCell>
+                <TableCell colSpan={columnVisibility.filter(col => col.isVisible).length} className="h-12 animate-pulse bg-[#161616]/50"></TableCell>
               </TableRow>
             ))
           ) : filteredProducts.length === 0 ? (
             <TableRow className="hover:bg-[#161616]">
-              <TableCell colSpan={columnVisibility.filter(col => col.isVisible).length + 1} className="h-24 text-center text-gray-400">
+              <TableCell colSpan={columnVisibility.filter(col => col.isVisible).length} className="h-24 text-center text-gray-400">
                 <div className="flex flex-col items-center justify-center">
                   <AlertTriangle className="h-8 w-8 text-gray-400 mb-2" />
                   <p>Aucun produit trouvé</p>
