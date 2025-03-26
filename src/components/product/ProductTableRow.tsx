@@ -49,7 +49,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         priorityStyles.bg || (hasNote ? `bg-${noteType}/10` : ""),
         priorityStyles.hover || (hasNote ? `hover:bg-${noteType}/20` : "hover:bg-muted/30"),
         hasNote && `border-l-4 ${priorityStyles.border || `border-${noteType}`}`,
-        priorityStyles.text // Ajout de la couleur du texte
+        product.priority_badge === 'prioritaire' && "font-semibold"  // Bold text for high priority items
       )}>
         {sortedColumns.map(column => {
           if (!column.isVisible) return null;
@@ -57,7 +57,13 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
           switch(column.id) {
             case 'SKU':
               return (
-                <TableCell key={`${product.id}-${column.id}`} className="font-medium whitespace-nowrap p-1 text-left pl-3">
+                <TableCell 
+                  key={`${product.id}-${column.id}`} 
+                  className={cn(
+                    "font-medium whitespace-nowrap p-1 text-left pl-3",
+                    product.priority_badge === 'prioritaire' && "text-red-700"  // Red text for high priority
+                  )}
+                >
                   {product.SKU}
                 </TableCell>
               );
@@ -135,8 +141,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         <TableRow className={cn(
           priorityStyles.bg || `bg-${noteType}/10`,
           "border-t-0",
-          `border-l-4 ${priorityStyles.border || `border-${noteType}`}`,
-          priorityStyles.text // Ajout de la couleur du texte
+          `border-l-4 ${priorityStyles.border || `border-${noteType}`}`
         )}>
           <TableCell colSpan={sortedColumns.filter(col => col.isVisible).length} className="p-0">
             <NoteContent 

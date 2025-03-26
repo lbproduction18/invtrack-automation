@@ -6,25 +6,22 @@ export const getPriorityStyles = (priority: Product['priority_badge']) => {
   switch (priority) {
     case 'prioritaire':
       return {
-        bg: "bg-red-950/50",  // Plus foncé et plus visible
-        hover: "hover:bg-red-950/60",  // Encore plus foncé au survol
-        border: "border-red-600",      // Bordure plus visible
-        text: "text-red-500"           // Texte rouge clair pour meilleur contraste
+        bg: "bg-red-700/50",  // Stronger red with higher opacity
+        hover: "hover:bg-red-700/60",  // More prominent hover
+        border: "border-red-600/60"    // Brighter red border
       };
     case 'moyen':
       return {
-        bg: "bg-orange-400/30",        // Orange plus vif et visible
-        hover: "hover:bg-orange-400/40", 
-        border: "border-orange-500",   // Bordure orange vif
-        text: "text-orange-500"        // Texte orange
+        bg: "bg-orange-400/40",  // Brighter orange with good opacity
+        hover: "hover:bg-orange-400/50",
+        border: "border-orange-400/50"
       };
     case 'standard':
     default:
       return {
         bg: "",
         hover: "hover:bg-muted/30",
-        border: "",
-        text: "text-slate-500"         // Texte gris-bleu pour standard
+        border: ""
       };
   }
 };
