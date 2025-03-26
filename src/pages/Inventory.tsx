@@ -134,7 +134,7 @@ const Inventory: React.FC = () => {
     const matchesSearch = 
       searchQuery === '' || 
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.product_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.SKU.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.supplier_name?.toLowerCase().includes(searchQuery.toLowerCase());
     
     if (stockFilter === 'all') {
