@@ -34,5 +34,5 @@ export const FilteredProductsList: React.FC<FilteredProductsListProps> = ({
     return matchesSearch;
   });
 
-  return { filteredProducts };
+  return filteredProducts;
 };
