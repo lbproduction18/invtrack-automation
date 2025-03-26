@@ -49,7 +49,8 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         priorityStyles.bg || (hasNote ? `bg-${noteType}/10` : ""),
         priorityStyles.hover || (hasNote ? `hover:bg-${noteType}/20` : "hover:bg-muted/30"),
         hasNote && `border-l-4 ${priorityStyles.border || `border-${noteType}`}`,
-        product.priority_badge === 'prioritaire' && "font-semibold"  // Bold text for high priority items
+        product.priority_badge === 'prioritaire' && "font-semibold",  // Bold text for high priority items
+        priorityStyles.text // Add the text color class
       )}>
         {sortedColumns.map(column => {
           if (!column.isVisible) return null;
@@ -61,7 +62,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
                   key={`${product.id}-${column.id}`} 
                   className={cn(
                     "font-medium whitespace-nowrap p-1 text-left pl-3",
-                    product.priority_badge === 'prioritaire' && "text-red-700"  // Red text for high priority
+                    priorityStyles.text || (product.priority_badge === 'prioritaire' ? "text-white" : "") // Use white text for high priority
                   )}
                 >
                   {product.SKU}
@@ -69,7 +70,10 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
               );
             case 'date':
               return (
-                <TableCell key={`${product.id}-${column.id}`} className="whitespace-nowrap p-1 text-center">
+                <TableCell 
+                  key={`${product.id}-${column.id}`} 
+                  className={cn("whitespace-nowrap p-1 text-center", priorityStyles.text)}
+                >
                   {formatDate(product.created_at, {
                     month: 'short',
                     day: 'numeric'
@@ -80,14 +84,17 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
               return (
                 <TableCell 
                   key={`${product.id}-${column.id}`} 
-                  className={cn("text-center whitespace-nowrap p-1", getAgingColor(getDaysSinceAdded(product.created_at)))}
+                  className={cn(
+                    "text-center whitespace-nowrap p-1", 
+                    priorityStyles.text || getAgingColor(getDaysSinceAdded(product.created_at))
+                  )}
                 >
                   {getDaysSinceAdded(product.created_at)} j
                 </TableCell>
               );
             case 'priority':
               return (
-                <TableCell key={`${product.id}-${column.id}`} className="whitespace-nowrap p-1 text-center">
+                <TableCell key={`${product.id}-${column.id}`} className={cn("whitespace-nowrap p-1 text-center", priorityStyles.text)}>
                   <PriorityDialog
                     productId={product.id}
                     currentPriority={product.priority_badge}
@@ -101,19 +108,19 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
               );
             case 'stock':
               return (
-                <TableCell key={`${product.id}-${column.id}`} className="text-center font-medium whitespace-nowrap p-1">
+                <TableCell key={`${product.id}-${column.id}`} className={cn("text-center font-medium whitespace-nowrap p-1", priorityStyles.text)}>
                   {product.current_stock}
                 </TableCell>
               );
             case 'threshold':
               return (
-                <TableCell key={`${product.id}-${column.id}`} className="text-center font-medium whitespace-nowrap p-1">
+                <TableCell key={`${product.id}-${column.id}`} className={cn("text-center font-medium whitespace-nowrap p-1", priorityStyles.text)}>
                   {product.threshold}
                 </TableCell>
               );
             case 'note':
               return (
-                <TableCell key={`${product.id}-${column.id}`} className="text-center whitespace-nowrap p-1">
+                <TableCell key={`${product.id}-${column.id}`} className={cn("text-center whitespace-nowrap p-1", priorityStyles.text)}>
                   {product.note ? (
                     <button 
                       onClick={toggleExpand}
@@ -140,6 +147,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
       {isExpanded && product.note && (
         <TableRow className={cn(
           priorityStyles.bg || `bg-${noteType}/10`,
+          priorityStyles.text,
           "border-t-0",
           `border-l-4 ${priorityStyles.border || `border-${noteType}`}`
         )}>

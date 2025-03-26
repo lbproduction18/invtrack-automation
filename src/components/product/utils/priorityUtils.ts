@@ -8,20 +8,23 @@ export const getPriorityStyles = (priority: Product['priority_badge']) => {
       return {
         bg: "bg-red-700/50",  // Stronger red with higher opacity
         hover: "hover:bg-red-700/60",  // More prominent hover
-        border: "border-red-600/60"    // Brighter red border
+        border: "border-red-600/60",   // Brighter red border
+        text: "text-white"             // White text for better contrast on red
       };
     case 'moyen':
       return {
         bg: "bg-orange-400/40",  // Brighter orange with good opacity
         hover: "hover:bg-orange-400/50",
-        border: "border-orange-400/50"
+        border: "border-orange-400/50",
+        text: "text-white"       // White text for better contrast on orange
       };
     case 'standard':
     default:
       return {
         bg: "",
         hover: "hover:bg-muted/30",
-        border: ""
+        border: "",
+        text: ""                // Default text color for standard priority
       };
   }
 };
