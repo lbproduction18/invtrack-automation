@@ -63,9 +63,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   return (
     <>
       {filteredProducts.map((product) => (
-        <TableRow key={product.id} className="table-row-glass">
-          <TableCell className="font-medium">{product.product_id}</TableCell>
-          <TableCell>{product.name}</TableCell>
+        <TableRow key={product.id} className="bg-transparent hover:bg-muted/30">
+          <TableCell className="font-mono text-xs text-muted-foreground">{product.product_id}</TableCell>
+          <TableCell className="font-medium">{product.name}</TableCell>
           <TableCell>{product.unit}</TableCell>
           <TableCell>{product.supplier_name}</TableCell>
           <TableCell className="text-right">{product.current_stock}</TableCell>
@@ -81,7 +81,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="bg-popover/95 backdrop-blur-sm border-border/40">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>

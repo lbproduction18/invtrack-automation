@@ -9,6 +9,59 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      "Low stock product": {
+        Row: {
+          avg_sales: number | null
+          created_at: string
+          current_stock: number
+          description: string | null
+          id: string
+          lead_time: number | null
+          name: string
+          product_id: string
+          supplier_id: string | null
+          threshold: number
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          avg_sales?: number | null
+          created_at?: string
+          current_stock?: number
+          description?: string | null
+          id?: string
+          lead_time?: number | null
+          name: string
+          product_id: string
+          supplier_id?: string | null
+          threshold?: number
+          unit: string
+          updated_at?: string
+        }
+        Update: {
+          avg_sales?: number | null
+          created_at?: string
+          current_stock?: number
+          description?: string | null
+          id?: string
+          lead_time?: number | null
+          name?: string
+          product_id?: string
+          supplier_id?: string | null
+          threshold?: number
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           actual_delivery_date: string | null
@@ -55,7 +108,7 @@ export type Database = {
             foreignKeyName: "order_items_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "products"
+            referencedRelation: "Low stock product"
             referencedColumns: ["id"]
           },
         ]
@@ -91,59 +144,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "orders_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "suppliers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      products: {
-        Row: {
-          avg_sales: number | null
-          created_at: string
-          current_stock: number
-          description: string | null
-          id: string
-          lead_time: number | null
-          name: string
-          product_id: string
-          supplier_id: string | null
-          threshold: number
-          unit: string
-          updated_at: string
-        }
-        Insert: {
-          avg_sales?: number | null
-          created_at?: string
-          current_stock?: number
-          description?: string | null
-          id?: string
-          lead_time?: number | null
-          name: string
-          product_id: string
-          supplier_id?: string | null
-          threshold?: number
-          unit: string
-          updated_at?: string
-        }
-        Update: {
-          avg_sales?: number | null
-          created_at?: string
-          current_stock?: number
-          description?: string | null
-          id?: string
-          lead_time?: number | null
-          name?: string
-          product_id?: string
-          supplier_id?: string | null
-          threshold?: number
-          unit?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "products_supplier_id_fkey"
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"

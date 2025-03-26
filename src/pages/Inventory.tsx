@@ -101,34 +101,38 @@ const Inventory: React.FC = () => {
   });
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 animate-fade-in">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Low Stock</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl font-medium tracking-tight">Low Stock</h1>
+          <p className="text-sm text-muted-foreground">
             Surveiller les produits à faible stock
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline">
-            <ArrowDown className="mr-2 h-4 w-4" />
+          <Button variant="outline" size="sm" className="h-8 text-xs">
+            <ArrowDown className="mr-2 h-3 w-3" />
             Exporter
           </Button>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button size="sm" className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700">
+            <Plus className="mr-2 h-3 w-3" />
             Nouveau Produit
           </Button>
         </div>
       </div>
 
-      <Card className="card-glass">
-        <CardHeader className="px-6">
-          <CardTitle>Produits à Faible Stock</CardTitle>
-          <CardDescription>
-            Surveillez et gérez les produits qui nécessitent un réapprovisionnement
-          </CardDescription>
+      <Card className="border border-border/30 bg-card/30 backdrop-blur-sm shadow-sm">
+        <CardHeader className="px-4 py-3 border-b border-border/30">
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-sm font-medium">Produits à Faible Stock</CardTitle>
+              <CardDescription className="text-xs">
+                Surveillez et gérez les produits qui nécessitent un réapprovisionnement
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="px-6">
+        <CardContent className="p-4">
           <ProductFilter 
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -136,18 +140,18 @@ const Inventory: React.FC = () => {
             setStockFilter={setStockFilter}
           />
           
-          <div className="rounded-md border">
+          <div className="rounded-md border border-border/30 overflow-hidden">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID Produit</TableHead>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Unité</TableHead>
-                  <TableHead>Fournisseur</TableHead>
-                  <TableHead className="text-right">Stock Actuel</TableHead>
-                  <TableHead className="text-right">Seuil</TableHead>
-                  <TableHead className="text-right">Statut</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+              <TableHeader className="bg-muted/20">
+                <TableRow className="hover:bg-transparent border-b border-border/30">
+                  <TableHead className="text-xs font-medium">ID Produit</TableHead>
+                  <TableHead className="text-xs font-medium">Nom</TableHead>
+                  <TableHead className="text-xs font-medium">Unité</TableHead>
+                  <TableHead className="text-xs font-medium">Fournisseur</TableHead>
+                  <TableHead className="text-xs font-medium text-right">Stock Actuel</TableHead>
+                  <TableHead className="text-xs font-medium text-right">Seuil</TableHead>
+                  <TableHead className="text-xs font-medium text-right">Statut</TableHead>
+                  <TableHead className="text-xs font-medium text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -160,11 +164,16 @@ const Inventory: React.FC = () => {
             </Table>
           </div>
           
-          <Pagination 
-            filteredCount={filteredProducts.length}
-            totalCount={products.length}
-            isLoading={isLoading}
-          />
+          <div className="mt-4 flex items-center justify-between">
+            <div className="text-xs text-muted-foreground">
+              {filteredProducts.length} résultats
+            </div>
+            <Pagination 
+              filteredCount={filteredProducts.length}
+              totalCount={products.length}
+              isLoading={isLoading}
+            />
+          </div>
         </CardContent>
       </Card>
     </div>
