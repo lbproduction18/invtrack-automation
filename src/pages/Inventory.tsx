@@ -41,7 +41,7 @@ const Inventory: React.FC = () => {
       console.log('Fetching products for inventory from Supabase...');
       try {
         const { data, error } = await supabase
-          .from('products')
+          .from('Low stock product')
           .select(`
             *,
             suppliers:supplier_id (name)
