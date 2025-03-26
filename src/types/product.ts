@@ -1,7 +1,8 @@
 
 export type Product = {
   id: string;
-  name: string;
-  description: string;
-  unit: string;
+  SKU: string;
+  current_stock: number;
+  threshold: number;
+  created_at: string;
 };

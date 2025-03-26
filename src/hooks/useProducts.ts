@@ -22,11 +22,12 @@ export function useProducts() {
           .from('Low stock product')
           .select(`
             id,
-            name,
-            description,
-            unit
+            SKU,
+            current_stock,
+            threshold,
+            created_at
           `)
-          .order('name');
+          .order('SKU');
           
         if (error) {
           console.error('Error fetching products:', error);

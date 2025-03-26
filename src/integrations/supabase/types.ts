@@ -11,47 +11,27 @@ export type Database = {
     Tables: {
       "Low stock product": {
         Row: {
-          avg_sales: number | null
           created_at: string
           current_stock: number
           id: string
-          lead_time: number | null
           SKU: string
-          supplier_id: string | null
           threshold: number
-          updated_at: string
         }
         Insert: {
-          avg_sales?: number | null
           created_at?: string
           current_stock?: number
           id?: string
-          lead_time?: number | null
           SKU: string
-          supplier_id?: string | null
           threshold?: number
-          updated_at?: string
         }
         Update: {
-          avg_sales?: number | null
           created_at?: string
           current_stock?: number
           id?: string
-          lead_time?: number | null
           SKU?: string
-          supplier_id?: string | null
           threshold?: number
-          updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "products_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "suppliers"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       low_stock_last_updated: {
         Row: {

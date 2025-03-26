@@ -19,6 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Loader2, MoreHorizontal, Package, Pencil, Plus, Trash2 } from 'lucide-react';
 import { type Product } from '@/types/product';
+import { StockStatusBadge } from '@/components/product/StockStatusBadge';
 
 interface ProductTableProps {
   products: Product[];
@@ -35,7 +36,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   if (isLoading) {
     return (
       <TableRow>
-        <TableCell colSpan={4} className="h-24 text-center">
+        <TableCell colSpan={5} className="h-24 text-center">
           <div className="flex flex-col items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
             <p className="mt-2 text-sm text-muted-foreground">Chargement des produits...</p>
@@ -48,7 +49,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   if (filteredProducts.length === 0) {
     return (
       <TableRow>
-        <TableCell colSpan={4} className="h-24 text-center">
+        <TableCell colSpan={5} className="h-24 text-center">
           <div className="flex flex-col items-center justify-center text-muted-foreground">
             <Package className="h-8 w-8 mb-2 opacity-50" />
             <p>Aucun produit trouvé</p>
@@ -63,9 +64,19 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     <>
       {filteredProducts.map((product) => (
         <TableRow key={product.id} className="bg-transparent hover:bg-muted/30">
-          <TableCell className="font-medium">{product.name}</TableCell>
-          <TableCell>{product.description}</TableCell>
-          <TableCell>{product.unit}</TableCell>
+          <TableCell className="font-medium">{product.SKU}</TableCell>
+          <TableCell className="text-right">{product.current_stock}</TableCell>
+          <TableCell className="text-right">{product.threshold}</TableCell>
+          <TableCell>
+            {new Date(product.created_at).toLocaleDateString('fr-FR', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            })}
+          </TableCell>
+          <TableCell className="text-right">
+            <StockStatusBadge stock={product.current_stock} threshold={product.threshold} />
+          </TableCell>
           <TableCell className="text-right">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

@@ -13,14 +13,14 @@ export const FilteredProductsList = ({
   searchQuery,
   stockFilter
 }: FilteredProductsListProps): Product[] => {
-  // Filtrer les produits uniquement en fonction de la recherche
-  // puisque nous n'avons plus les propriétés de stock
+  // Filtrer les produits en fonction de la recherche
   const filteredProducts = products.filter((product: Product) => {
     const matchesSearch = 
       searchQuery === '' || 
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.toLowerCase());
+      product.SKU.toLowerCase().includes(searchQuery.toLowerCase());
     
+    // Add stock filtering if needed in the future
+    // For now, just return the search match
     return matchesSearch;
   });
 

@@ -41,9 +41,8 @@ export const InventoryContent: React.FC = () => {
           <TableHeader className="bg-[#161616]">
             <TableRow className="hover:bg-transparent border-b border-[#272727]">
               <TableHead className="text-xs font-medium text-gray-400">SKU</TableHead>
-              <TableHead className="text-xs font-medium text-gray-400">Nom</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-right">Stock Actuel</TableHead>
-              <TableHead className="text-xs font-medium text-gray-400 text-right">Minimum</TableHead>
+              <TableHead className="text-xs font-medium text-gray-400 text-right">Seuil</TableHead>
               <TableHead className="text-xs font-medium text-gray-400">Date Ajoutée</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-right">Statut</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-right">Actions</TableHead>
@@ -53,12 +52,12 @@ export const InventoryContent: React.FC = () => {
             {isLoading ? (
               Array.from({ length: 5 }).map((_, index) => (
                 <TableRow key={`loading-${index}`} className="border-b border-[#272727] hover:bg-[#161616]">
-                  <TableCell colSpan={8} className="h-12 animate-pulse bg-[#161616]/50"></TableCell>
+                  <TableCell colSpan={6} className="h-12 animate-pulse bg-[#161616]/50"></TableCell>
                 </TableRow>
               ))
             ) : filteredProducts.length === 0 ? (
               <TableRow className="hover:bg-[#161616]">
-                <TableCell colSpan={8} className="h-24 text-center text-gray-400">
+                <TableCell colSpan={6} className="h-24 text-center text-gray-400">
                   <div className="flex flex-col items-center justify-center">
                     <AlertTriangle className="h-8 w-8 text-gray-400 mb-2" />
                     <p>Aucun produit trouvé</p>
