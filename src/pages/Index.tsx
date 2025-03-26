@@ -15,10 +15,13 @@ import { AnalysisContent } from '@/components/inventory/AnalysisContent';
 import { OrderContent } from '@/components/inventory/OrderContent';
 import { DeliveryContent } from '@/components/inventory/DeliveryContent';
 import { Progress } from "@/components/ui/progress";
+import { useEffect } from 'react';
+import type { CarouselApi } from "@/components/ui/carousel";
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const totalSteps = 4;
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   
   const steps = [
     { name: "Observation", description: "Produits à faible stock" },
@@ -26,6 +29,21 @@ const Index = () => {
     { name: "Commande", description: "Création et validation du bon de commande" },
     { name: "Livraison", description: "Suivi et détails de la livraison" }
   ];
+
+  useEffect(() => {
+    if (!carouselApi) return;
+    
+    const handleSelect = () => {
+      setCurrentStep(carouselApi.selectedScrollSnap());
+    };
+    
+    carouselApi.on("select", handleSelect);
+    
+    // Cleanup
+    return () => {
+      carouselApi.off("select", handleSelect);
+    };
+  }, [carouselApi]);
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] text-white relative">
@@ -46,9 +64,7 @@ const Index = () => {
       
       <Carousel 
         className="w-full" 
-        onSelect={(api) => {
-          if (api) setCurrentStep(api.selectedScrollSnap());
-        }}
+        setApi={setCarouselApi}
       >
         <CarouselContent>
           {/* Low Stock Products */}
