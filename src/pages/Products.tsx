@@ -25,6 +25,8 @@ import { ProductFilterControls } from '@/components/product/ProductFilterControl
 import { ProductTable } from '@/components/product/ProductTable';
 import { Pagination } from '@/components/product/Pagination';
 import { FilteredProductsList, type SortOption } from '@/components/product/FilteredProductsList';
+import { ColumnVisibilityDropdown, type ColumnVisibility } from '@/components/product/ColumnVisibilityDropdown';
+import { cn } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -37,6 +39,13 @@ const Products: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [stockFilter, setStockFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('oldest');
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility[]>([
+    { id: 'SKU', title: 'SKU', isVisible: true },
+    { id: 'date', title: 'Date Ajoutée', isVisible: true },
+    { id: 'stock', title: 'Stock Actuel', isVisible: true },
+    { id: 'threshold', title: 'Seuil', isVisible: true },
+    { id: 'age', title: 'Âge', isVisible: true }
+  ]);
   
   const { products, isLoading } = useProducts();
   
@@ -46,6 +55,12 @@ const Products: React.FC = () => {
     stockFilter,
     sortBy
   });
+
+  const handleColumnVisibilityChange = (columnId: string, isVisible: boolean) => {
+    setColumnVisibility(prev => 
+      prev.map(col => col.id === columnId ? { ...col, isVisible } : col)
+    );
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -87,6 +102,11 @@ const Products: React.FC = () => {
             />
             
             <div className="flex items-center gap-2">
+              <ColumnVisibilityDropdown 
+                columns={columnVisibility}
+                onColumnVisibilityChange={handleColumnVisibilityChange}
+              />
+              
               <Select
                 value={sortBy}
                 onValueChange={(value) => setSortBy(value as SortOption)}
@@ -108,12 +128,19 @@ const Products: React.FC = () => {
             <Table>
               <TableHeader className="bg-muted/30">
                 <TableRow className="hover:bg-transparent border-b border-border/50">
-                  <TableHead className="text-xs font-medium">SKU</TableHead>
-                  <TableHead className="text-xs font-medium">Date Ajoutée</TableHead>
-                  <TableHead className="text-xs font-medium text-right">Statut</TableHead>
-                  <TableHead className="text-xs font-medium text-right w-24">Stock Actuel</TableHead>
-                  <TableHead className="text-xs font-medium text-right w-24">Seuil</TableHead>
-                  <TableHead className="text-xs font-medium text-right w-24">Âge</TableHead>
+                  {columnVisibility.map(column => (
+                    column.isVisible && (
+                      <TableHead 
+                        key={column.id} 
+                        className={cn(
+                          "text-xs font-medium",
+                          (column.id === 'stock' || column.id === 'threshold' || column.id === 'age') && "text-right w-24"
+                        )}
+                      >
+                        {column.title}
+                      </TableHead>
+                    )
+                  ))}
                   <TableHead className="text-xs font-medium text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -122,6 +149,7 @@ const Products: React.FC = () => {
                   products={products}
                   isLoading={isLoading}
                   filteredProducts={filteredProducts}
+                  columnVisibility={columnVisibility}
                 />
               </TableBody>
             </Table>
