@@ -2,31 +2,48 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Flag } from 'lucide-react';
+import { Flag, ArrowUp } from 'lucide-react';
 
 interface StockStatusBadgeProps {
   stock: number;
   threshold: number;
+  manualStatus?: 'high' | 'medium' | 'low' | null;
 }
 
-export const StockStatusBadge: React.FC<StockStatusBadgeProps> = ({ stock, threshold }) => {
+export const StockStatusBadge: React.FC<StockStatusBadgeProps> = ({ 
+  stock, 
+  threshold, 
+  manualStatus = null 
+}) => {
   // Déterminer le statut et le style du badge en fonction du niveau de priorité
-  // La priorité est déterminée par le rapport entre le stock actuel et le seuil
-  let status: 'high' | 'medium' | 'low' = 'low';
+  // ou utiliser le statut manuel s'il est fourni
+  let status: 'high' | 'medium' | 'low' = manualStatus || 'low'; // Par défaut "Basse"
   let statusText = 'Basse';
   
-  // Calcul du ratio pour déterminer la priorité
-  const ratio = stock / threshold;
-  
-  if (stock <= 0) {
-    status = 'high';
-    statusText = 'Critique';
-  } else if (ratio <= 0.5) {
-    status = 'high';
-    statusText = 'Haute';
-  } else if (ratio <= 0.75) {
-    status = 'medium';
-    statusText = 'Moyenne';
+  // Si aucun statut manuel n'est fourni, calculer automatiquement
+  if (!manualStatus) {
+    // Calcul du ratio pour déterminer la priorité
+    const ratio = stock / threshold;
+    
+    if (stock <= 0) {
+      status = 'high';
+      statusText = 'Critique';
+    } else if (ratio <= 0.5) {
+      status = 'high';
+      statusText = 'Haute';
+    } else if (ratio <= 0.75) {
+      status = 'medium';
+      statusText = 'Moyenne';
+    }
+  } else {
+    // Utiliser le texte correspondant au statut manuel
+    statusText = manualStatus === 'high' ? 'Haute' : 
+                 manualStatus === 'medium' ? 'Moyenne' : 'Basse';
+                 
+    // Si le statut manuel est 'high' et le stock est à zéro, afficher 'Critique'
+    if (manualStatus === 'high' && stock <= 0) {
+      statusText = 'Critique';
+    }
   }
   
   // Les classes spécifiques au style Supabase
@@ -47,6 +64,7 @@ export const StockStatusBadge: React.FC<StockStatusBadgeProps> = ({ stock, thres
       )}
     >
       {status === 'high' && <Flag className="h-3 w-3" />}
+      {status === 'medium' && <ArrowUp className="h-3 w-3" />}
       {statusText}
     </Badge>
   );

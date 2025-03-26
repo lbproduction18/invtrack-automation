@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -11,7 +11,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Edit, Check } from 'lucide-react';
+import { StockStatusBadge } from '@/components/product/StockStatusBadge';
 
 // Mock data for low stock items
 const lowStockItems = [
@@ -24,7 +25,7 @@ const lowStockItems = [
     minimum: 10,
     supplier: 'Tech Distributors',
     price: 89.99,
-    status: 'critical',
+    status: 'low',
     added: '2023-11-15'
   },
   {
@@ -36,7 +37,7 @@ const lowStockItems = [
     minimum: 25,
     supplier: 'Fashion Wholesale',
     price: 24.99,
-    status: 'warning',
+    status: 'low',
     added: '2023-12-22'
   },
   {
@@ -48,7 +49,7 @@ const lowStockItems = [
     minimum: 15,
     supplier: 'Tech Distributors',
     price: 129.95,
-    status: 'critical',
+    status: 'low',
     added: '2024-01-10'
   },
   {
@@ -60,7 +61,7 @@ const lowStockItems = [
     minimum: 20,
     supplier: 'Home Essentials Co.',
     price: 35.50,
-    status: 'warning',
+    status: 'low',
     added: '2024-02-05'
   },
   {
@@ -72,7 +73,7 @@ const lowStockItems = [
     minimum: 15,
     supplier: 'Accessory World',
     price: 49.99,
-    status: 'warning',
+    status: 'low',
     added: '2024-03-18'
   },
   {
@@ -84,7 +85,7 @@ const lowStockItems = [
     minimum: 12,
     supplier: 'Sound Systems Inc.',
     price: 75.00,
-    status: 'critical',
+    status: 'low',
     added: '2024-04-02'
   },
   {
@@ -96,13 +97,15 @@ const lowStockItems = [
     minimum: 10,
     supplier: 'Beauty Essentials',
     price: 28.99,
-    status: 'critical',
+    status: 'low',
     added: '2024-05-11'
   }
 ];
 
 export const LowStockTable: React.FC = () => {
-  const [selectedItems, setSelectedItems] = React.useState<string[]>([]);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [manualStatuses, setManualStatuses] = useState<Record<string, 'high' | 'medium' | 'low' | null>>({});
+  const [editingStatus, setEditingStatus] = useState<string | null>(null);
   
   const toggleItem = (id: string) => {
     setSelectedItems(prev => 
@@ -123,6 +126,14 @@ export const LowStockTable: React.FC = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+  };
+
+  const changeStatus = (id: string, newStatus: 'high' | 'medium' | 'low') => {
+    setManualStatuses(prev => ({
+      ...prev,
+      [id]: newStatus
+    }));
+    setEditingStatus(null);
   };
 
   return (
@@ -172,7 +183,7 @@ export const LowStockTable: React.FC = () => {
                 <TableCell className="font-medium">{item.name}</TableCell>
                 <TableCell>{item.sku}</TableCell>
                 <TableCell className="text-right">
-                  <span className={item.status === 'critical' ? 'text-danger' : 'text-warning'}>
+                  <span className={item.current <= 0 ? 'text-danger' : ''}>
                     {item.current}
                   </span>
                 </TableCell>
@@ -181,21 +192,74 @@ export const LowStockTable: React.FC = () => {
                 </TableCell>
                 <TableCell>{formatDate(item.added)}</TableCell>
                 <TableCell className="text-right">
-                  <Badge 
-                    variant="outline" 
-                    className={
-                      item.status === 'critical' 
-                        ? 'border-danger/50 text-danger bg-danger/10' 
-                        : 'border-warning/50 text-warning bg-warning/10'
-                    }
-                  >
-                    {item.status === 'critical' ? 'Critical' : 'Low'}
-                  </Badge>
+                  {editingStatus === item.id ? (
+                    <div className="flex justify-end space-x-1">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-7 w-7 p-0" 
+                        onClick={() => changeStatus(item.id, 'low')}
+                      >
+                        <Badge variant="outline" className="bg-green-900/30 text-green-400 border border-green-900/20 px-2 py-0.5">
+                          Basse
+                        </Badge>
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-7 w-7 p-0" 
+                        onClick={() => changeStatus(item.id, 'medium')}
+                      >
+                        <Badge variant="outline" className="bg-yellow-900/30 text-yellow-400 border border-yellow-900/20 px-2 py-0.5">
+                          <ArrowUp className="h-3 w-3 mr-1" />
+                          Moyenne
+                        </Badge>
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-7 w-7 p-0" 
+                        onClick={() => changeStatus(item.id, 'high')}
+                      >
+                        <Badge variant="outline" className="bg-red-900/30 text-red-400 border border-red-900/20 px-2 py-0.5">
+                          <Flag className="h-3 w-3 mr-1" />
+                          Haute
+                        </Badge>
+                      </Button>
+                    </div>
+                  ) : (
+                    <StockStatusBadge 
+                      stock={item.current} 
+                      threshold={item.minimum} 
+                      manualStatus={manualStatuses[item.id] || null} 
+                    />
+                  )}
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                    <ShoppingCart className="h-4 w-4" />
-                  </Button>
+                  <div className="flex justify-end space-x-1">
+                    {editingStatus === item.id ? (
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-8 w-8 p-0"
+                        onClick={() => setEditingStatus(null)}
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-8 w-8 p-0"
+                        onClick={() => setEditingStatus(item.id)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                      <ShoppingCart className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
