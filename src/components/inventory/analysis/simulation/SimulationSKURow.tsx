@@ -39,7 +39,7 @@ const SimulationSKURow: React.FC<SimulationSKURowProps> = ({
         {sku.SKU}
       </td>
       
-      {/* Empty cells for price columns */}
+      {/* Quantity column with highlighted price */}
       {quantityOptions.map(qty => (
         <td key={qty} className="text-center py-2 border-t border-[#272727]">
           {qty === sku.quantity ? (
@@ -48,8 +48,8 @@ const SimulationSKURow: React.FC<SimulationSKURowProps> = ({
         </td>
       ))}
       
-      {/* Quantity selection and SKU total cell */}
-      <td className="text-right py-2 border-t border-[#272727]">
+      {/* Total and control buttons */}
+      <td className="text-right py-2 border-t border-[#272727] pr-4">
         <div className="flex items-center justify-end space-x-2">
           <Select
             value={sku.quantity.toString()}

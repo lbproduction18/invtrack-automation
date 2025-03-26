@@ -40,7 +40,7 @@ const SimulationTable: React.FC<SimulationTableProps> = ({
         <Table>
           <tbody>
             <tr>
-              <td colSpan={8} className="h-24 text-center text-gray-500">
+              <td colSpan={quantityOptions.length + 2} className="h-24 text-center text-gray-500">
                 Chargement des prix...
               </td>
             </tr>
@@ -56,7 +56,7 @@ const SimulationTable: React.FC<SimulationTableProps> = ({
         <Table>
           <tbody>
             <tr>
-              <td colSpan={8} className="h-24 text-center text-gray-500">
+              <td colSpan={quantityOptions.length + 2} className="h-24 text-center text-gray-500">
                 Aucun produit trouvé dans la base de données
               </td>
             </tr>
@@ -72,6 +72,7 @@ const SimulationTable: React.FC<SimulationTableProps> = ({
         <SimulationTableHeader 
           quantityOptions={quantityOptions} 
           simulationTotal={simulationTotal} 
+          showSkuColumn={true}
         />
         
         <TableBody>

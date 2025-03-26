@@ -2,21 +2,10 @@
 import React from 'react';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { type SelectedSKU } from '@/types/product';
-import { PlusCircle, InfoIcon } from 'lucide-react';
+import { MinusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipProvider, 
-  TooltipTrigger 
-} from '@/components/ui/tooltip';
 import SimulationSKURow from './SimulationSKURow';
+import SKUSelector from './SKUSelector';
 
 interface SimulationProductRowProps {
   product: any; // ProductPrice type
@@ -43,6 +32,35 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
 }) => {
   const hasSKUs = selectedSKUs && selectedSKUs.length > 0;
   
+  // Create a record of prices for this product
+  const prices: Record<number, number> = {};
+  quantityOptions.forEach(qty => {
+    const priceField = `price_${qty}` as keyof typeof product;
+    prices[qty] = product[priceField] as number || 0;
+  });
+  
+  // Handle adding a new SKU with selected quantity
+  const handleAddWithQuantity = (
+    productName: string, 
+    skuId: string, 
+    skuValue: string, 
+    quantity: QuantityOption
+  ) => {
+    const skuInfo = availableSKUs.find(sku => sku.id === skuId);
+    if (skuInfo) {
+      onAddSKU(productName, skuInfo);
+      
+      // Find the newly added SKU and update its quantity
+      setTimeout(() => {
+        const newSKUs = selectedSKUs || [];
+        const newSkuIndex = newSKUs.findIndex(sku => sku.SKU === skuValue);
+        if (newSkuIndex !== -1) {
+          onQuantityChange(productName, newSkuIndex, quantity);
+        }
+      }, 0);
+    }
+  };
+  
   return (
     <React.Fragment>
       {/* Main product row */}
@@ -56,53 +74,20 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
           
           return (
             <td key={qty} className="text-center py-3 border-t border-[#272727]">
-              {price ? `${price.toLocaleString()} $` : (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="text-gray-500 cursor-help inline-flex items-center">
-                        -
-                        <InfoIcon className="h-3 w-3 ml-1 opacity-50" />
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Prix non disponible</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
+              {price ? `${price.toLocaleString()} $` : "-"}
             </td>
           );
         })}
         
         {/* SKU Selection dropdown - placed at the right side */}
         <td className="py-3 border-t border-[#272727] text-right">
-          {availableSKUs.length > 0 ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex items-center justify-between"
-                >
-                  <span className="flex-1 truncate mr-2">Ajouter une saveur</span>
-                  <PlusCircle className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-[#161616] border-[#272727] z-50">
-                {availableSKUs.map(sku => (
-                  <DropdownMenuItem 
-                    key={sku.id}
-                    onClick={() => onAddSKU(productName, sku)}
-                  >
-                    {sku.SKU}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <span className="text-gray-500 text-sm">Aucun SKU disponible</span>
-          )}
+          <SKUSelector
+            availableSKUs={availableSKUs}
+            productName={productName}
+            quantityOptions={quantityOptions}
+            onAdd={handleAddWithQuantity}
+            prices={prices}
+          />
         </td>
       </tr>
       

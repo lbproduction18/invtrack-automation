@@ -26,6 +26,17 @@ export function useSimulationState() {
     return total;
   };
   
+  // Calculate deposit amount based on percentage (usually 50%)
+  const calculateDeposit = (percentage: number = 50): number => {
+    return (simulationTotal * percentage) / 100;
+  };
+  
+  // Calculate budget percentage spent
+  const calculateBudgetPercentage = (totalBudget: number): number => {
+    if (totalBudget <= 0) return 0;
+    return (simulationTotal / totalBudget) * 100;
+  };
+  
   // Update the total whenever selections change
   useEffect(() => {
     calculateOrderTotal();
@@ -36,6 +47,8 @@ export function useSimulationState() {
     selectedSKUs,
     setSelectedSKUs,
     calculateSKUTotal,
-    calculateOrderTotal
+    calculateOrderTotal,
+    calculateDeposit,
+    calculateBudgetPercentage
   };
 }

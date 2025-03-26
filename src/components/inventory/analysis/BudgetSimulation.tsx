@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useProductPrices } from '@/hooks/useProductPrices';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { useProducts } from '@/hooks/useProducts';
@@ -25,7 +25,9 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
     simulationTotal, 
     selectedSKUs, 
     setSelectedSKUs,
-    calculateSKUTotal
+    calculateSKUTotal,
+    calculateDeposit,
+    calculateBudgetPercentage
   } = useSimulationState();
   
   const {
@@ -36,7 +38,7 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
   } = useSimulationSKUs(selectedSKUs, setSelectedSKUs, productPrices);
 
   // Group analysis products by parent product for the dropdown
-  const groupedAnalysisProducts = React.useMemo(() => {
+  const groupedAnalysisProducts = useMemo(() => {
     const groupedProducts: Record<string, Array<{ id: string, SKU: string, productName: string | null }>> = {};
     
     products.forEach(product => {
@@ -78,12 +80,21 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
     }
   };
   
+  // Get total configured product count
+  const configuredProductCount = useMemo(() => {
+    return Object.values(selectedSKUs).reduce((total, skus) => total + skus.length, 0);
+  }, [selectedSKUs]);
+  
   return (
     <div className="space-y-6">
-      {/* Budget Settings Panel */}
+      {/* Budget Settings Panel with enhanced budget data */}
       <div className="mb-6">
         <BudgetSettingsPanel
           totalOrderAmount={simulationTotal}
+          configuredProductCount={configuredProductCount}
+          totalProductCount={Object.keys(groupedAnalysisProducts).length}
+          depositAmount={calculateDeposit()}
+          budgetPercentage={calculateBudgetPercentage(300000)} // Replace with actual budget from settings
           onCreateOrder={onCreateOrder}
         />
       </div>
