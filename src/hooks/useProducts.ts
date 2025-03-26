@@ -24,12 +24,22 @@ export function useProducts() {
           .select(`
             id,
             SKU,
+            product_name,
             current_stock,
             threshold,
             created_at,
             updated_at,
             priority_badge,
-            note
+            note,
+            price_1000,
+            price_2000,
+            price_3000,
+            price_4000,
+            price_5000,
+            last_order_quantity,
+            last_order_date,
+            lab_status,
+            estimated_delivery_date
           `)
           .order('SKU');
           

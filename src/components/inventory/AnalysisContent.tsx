@@ -293,17 +293,18 @@ export const AnalysisContent: React.FC = () => {
                     {/* Quantity selector */}
                     <TableCell>
                       <Select
-                        value={product.selectedQuantity?.toString() || ''}
+                        value={product.selectedQuantity?.toString() || undefined}
                         onValueChange={(value) => {
-                          const qty = parseInt(value) as QuantityOption;
-                          handleQuantityChange(product.id, qty);
+                          if (value) {
+                            const qty = parseInt(value) as QuantityOption;
+                            handleQuantityChange(product.id, qty);
+                          }
                         }}
                       >
                         <SelectTrigger className="w-full bg-[#121212] border-[#272727]">
                           <SelectValue placeholder="Choisir" />
                         </SelectTrigger>
                         <SelectContent className="bg-[#161616] border-[#272727]">
-                          <SelectItem value="">Aucune</SelectItem>
                           {quantityOptions.map(qty => (
                             <SelectItem key={qty} value={qty.toString()}>
                               {qty}
@@ -544,7 +545,7 @@ export const AnalysisContent: React.FC = () => {
                       <div>
                         <p className="text-sm text-gray-400 mb-1">Étiquette au laboratoire</p>
                         <Select
-                          value={selectedProduct.labStatus || ''}
+                          value={selectedProduct.labStatus || undefined}
                           onValueChange={(value) => setSelectedProduct({
                             ...selectedProduct,
                             labStatus: value || null
@@ -554,7 +555,6 @@ export const AnalysisContent: React.FC = () => {
                             <SelectValue placeholder="Choisir un statut" />
                           </SelectTrigger>
                           <SelectContent className="bg-[#161616] border-[#272727]">
-                            <SelectItem value="">Aucun</SelectItem>
                             <SelectItem value="OK">OK</SelectItem>
                             <SelectItem value="À commander">À commander</SelectItem>
                             <SelectItem value="Manquante">Manquante</SelectItem>
