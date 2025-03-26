@@ -9,13 +9,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      budget_settings: {
+        Row: {
+          created_at: string | null
+          deposit_percentage: number | null
+          id: string
+          notes: string | null
+          total_budget: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          deposit_percentage?: number | null
+          id?: string
+          notes?: string | null
+          total_budget?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          deposit_percentage?: number | null
+          id?: string
+          notes?: string | null
+          total_budget?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       "Low stock product": {
         Row: {
           created_at: string
           current_stock: number
+          estimated_delivery_date: string | null
           id: string
+          lab_status: string | null
+          last_order_date: string | null
+          last_order_quantity: number | null
           note: string | null
+          price_1000: number | null
+          price_2000: number | null
+          price_3000: number | null
+          price_4000: number | null
+          price_5000: number | null
           priority_badge: Database["public"]["Enums"]["priority_level"]
+          product_name: string | null
           SKU: string
           threshold: number
           updated_at: string | null
@@ -23,9 +60,19 @@ export type Database = {
         Insert: {
           created_at?: string
           current_stock?: number
+          estimated_delivery_date?: string | null
           id?: string
+          lab_status?: string | null
+          last_order_date?: string | null
+          last_order_quantity?: number | null
           note?: string | null
+          price_1000?: number | null
+          price_2000?: number | null
+          price_3000?: number | null
+          price_4000?: number | null
+          price_5000?: number | null
           priority_badge?: Database["public"]["Enums"]["priority_level"]
+          product_name?: string | null
           SKU: string
           threshold?: number
           updated_at?: string | null
@@ -33,9 +80,19 @@ export type Database = {
         Update: {
           created_at?: string
           current_stock?: number
+          estimated_delivery_date?: string | null
           id?: string
+          lab_status?: string | null
+          last_order_date?: string | null
+          last_order_quantity?: number | null
           note?: string | null
+          price_1000?: number | null
+          price_2000?: number | null
+          price_3000?: number | null
+          price_4000?: number | null
+          price_5000?: number | null
           priority_badge?: Database["public"]["Enums"]["priority_level"]
+          product_name?: string | null
           SKU?: string
           threshold?: number
           updated_at?: string | null
