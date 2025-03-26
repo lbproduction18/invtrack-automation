@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Package, 
@@ -29,10 +28,8 @@ const Products: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [stockFilter, setStockFilter] = useState<string>('all');
   
-  // Use the custom hook to fetch products
   const { products, isLoading } = useProducts();
   
-  // Use the FilteredProductsList utility function to get filtered products
   const filteredProducts = FilteredProductsList({
     products,
     searchQuery,
@@ -86,6 +83,7 @@ const Products: React.FC = () => {
                   <TableHead className="text-xs font-medium text-right">Statut</TableHead>
                   <TableHead className="text-xs font-medium text-right w-24">Stock Actuel</TableHead>
                   <TableHead className="text-xs font-medium text-right w-24">Seuil</TableHead>
+                  <TableHead className="text-xs font-medium text-right w-24">Âge</TableHead>
                   <TableHead className="text-xs font-medium text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>

@@ -45,6 +45,7 @@ export const InventoryContent: React.FC = () => {
               <TableHead className="text-xs font-medium text-gray-400 text-right">Statut</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Stock Actuel</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Seuil</TableHead>
+              <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Âge</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -52,12 +53,12 @@ export const InventoryContent: React.FC = () => {
             {isLoading ? (
               Array.from({ length: 5 }).map((_, index) => (
                 <TableRow key={`loading-${index}`} className="border-b border-[#272727] hover:bg-[#161616]">
-                  <TableCell colSpan={6} className="h-12 animate-pulse bg-[#161616]/50"></TableCell>
+                  <TableCell colSpan={7} className="h-12 animate-pulse bg-[#161616]/50"></TableCell>
                 </TableRow>
               ))
             ) : filteredProducts.length === 0 ? (
               <TableRow className="hover:bg-[#161616]">
-                <TableCell colSpan={6} className="h-24 text-center text-gray-400">
+                <TableCell colSpan={7} className="h-24 text-center text-gray-400">
                   <div className="flex flex-col items-center justify-center">
                     <AlertTriangle className="h-8 w-8 text-gray-400 mb-2" />
                     <p>Aucun produit trouvé</p>
