@@ -14,22 +14,28 @@ export type Database = {
           created_at: string
           current_stock: number
           id: string
+          priority_badge: Database["public"]["Enums"]["priority_level"]
           SKU: string
           threshold: number
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
           current_stock?: number
           id?: string
+          priority_badge?: Database["public"]["Enums"]["priority_level"]
           SKU: string
           threshold?: number
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
           current_stock?: number
           id?: string
+          priority_badge?: Database["public"]["Enums"]["priority_level"]
           SKU?: string
           threshold?: number
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -181,7 +187,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      priority_level: "standard" | "moyen" | "prioritaire"
     }
     CompositeTypes: {
       [_ in never]: never

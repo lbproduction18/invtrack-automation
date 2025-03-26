@@ -12,7 +12,8 @@ export function useProducts() {
   const { 
     data: products = [], 
     isLoading, 
-    error 
+    error,
+    refetch
   } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
@@ -25,7 +26,9 @@ export function useProducts() {
             SKU,
             current_stock,
             threshold,
-            created_at
+            created_at,
+            updated_at,
+            priority_badge
           `)
           .order('SKU');
           
@@ -55,5 +58,5 @@ export function useProducts() {
     }
   }, [error, toast]);
 
-  return { products, isLoading, error };
+  return { products, isLoading, error, refetch };
 }

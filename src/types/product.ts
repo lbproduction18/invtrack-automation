@@ -5,4 +5,6 @@ export type Product = {
   current_stock: number;
   threshold: number;
   created_at: string;
+  updated_at?: string;
+  priority_badge: 'standard' | 'moyen' | 'prioritaire';
 };

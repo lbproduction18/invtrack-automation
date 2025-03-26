@@ -24,19 +24,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ColumnVisibilityDropdown, type ColumnVisibility } from '@/components/product/ColumnVisibilityDropdown';
+import { Product } from '@/types/product';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export const InventoryContent: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [stockFilter, setStockFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('oldest');
-  const { products, isLoading } = useProducts();
+  const { products, isLoading, refetch } = useProducts();
+  const { toast } = useToast();
   
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility[]>([
     { id: 'SKU', title: 'SKU', isVisible: true, order: 0 },
     { id: 'date', title: 'Date Ajoutée', isVisible: true, order: 1 },
     { id: 'stock', title: 'Stock Actuel', isVisible: true, order: 2 },
     { id: 'threshold', title: 'Seuil', isVisible: true, order: 3 },
-    { id: 'age', title: 'Âge', isVisible: true, order: 4 }
+    { id: 'priority', title: 'Priorité', isVisible: true, order: 4 },
+    { id: 'age', title: 'Âge', isVisible: true, order: 5 }
   ]);
 
   const handleColumnVisibilityChange = (columnId: string, isVisible: boolean) => {
@@ -68,6 +73,32 @@ export const InventoryContent: React.FC = () => {
       
       return newColumns.sort((a, b) => a.order - b.order);
     });
+  };
+
+  const handleProductUpdate = async (productId: string, updatedData: Partial<Product>) => {
+    try {
+      const { error } = await supabase
+        .from('Low stock product')
+        .update(updatedData)
+        .eq('id', productId);
+
+      if (error) throw error;
+      
+      // Rafraîchir la liste des produits
+      refetch();
+      
+      toast({
+        title: "Produit mis à jour",
+        description: "Les modifications ont été enregistrées avec succès."
+      });
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le produit. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    }
   };
   
   const filteredProducts = FilteredProductsList({ 
@@ -123,7 +154,8 @@ export const InventoryContent: React.FC = () => {
                       key={column.id} 
                       className={cn(
                         "text-xs font-medium text-gray-400",
-                        (column.id === 'stock' || column.id === 'threshold' || column.id === 'age') && "text-right w-24"
+                        (column.id === 'stock' || column.id === 'threshold' || column.id === 'age') && "text-right w-24",
+                        column.id === 'priority' && "w-28"
                       )}
                     >
                       {column.title}
@@ -137,12 +169,12 @@ export const InventoryContent: React.FC = () => {
             {isLoading ? (
               Array.from({ length: 5 }).map((_, index) => (
                 <TableRow key={`loading-${index}`} className="border-b border-[#272727] hover:bg-[#161616]">
-                  <TableCell colSpan={6} className="h-12 animate-pulse bg-[#161616]/50"></TableCell>
+                  <TableCell colSpan={columnVisibility.filter(col => col.isVisible).length + 1} className="h-12 animate-pulse bg-[#161616]/50"></TableCell>
                 </TableRow>
               ))
             ) : filteredProducts.length === 0 ? (
               <TableRow className="hover:bg-[#161616]">
-                <TableCell colSpan={6} className="h-24 text-center text-gray-400">
+                <TableCell colSpan={columnVisibility.filter(col => col.isVisible).length + 1} className="h-24 text-center text-gray-400">
                   <div className="flex flex-col items-center justify-center">
                     <AlertTriangle className="h-8 w-8 text-gray-400 mb-2" />
                     <p>Aucun produit trouvé</p>
@@ -155,6 +187,7 @@ export const InventoryContent: React.FC = () => {
                 isLoading={isLoading} 
                 filteredProducts={filteredProducts}
                 columnVisibility={columnVisibility}
+                onProductUpdate={handleProductUpdate}
               />
             )}
           </TableBody>

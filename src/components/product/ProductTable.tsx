@@ -17,16 +17,20 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Loader2, MoreHorizontal, Package, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Loader2, MoreHorizontal, Package, Pencil, Plus, Trash2, Flag } from 'lucide-react';
 import { type Product } from '@/types/product';
 import { cn } from '@/lib/utils';
 import { ColumnVisibilityDropdown, type ColumnVisibility } from './ColumnVisibilityDropdown';
+import { PriorityBadge } from './PriorityBadge';
+import { PriorityDialog } from './PriorityDialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProductTableProps {
   products: Product[];
   isLoading: boolean;
   filteredProducts: Product[];
   columnVisibility: ColumnVisibility[];
+  onProductUpdate?: (productId: string, updatedData: Partial<Product>) => void;
 }
 
 // Fonction pour calculer le nombre de jours écoulés depuis une date
@@ -53,12 +57,19 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   products,
   isLoading,
   filteredProducts,
-  columnVisibility
+  columnVisibility,
+  onProductUpdate = () => {}
 }) => {
+  const { toast } = useToast();
+  
+  const handlePriorityChange = (productId: string, newPriority: 'standard' | 'moyen' | 'prioritaire') => {
+    onProductUpdate(productId, { priority_badge: newPriority });
+  };
+
   if (isLoading) {
     return (
       <TableRow>
-        <TableCell colSpan={6} className="h-24 text-center">
+        <TableCell colSpan={7} className="h-24 text-center">
           <div className="flex flex-col items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
             <p className="mt-2 text-sm text-muted-foreground font-medium">Chargement des produits...</p>
@@ -71,7 +82,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   if (filteredProducts.length === 0) {
     return (
       <TableRow>
-        <TableCell colSpan={6} className="h-24 text-center">
+        <TableCell colSpan={7} className="h-24 text-center">
           <div className="flex flex-col items-center justify-center text-muted-foreground">
             <Package className="h-8 w-8 mb-2 opacity-50" />
             <p className="font-medium">Aucun produit trouvé</p>
@@ -129,6 +140,20 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     {getDaysSinceAdded(product.created_at)} jours
                   </TableCell>
                 );
+              case 'priority':
+                return (
+                  <TableCell key={`${product.id}-${column.id}`} className="w-28">
+                    <PriorityDialog
+                      productId={product.id}
+                      currentPriority={product.priority_badge}
+                      onPriorityChange={(newPriority) => handlePriorityChange(product.id, newPriority)}
+                    >
+                      <div className="cursor-pointer">
+                        <PriorityBadge priority={product.priority_badge} />
+                      </div>
+                    </PriorityDialog>
+                  </TableCell>
+                );
               default:
                 return null;
             }
@@ -149,6 +174,19 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                   <Pencil className="mr-2 h-4 w-4" />
                   Modifier
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Priorité</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <PriorityDialog
+                  productId={product.id}
+                  currentPriority={product.priority_badge}
+                  onPriorityChange={(newPriority) => handlePriorityChange(product.id, newPriority)}
+                >
+                  <DropdownMenuItem>
+                    <Flag className="mr-2 h-4 w-4" />
+                    Changer la priorité
+                  </DropdownMenuItem>
+                </PriorityDialog>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-destructive">
                   <Trash2 className="mr-2 h-4 w-4" />

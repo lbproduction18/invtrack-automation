@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Package, 
@@ -33,6 +34,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { Product } from '@/types/product';
 
 const Products: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -43,10 +47,12 @@ const Products: React.FC = () => {
     { id: 'date', title: 'Date Ajoutée', isVisible: true, order: 1 },
     { id: 'stock', title: 'Stock Actuel', isVisible: true, order: 2 },
     { id: 'threshold', title: 'Seuil', isVisible: true, order: 3 },
-    { id: 'age', title: 'Âge', isVisible: true, order: 4 }
+    { id: 'priority', title: 'Priorité', isVisible: true, order: 4 },
+    { id: 'age', title: 'Âge', isVisible: true, order: 5 }
   ]);
   
-  const { products, isLoading } = useProducts();
+  const { products, isLoading, refetch } = useProducts();
+  const { toast } = useToast();
   
   const filteredProducts = FilteredProductsList({
     products,
@@ -84,6 +90,32 @@ const Products: React.FC = () => {
       
       return newColumns.sort((a, b) => a.order - b.order);
     });
+  };
+
+  const handleProductUpdate = async (productId: string, updatedData: Partial<Product>) => {
+    try {
+      const { error } = await supabase
+        .from('Low stock product')
+        .update(updatedData)
+        .eq('id', productId);
+
+      if (error) throw error;
+      
+      // Rafraîchir la liste des produits
+      refetch();
+      
+      toast({
+        title: "Produit mis à jour",
+        description: "Les modifications ont été enregistrées avec succès."
+      });
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le produit. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -161,7 +193,8 @@ const Products: React.FC = () => {
                           key={column.id} 
                           className={cn(
                             "text-xs font-medium",
-                            (column.id === 'stock' || column.id === 'threshold' || column.id === 'age') && "text-right w-24"
+                            (column.id === 'stock' || column.id === 'threshold' || column.id === 'age') && "text-right w-24",
+                            column.id === 'priority' && "w-28"
                           )}
                         >
                           {column.title}
@@ -177,6 +210,7 @@ const Products: React.FC = () => {
                   isLoading={isLoading}
                   filteredProducts={filteredProducts}
                   columnVisibility={columnVisibility}
+                  onProductUpdate={handleProductUpdate}
                 />
               </TableBody>
             </Table>
