@@ -1,6 +1,6 @@
 
 /**
- * Formats a date string to DD/MM/YYYY format
+ * Formats a date string to DD/MM format (without the year)
  */
 export const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -10,7 +10,7 @@ export const formatDate = (dateString: string) => {
     return 'Date invalide';
   }
   
-  return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+  return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`;
 };
 
 /**

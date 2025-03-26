@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Table,
@@ -87,7 +86,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           <TableCell className="font-medium">{product.SKU}</TableCell>
           <TableCell>
             {new Date(product.created_at).toLocaleDateString('fr-FR', {
-              year: 'numeric',
               month: 'short',
               day: 'numeric'
             })}
