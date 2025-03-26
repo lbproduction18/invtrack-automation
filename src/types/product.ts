@@ -7,4 +7,5 @@ export type Product = {
   created_at: string;
   updated_at?: string;
   priority_badge: 'standard' | 'moyen' | 'prioritaire';
+  note?: string | null;
 };

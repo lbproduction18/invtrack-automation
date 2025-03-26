@@ -28,7 +28,8 @@ export function useProducts() {
             threshold,
             created_at,
             updated_at,
-            priority_badge
+            priority_badge,
+            note
           `)
           .order('SKU');
           

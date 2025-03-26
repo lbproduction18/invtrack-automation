@@ -14,6 +14,7 @@ export type Database = {
           created_at: string
           current_stock: number
           id: string
+          note: string | null
           priority_badge: Database["public"]["Enums"]["priority_level"]
           SKU: string
           threshold: number
@@ -23,6 +24,7 @@ export type Database = {
           created_at?: string
           current_stock?: number
           id?: string
+          note?: string | null
           priority_badge?: Database["public"]["Enums"]["priority_level"]
           SKU: string
           threshold?: number
@@ -32,6 +34,7 @@ export type Database = {
           created_at?: string
           current_stock?: number
           id?: string
+          note?: string | null
           priority_badge?: Database["public"]["Enums"]["priority_level"]
           SKU?: string
           threshold?: number

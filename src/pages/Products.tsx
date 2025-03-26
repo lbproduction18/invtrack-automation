@@ -28,7 +28,8 @@ const Products: React.FC = () => {
     { id: 'age', title: 'Âge', isVisible: true, order: 2 },
     { id: 'priority', title: 'Priorité', isVisible: true, order: 3 },
     { id: 'stock', title: 'Stock Actuel', isVisible: true, order: 4 },
-    { id: 'threshold', title: 'Seuil', isVisible: true, order: 5 }
+    { id: 'threshold', title: 'Seuil', isVisible: true, order: 5 },
+    { id: 'note', title: 'Note', isVisible: true, order: 6 }
   ]);
   
   const { products, isLoading, refetch } = useProducts();
