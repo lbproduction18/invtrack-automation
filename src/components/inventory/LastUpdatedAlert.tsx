@@ -11,7 +11,7 @@ export const LastUpdatedAlert: React.FC = () => {
   const { currentScheme } = useAlertColorPreference();
 
   return (
-    <Alert className={`bg-[#0A0A0B] border-[#1D1D20] rounded-md backdrop-blur-sm mb-4 overflow-hidden relative ${currentScheme.gradient}`}>
+    <Alert className={`${currentScheme.background} border-[#1D1D20] rounded-md backdrop-blur-sm mb-4 overflow-hidden relative`}>
       <div className="flex items-start gap-3">
         <Clock className={`h-5 w-5 ${currentScheme.iconColor} mt-0.5`} />
         <div className="flex-1">
