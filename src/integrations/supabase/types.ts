@@ -14,42 +14,33 @@ export type Database = {
           avg_sales: number | null
           created_at: string
           current_stock: number
-          description: string | null
           id: string
           lead_time: number | null
-          name: string
           SKU: string
           supplier_id: string | null
           threshold: number
-          unit: string
           updated_at: string
         }
         Insert: {
           avg_sales?: number | null
           created_at?: string
           current_stock?: number
-          description?: string | null
           id?: string
           lead_time?: number | null
-          name: string
           SKU: string
           supplier_id?: string | null
           threshold?: number
-          unit: string
           updated_at?: string
         }
         Update: {
           avg_sales?: number | null
           created_at?: string
           current_stock?: number
-          description?: string | null
           id?: string
           lead_time?: number | null
-          name?: string
           SKU?: string
           supplier_id?: string | null
           threshold?: number
-          unit?: string
           updated_at?: string
         }
         Relationships: [

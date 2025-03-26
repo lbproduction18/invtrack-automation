@@ -21,8 +21,10 @@ export function useProducts() {
         const { data, error } = await supabase
           .from('Low stock product')
           .select(`
-            *,
-            suppliers:supplier_id (name)
+            id,
+            name,
+            description,
+            unit
           `)
           .order('name');
           
@@ -32,12 +34,7 @@ export function useProducts() {
         }
         
         console.log('Products fetched:', data);
-        
-        // Transform data to include supplier name
-        return data.map((product: any) => ({
-          ...product,
-          supplier_name: product.suppliers?.name || 'Fournisseur inconnu'
-        }));
+        return data;
       } catch (err) {
         console.error('Exception when fetching products:', err);
         throw err;
