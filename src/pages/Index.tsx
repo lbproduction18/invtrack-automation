@@ -102,21 +102,23 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Flèche de gauche */}
-      <button
-        onClick={() => carouselApi?.scrollPrev()}
-        disabled={currentStep === 0}
-        className={cn(
-          "fixed left-4 top-1/2 transform -translate-y-1/2 z-50 flex items-center justify-center w-12 h-12 rounded-full bg-[#1E1E1E] border border-[#272727] text-white shadow-md transition-all duration-300",
-          currentStep === 0 ? "opacity-50 cursor-not-allowed" : "hover:bg-[#272727] hover:scale-105"
-        )}
-        aria-label="Étape précédente"
-      >
-        <ChevronLeft size={24} />
-      </button>
-      
-      {/* Carousel principal */}
-      <div className="relative max-w-[calc(100%-80px)] mx-auto">
+      {/* Container principal avec position relative pour les flèches */}
+      <div className="relative max-w-[calc(100%-80px)] mx-auto container-main">
+        {/* Flèche de gauche */}
+        <button
+          onClick={() => carouselApi?.scrollPrev()}
+          disabled={currentStep === 0}
+          className={cn(
+            "carousel-arrow left",
+            "absolute left-[-20px] top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-[#1E1E1E] border border-[#272727] text-white shadow-md transition-all duration-300",
+            currentStep === 0 ? "opacity-50 cursor-not-allowed" : "hover:bg-[#272727] hover:scale-105"
+          )}
+          aria-label="Étape précédente"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        
+        {/* Carousel principal */}
         <Carousel 
           className="w-full" 
           setApi={setCarouselApi}
@@ -185,20 +187,21 @@ const Index = () => {
             </CarouselItem>
           </CarouselContent>
         </Carousel>
+        
+        {/* Flèche de droite */}
+        <button
+          onClick={() => carouselApi?.scrollNext()}
+          disabled={currentStep === totalSteps - 1}
+          className={cn(
+            "carousel-arrow right",
+            "absolute right-[-20px] top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-[#1E1E1E] border border-[#272727] text-white shadow-md transition-all duration-300",
+            currentStep === totalSteps - 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-[#272727] hover:scale-105"
+          )}
+          aria-label="Étape suivante"
+        >
+          <ChevronRight size={20} />
+        </button>
       </div>
-      
-      {/* Flèche de droite */}
-      <button
-        onClick={() => carouselApi?.scrollNext()}
-        disabled={currentStep === totalSteps - 1}
-        className={cn(
-          "fixed right-4 top-1/2 transform -translate-y-1/2 z-50 flex items-center justify-center w-12 h-12 rounded-full bg-[#1E1E1E] border border-[#272727] text-white shadow-md transition-all duration-300",
-          currentStep === totalSteps - 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-[#272727] hover:scale-105"
-        )}
-        aria-label="Étape suivante"
-      >
-        <ChevronRight size={24} />
-      </button>
     </div>
   );
 };
