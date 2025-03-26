@@ -1,21 +1,27 @@
 
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 interface ProductFilterControlsProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   stockFilter: string;
   setStockFilter: (filter: string) => void;
+  priorityFilter: boolean;
+  setPriorityFilter: (priority: boolean) => void;
 }
 
 export const ProductFilterControls: React.FC<ProductFilterControlsProps> = ({
   searchQuery,
   setSearchQuery,
   stockFilter,
-  setStockFilter
+  setStockFilter,
+  priorityFilter,
+  setPriorityFilter
 }) => {
   return (
     <div className="flex flex-col sm:flex-row justify-between gap-4 pt-4">
@@ -29,7 +35,7 @@ export const ProductFilterControls: React.FC<ProductFilterControlsProps> = ({
           className="pl-8 bg-background/50 border-input w-full"
         />
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
         <Button
           variant={stockFilter === 'all' ? 'default' : 'outline'}
           size="sm"
@@ -61,6 +67,16 @@ export const ProductFilterControls: React.FC<ProductFilterControlsProps> = ({
           className={stockFilter === 'out' ? 'bg-danger/20 hover:bg-danger/30 text-danger-foreground border-danger/30' : 'bg-background/50'}
         >
           Rupture
+        </Button>
+        
+        <Button
+          variant={priorityFilter ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setPriorityFilter(!priorityFilter)}
+          className={priorityFilter ? 'bg-warning/20 hover:bg-warning/30 text-warning-foreground border-warning/30 ml-2' : 'bg-background/50 ml-2'}
+        >
+          <Star className={priorityFilter ? "mr-2 h-4 w-4 text-yellow-500 fill-yellow-500" : "mr-2 h-4 w-4"} />
+          Prioritaires
         </Button>
       </div>
     </div>

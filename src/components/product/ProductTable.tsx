@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Loader2, MoreHorizontal, Package, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Loader2, MoreHorizontal, Package, Pencil, Plus, Star, Trash2 } from 'lucide-react';
 import { type Product } from '@/types/product';
 import { StockStatusBadge } from '@/components/product/StockStatusBadge';
 import { cn } from '@/lib/utils';
@@ -46,6 +46,11 @@ const getAgingColor = (days: number): string => {
   } else {
     return "text-danger font-medium"; // Rouge pour plus de 2 semaines
   }
+};
+
+// Fonction pour détecter si un produit est prioritaire
+const isPriorityProduct = (threshold: number): boolean => {
+  return threshold > 5; // Seuil de priorité
 };
 
 export const ProductTable: React.FC<ProductTableProps> = ({
@@ -84,8 +89,18 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   return (
     <>
       {filteredProducts.map((product) => (
-        <TableRow key={product.id} className="bg-transparent hover:bg-muted/30">
-          <TableCell className="font-medium">{product.SKU}</TableCell>
+        <TableRow key={product.id} className={cn(
+          "bg-transparent hover:bg-muted/30",
+          isPriorityProduct(product.threshold) && "bg-warning/5" // Légère surbrillance pour les produits prioritaires
+        )}>
+          <TableCell className="font-medium">
+            <div className="flex items-center">
+              {isPriorityProduct(product.threshold) && (
+                <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 mr-2" />
+              )}
+              {product.SKU}
+            </div>
+          </TableCell>
           <TableCell>
             {new Date(product.created_at).toLocaleDateString('fr-FR', {
               year: 'numeric',

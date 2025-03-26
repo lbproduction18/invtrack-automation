@@ -37,6 +37,7 @@ const Products: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [stockFilter, setStockFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('oldest');
+  const [priorityFilter, setPriorityFilter] = useState<boolean>(false);
   
   const { products, isLoading } = useProducts();
   
@@ -44,7 +45,8 @@ const Products: React.FC = () => {
     products,
     searchQuery,
     stockFilter,
-    sortBy
+    sortBy,
+    priorityFilter
   });
 
   return (
@@ -84,6 +86,8 @@ const Products: React.FC = () => {
               setSearchQuery={setSearchQuery}
               stockFilter={stockFilter}
               setStockFilter={setStockFilter}
+              priorityFilter={priorityFilter}
+              setPriorityFilter={setPriorityFilter}
             />
             
             <div className="flex items-center gap-2">

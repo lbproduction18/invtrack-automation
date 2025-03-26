@@ -8,6 +8,7 @@ interface FilteredProductsListProps {
   searchQuery: string;
   stockFilter: string;
   sortBy: SortOption;
+  priorityFilter: boolean;
 }
 
 // Fonction utilitaire pour filtrer les produits
@@ -15,7 +16,8 @@ export const FilteredProductsList = ({
   products,
   searchQuery,
   stockFilter,
-  sortBy = 'oldest' // Default to oldest items first
+  sortBy = 'oldest', // Default to oldest items first
+  priorityFilter = false
 }: FilteredProductsListProps): Product[] => {
   // Filtrer les produits en fonction de la recherche
   const filteredProducts = products.filter((product: Product) => {
@@ -23,9 +25,14 @@ export const FilteredProductsList = ({
       searchQuery === '' || 
       product.SKU.toLowerCase().includes(searchQuery.toLowerCase());
     
+    // Appliquer le filtre de priorité si activé
+    const matchesPriority = priorityFilter 
+      ? product.threshold > 5 // Considérer comme prioritaire si le seuil est élevé (> 5)
+      : true;
+    
     // Add stock filtering if needed in the future
     // For now, just return the search match
-    return matchesSearch;
+    return matchesSearch && matchesPriority;
   });
 
   // Sort the filtered products
