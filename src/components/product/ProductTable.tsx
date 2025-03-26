@@ -65,8 +65,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       {filteredProducts.map((product) => (
         <TableRow key={product.id} className="bg-transparent hover:bg-muted/30">
           <TableCell className="font-medium">{product.SKU}</TableCell>
-          <TableCell className="text-right">{product.current_stock}</TableCell>
-          <TableCell className="text-right">{product.threshold}</TableCell>
+          <TableCell className="text-right font-medium">{product.current_stock}</TableCell>
+          <TableCell className="text-right font-medium">{product.threshold}</TableCell>
           <TableCell>
             {new Date(product.created_at).toLocaleDateString('fr-FR', {
               year: 'numeric',
