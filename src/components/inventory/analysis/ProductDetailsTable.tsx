@@ -131,10 +131,10 @@ const ProductDetailsTable: React.FC<ProductDetailsTableProps> = ({
                   {product.selectedQuantity ? (
                     <div className="flex flex-col">
                       <span className="font-medium">
-                        {getTotalPrice(product).toLocaleString()} €
+                        {getTotalPrice(product).toLocaleString()} $ CAD
                       </span>
                       <span className="text-xs text-gray-400">
-                        {(getTotalPrice(product) / product.selectedQuantity * 1000).toFixed(2)} € / 1000
+                        {(getTotalPrice(product) / product.selectedQuantity * 1000).toFixed(2)} $ / 1000
                       </span>
                     </div>
                   ) : (

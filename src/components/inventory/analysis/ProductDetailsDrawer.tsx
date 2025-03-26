@@ -149,9 +149,9 @@ const ProductDetailsDrawer: React.FC<ProductDetailsDrawerProps> = ({
               {selectedProduct.selectedQuantity && (
                 <div className="mt-2 text-right">
                   <div className="text-xs text-gray-400">Prix total:</div>
-                  <div className="font-medium">{getTotalPrice(selectedProduct).toLocaleString()} €</div>
+                  <div className="font-medium">{getTotalPrice(selectedProduct).toLocaleString()} $ CAD</div>
                   <div className="text-xs text-gray-400">
-                    {(getTotalPrice(selectedProduct) / selectedProduct.selectedQuantity * 1000).toFixed(2)} € / 1000
+                    {(getTotalPrice(selectedProduct) / selectedProduct.selectedQuantity * 1000).toFixed(2)} $ / 1000
                   </div>
                 </div>
               )}
