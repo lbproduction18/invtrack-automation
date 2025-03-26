@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, MoreHorizontal, Package, Pencil, Plus, Trash2 } from 'lucide-react';
 import { type Product } from '@/types/product';
 import { cn } from '@/lib/utils';
+import { ColumnVisibilityDropdown, type ColumnVisibility } from './ColumnVisibilityDropdown';
 
 interface ProductTableProps {
   products: Product[];
@@ -52,11 +53,24 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   isLoading,
   filteredProducts
 }) => {
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility[]>([
+    { id: 'SKU', title: 'SKU', isVisible: true },
+    { id: 'date', title: 'Date Ajoutée', isVisible: true },
+    { id: 'stock', title: 'Stock Actuel', isVisible: true },
+    { id: 'threshold', title: 'Seuil', isVisible: true },
+    { id: 'age', title: 'Âge', isVisible: true }
+  ]);
+
+  const handleColumnVisibilityChange = (columnId: string, isVisible: boolean) => {
+    setColumnVisibility(prev => 
+      prev.map(col => col.id === columnId ? { ...col, isVisible } : col)
+    );
+  };
   
   if (isLoading) {
     return (
       <TableRow>
-        <TableCell colSpan={5} className="h-24 text-center">
+        <TableCell colSpan={6} className="h-24 text-center">
           <div className="flex flex-col items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
             <p className="mt-2 text-sm text-muted-foreground font-medium">Chargement des produits...</p>
@@ -69,7 +83,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   if (filteredProducts.length === 0) {
     return (
       <TableRow>
-        <TableCell colSpan={5} className="h-24 text-center">
+        <TableCell colSpan={6} className="h-24 text-center">
           <div className="flex flex-col items-center justify-center text-muted-foreground">
             <Package className="h-8 w-8 mb-2 opacity-50" />
             <p className="font-medium">Aucun produit trouvé</p>
@@ -80,22 +94,39 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     );
   }
 
+  const visibleColumns = columnVisibility.filter(col => col.isVisible);
+
   return (
     <>
       {filteredProducts.map((product) => (
         <TableRow key={product.id} className="bg-transparent hover:bg-muted/30">
-          <TableCell className="font-medium">{product.SKU}</TableCell>
-          <TableCell>
-            {new Date(product.created_at).toLocaleDateString('fr-FR', {
-              month: 'short',
-              day: 'numeric'
-            })}
-          </TableCell>
-          <TableCell className="text-right font-medium w-24">{product.current_stock}</TableCell>
-          <TableCell className="text-right font-medium w-24">{product.threshold}</TableCell>
-          <TableCell className={cn("text-right w-24", getAgingColor(getDaysSinceAdded(product.created_at)))}>
-            {getDaysSinceAdded(product.created_at)} jours
-          </TableCell>
+          {columnVisibility.find(col => col.id === 'SKU')?.isVisible && (
+            <TableCell className="font-medium">{product.SKU}</TableCell>
+          )}
+          
+          {columnVisibility.find(col => col.id === 'date')?.isVisible && (
+            <TableCell>
+              {new Date(product.created_at).toLocaleDateString('fr-FR', {
+                month: 'short',
+                day: 'numeric'
+              })}
+            </TableCell>
+          )}
+          
+          {columnVisibility.find(col => col.id === 'stock')?.isVisible && (
+            <TableCell className="text-right font-medium w-24">{product.current_stock}</TableCell>
+          )}
+          
+          {columnVisibility.find(col => col.id === 'threshold')?.isVisible && (
+            <TableCell className="text-right font-medium w-24">{product.threshold}</TableCell>
+          )}
+          
+          {columnVisibility.find(col => col.id === 'age')?.isVisible && (
+            <TableCell className={cn("text-right w-24", getAgingColor(getDaysSinceAdded(product.created_at)))}>
+              {getDaysSinceAdded(product.created_at)} jours
+            </TableCell>
+          )}
+          
           <TableCell className="text-right">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

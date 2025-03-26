@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ColumnVisibilityDropdown, type ColumnVisibility } from '@/components/product/ColumnVisibilityDropdown';
 
 export const InventoryContent: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -29,12 +30,28 @@ export const InventoryContent: React.FC = () => {
   const [sortBy, setSortBy] = useState<SortOption>('oldest');
   const { products, isLoading } = useProducts();
   
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility[]>([
+    { id: 'SKU', title: 'SKU', isVisible: true },
+    { id: 'date', title: 'Date Ajoutée', isVisible: true },
+    { id: 'stock', title: 'Stock Actuel', isVisible: true },
+    { id: 'threshold', title: 'Seuil', isVisible: true },
+    { id: 'age', title: 'Âge', isVisible: true }
+  ]);
+
+  const handleColumnVisibilityChange = (columnId: string, isVisible: boolean) => {
+    setColumnVisibility(prev => 
+      prev.map(col => col.id === columnId ? { ...col, isVisible } : col)
+    );
+  };
+  
   const filteredProducts = FilteredProductsList({ 
     products, 
     searchQuery, 
     stockFilter,
     sortBy
   });
+
+  const visibleColumns = columnVisibility.filter(col => col.isVisible);
 
   return (
     <CardContent className="p-4">
@@ -47,6 +64,11 @@ export const InventoryContent: React.FC = () => {
         />
         
         <div className="flex items-center gap-2">
+          <ColumnVisibilityDropdown 
+            columns={columnVisibility}
+            onColumnVisibilityChange={handleColumnVisibilityChange}
+          />
+          
           <Select
             value={sortBy}
             onValueChange={(value) => setSortBy(value as SortOption)}
@@ -68,11 +90,21 @@ export const InventoryContent: React.FC = () => {
         <Table>
           <TableHeader className="bg-[#161616]">
             <TableRow className="hover:bg-transparent border-b border-[#272727]">
-              <TableHead className="text-xs font-medium text-gray-400">SKU</TableHead>
-              <TableHead className="text-xs font-medium text-gray-400">Date Ajoutée</TableHead>
-              <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Stock Actuel</TableHead>
-              <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Seuil</TableHead>
-              <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Âge</TableHead>
+              {columnVisibility.find(col => col.id === 'SKU')?.isVisible && (
+                <TableHead className="text-xs font-medium text-gray-400">SKU</TableHead>
+              )}
+              {columnVisibility.find(col => col.id === 'date')?.isVisible && (
+                <TableHead className="text-xs font-medium text-gray-400">Date Ajoutée</TableHead>
+              )}
+              {columnVisibility.find(col => col.id === 'stock')?.isVisible && (
+                <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Stock Actuel</TableHead>
+              )}
+              {columnVisibility.find(col => col.id === 'threshold')?.isVisible && (
+                <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Seuil</TableHead>
+              )}
+              {columnVisibility.find(col => col.id === 'age')?.isVisible && (
+                <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Âge</TableHead>
+              )}
               <TableHead className="text-xs font-medium text-gray-400 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
