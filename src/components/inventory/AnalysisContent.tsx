@@ -1,15 +1,14 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { AnalysisItemDialog } from './analysis/AnalysisItemDialog';
-import { AlertCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ArrowUpIcon, ArrowDownIcon, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const AnalysisContent: React.FC = () => {
-  // État pour suivre les éléments et l'élément sélectionné pour le popup
-  const [selectedItem, setSelectedItem] = useState<any | null>(null);
-  const [analysisMockData, setAnalysisMockData] = useState([
+  // Données d'exemple pour l'analyse
+  const analysisData = [
     { 
       id: 1, 
       sku: 'SKU-001', 
@@ -21,15 +20,7 @@ export const AnalysisContent: React.FC = () => {
       priority: 'high',
       lastSales: 25,
       status: 'pending',
-      notes: 'Produit à forte demande saisonnière',
-      addedDate: '2023-11-15',
-      age: 120,
-      // Nouvelles propriétés pour l'analyse
-      quantityToOrder: 15,
-      lastOrderQuantity: null,
-      lastOrderDate: null,
-      labStatus: null,
-      estimatedDeliveryDate: null,
+      notes: 'Produit à forte demande saisonnière'
     },
     { 
       id: 2, 
@@ -42,14 +33,7 @@ export const AnalysisContent: React.FC = () => {
       priority: 'medium',
       lastSales: 12,
       status: 'ordered',
-      notes: 'Commande récente en attente de livraison',
-      addedDate: '2023-12-22',
-      age: 90,
-      quantityToOrder: 25,
-      lastOrderQuantity: 20,
-      lastOrderDate: '2024-01-15',
-      labStatus: 'ok',
-      estimatedDeliveryDate: '2024-06-15',
+      notes: 'Commande récente en attente de livraison'
     },
     { 
       id: 3, 
@@ -62,14 +46,7 @@ export const AnalysisContent: React.FC = () => {
       priority: 'high',
       lastSales: 18,
       status: 'pending',
-      notes: 'Fournisseur principal en rupture, contacter alternative',
-      addedDate: '2024-01-10',
-      age: 75,
-      quantityToOrder: 10,
-      lastOrderQuantity: null,
-      lastOrderDate: null,
-      labStatus: null,
-      estimatedDeliveryDate: null,
+      notes: 'Fournisseur principal en rupture, contacter alternative'
     },
     { 
       id: 4, 
@@ -82,94 +59,84 @@ export const AnalysisContent: React.FC = () => {
       priority: 'low',
       lastSales: 5,
       status: 'ok',
-      notes: 'Stock suffisant pour le moment',
-      addedDate: '2024-02-01',
-      age: 60,
-      quantityToOrder: 0,
-      lastOrderQuantity: 15,
-      lastOrderDate: '2024-02-10',
-      labStatus: 'ok',
-      estimatedDeliveryDate: null,
+      notes: 'Stock suffisant pour le moment'
     },
-  ]);
+  ];
 
-  // Fonction pour ouvrir le popup
-  const handleRowClick = (item) => {
-    setSelectedItem(item);
-  };
-
-  // Fonction pour fermer le popup
-  const handleCloseDialog = () => {
-    setSelectedItem(null);
-  };
-
-  // Fonction pour mettre à jour les données d'un item
-  const handleUpdateItem = (updatedItem) => {
-    setAnalysisMockData(prevData => 
-      prevData.map(item => 
-        item.id === updatedItem.id ? { ...item, ...updatedItem } : item
-      )
-    );
-    setSelectedItem(null);
-  };
-
-  // Vérifier si un item a des informations manquantes importantes
-  const hasMissingInfo = (item) => {
-    return !item.lastOrderQuantity || !item.lastOrderDate || !item.labStatus;
+  const getStatusBadge = (status) => {
+    switch(status) {
+      case 'ordered':
+        return <Badge variant="outline" className="flex items-center gap-1 bg-blue-900/20 text-blue-400 border-blue-800">
+                <Clock className="h-3 w-3" />Déjà commandé
+               </Badge>;
+      case 'pending':
+        return <Badge variant="outline" className="flex items-center gap-1 bg-yellow-900/20 text-yellow-400 border-yellow-800">
+                <AlertTriangle className="h-3 w-3" />À commander
+               </Badge>;
+      case 'ok':
+        return <Badge variant="outline" className="flex items-center gap-1 bg-green-900/20 text-green-400 border-green-800">
+                <CheckCircle2 className="h-3 w-3" />Stock OK
+               </Badge>;
+      default:
+        return null;
+    }
   };
 
   return (
     <CardContent className="p-4">
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>SKU</TableHead>
-              <TableHead className="text-right">Quantité à commander</TableHead>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>SKU</TableHead>
+            <TableHead>Produit</TableHead>
+            <TableHead>Stock Actuel</TableHead>
+            <TableHead>Seuil</TableHead>
+            <TableHead>Recommandé</TableHead>
+            <TableHead>Ventes Récentes</TableHead>
+            <TableHead>Tendance</TableHead>
+            <TableHead>Priorité</TableHead>
+            <TableHead>Statut</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {analysisData.map((item) => (
+            <TableRow key={item.id}>
+              <TableCell className="font-medium">{item.sku}</TableCell>
+              <TableCell>{item.name}</TableCell>
+              <TableCell>{item.current}</TableCell>
+              <TableCell>{item.threshold}</TableCell>
+              <TableCell className="font-medium">{item.recommended}</TableCell>
+              <TableCell>{item.lastSales} unités</TableCell>
+              <TableCell>
+                {item.trend === 'up' ? (
+                  <ArrowUpIcon className="text-green-500 h-4 w-4" />
+                ) : (
+                  <ArrowDownIcon className="text-red-500 h-4 w-4" />
+                )}
+              </TableCell>
+              <TableCell>
+                <Badge 
+                  variant={item.priority === 'high' ? 'destructive' : item.priority === 'medium' ? 'outline' : 'secondary'}
+                >
+                  {item.priority === 'high' ? 'Haute' : item.priority === 'medium' ? 'Moyenne' : 'Basse'}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      {getStatusBadge(item.status)}
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p>{item.notes}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {analysisMockData.map((item) => (
-              <TableRow 
-                key={item.id} 
-                className="cursor-pointer hover:bg-muted/30"
-                onClick={() => handleRowClick(item)}
-              >
-                <TableCell className="font-medium">
-                  <div className="flex items-center gap-2">
-                    {item.sku}
-                    {hasMissingInfo(item) && (
-                      <span className="relative">
-                        <AlertCircle 
-                          className="h-4 w-4 text-yellow-500"
-                          aria-label="Informations manquantes"
-                        >
-                          <span className="sr-only">Informations manquantes</span>
-                        </AlertCircle>
-                        <span className="sr-only">Informations manquantes</span>
-                      </span>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className={cn(
-                  "text-right font-medium", 
-                  item.quantityToOrder > 0 ? "text-[#3ECF8E]" : ""
-                )}>
-                  {item.quantityToOrder}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      {selectedItem && (
-        <AnalysisItemDialog 
-          item={selectedItem} 
-          onClose={handleCloseDialog}
-          onUpdate={handleUpdateItem}
-        />
-      )}
+          ))}
+        </TableBody>
+      </Table>
     </CardContent>
   );
 };
