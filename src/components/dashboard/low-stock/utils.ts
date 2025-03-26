@@ -25,4 +25,3 @@ export const getNextStatus = (currentStatus: 'high' | 'medium' | 'low' | null): 
     return 'high';
   }
 };
-
