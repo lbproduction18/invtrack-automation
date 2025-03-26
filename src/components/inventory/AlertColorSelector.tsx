@@ -44,7 +44,7 @@ export const AlertColorSelector: React.FC = () => {
           >
             {Object.entries(alertColorSchemes).map(([key, scheme]) => (
               <div key={key} className="flex flex-col items-center gap-1.5">
-                <div className={`h-8 w-8 rounded-full bg-gradient-to-br ${scheme.gradient.replace('/10', '')} cursor-pointer relative`}>
+                <div className={`h-8 w-8 rounded-full ${scheme.gradient.replace('bg-gradient-to-r', '').replace('to-transparent', '')} cursor-pointer relative`}>
                   <RadioGroupItem 
                     value={key} 
                     id={`color-${key}`} 

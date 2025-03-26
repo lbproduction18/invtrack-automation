@@ -9,32 +9,32 @@ type AlertColorScheme = {
 
 export const alertColorSchemes: Record<string, AlertColorScheme> = {
   purple: {
-    gradient: 'from-[#8B5CF6]/10',
+    gradient: 'bg-gradient-to-r from-[#8B5CF6]/20 to-transparent',
     iconColor: 'text-[#8B5CF6]',
     name: 'Violet'
   },
   green: {
-    gradient: 'from-[#3ECF8E]/10',
+    gradient: 'bg-gradient-to-r from-[#3ECF8E]/20 to-transparent',
     iconColor: 'text-[#3ECF8E]',
     name: 'Vert'
   },
   blue: {
-    gradient: 'from-[#0EA5E9]/10',
+    gradient: 'bg-gradient-to-r from-[#0EA5E9]/20 to-transparent',
     iconColor: 'text-[#0EA5E9]',
     name: 'Bleu'
   },
   orange: {
-    gradient: 'from-[#F97316]/10',
+    gradient: 'bg-gradient-to-r from-[#F97316]/20 to-transparent',
     iconColor: 'text-[#F97316]',
     name: 'Orange'
   },
   pink: {
-    gradient: 'from-[#D946EF]/10',
+    gradient: 'bg-gradient-to-r from-[#D946EF]/20 to-transparent',
     iconColor: 'text-[#D946EF]',
     name: 'Rose'
   },
   red: {
-    gradient: 'from-[#ea384c]/10',
+    gradient: 'bg-gradient-to-r from-[#ea384c]/20 to-transparent',
     iconColor: 'text-[#ea384c]',
     name: 'Rouge'
   }
