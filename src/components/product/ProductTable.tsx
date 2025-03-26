@@ -19,7 +19,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Loader2, MoreHorizontal, Package, Pencil, Plus, Trash2 } from 'lucide-react';
 import { type Product } from '@/types/product';
-import { StockStatusBadge } from '@/components/product/StockStatusBadge';
 import { cn } from '@/lib/utils';
 
 interface ProductTableProps {
@@ -57,7 +56,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   if (isLoading) {
     return (
       <TableRow>
-        <TableCell colSpan={6} className="h-24 text-center">
+        <TableCell colSpan={5} className="h-24 text-center">
           <div className="flex flex-col items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
             <p className="mt-2 text-sm text-muted-foreground">Chargement des produits...</p>
@@ -70,7 +69,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   if (filteredProducts.length === 0) {
     return (
       <TableRow>
-        <TableCell colSpan={6} className="h-24 text-center">
+        <TableCell colSpan={5} className="h-24 text-center">
           <div className="flex flex-col items-center justify-center text-muted-foreground">
             <Package className="h-8 w-8 mb-2 opacity-50" />
             <p>Aucun produit trouvé</p>
@@ -92,9 +91,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({
               month: 'short',
               day: 'numeric'
             })}
-          </TableCell>
-          <TableCell className="text-right">
-            <StockStatusBadge stock={product.current_stock} threshold={product.threshold} />
           </TableCell>
           <TableCell className="text-right font-medium w-24">{product.current_stock}</TableCell>
           <TableCell className="text-right font-medium w-24">{product.threshold}</TableCell>

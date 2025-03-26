@@ -26,7 +26,6 @@ export const LowStockTableHeader: React.FC<LowStockTableHeaderProps> = ({
       <TableHead className="text-right">Stock</TableHead>
       <TableHead className="text-right">Minimum</TableHead>
       <TableHead>Date Added</TableHead>
-      <TableHead className="text-right">Status</TableHead>
       <TableHead className="text-right">Actions</TableHead>
     </TableRow>
   );
