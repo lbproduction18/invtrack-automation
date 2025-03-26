@@ -3,9 +3,9 @@ import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Clock, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Product } from "@/types/product";
+import { type Product } from "@/types/product";
+import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 
-type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000;
 type SelectedProduct = Product & { 
   selectedQuantity?: QuantityOption;
 };

@@ -6,6 +6,7 @@ import ProductDetailsDrawer from './analysis/ProductDetailsDrawer';
 import BudgetSimulation from './analysis/BudgetSimulation';
 import { useProducts } from '@/hooks/useProducts';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
+import { type Product } from '@/types/product';
 
 // Define QuantityOption type consistently in this file
 export type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000 | 8000;
@@ -13,29 +14,6 @@ export type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000 | 8000;
 // Define product shape explicitly
 interface AnalysisProduct extends Product {
   selectedQuantity?: QuantityOption;
-}
-
-interface Product {
-  id: string;
-  SKU: string;
-  product_name: string;
-  current_stock: number;
-  threshold: number;
-  created_at: string;
-  updated_at: string;
-  priority_badge: "standard" | "important" | "prioritaire";
-  note: string | null;
-  price_1000: number | null;
-  price_2000: number | null;
-  price_3000: number | null;
-  price_4000: number | null;
-  price_5000: number | null;
-  price_8000: number | null;
-  last_order_quantity: number | null;
-  last_order_date: string | null;
-  lab_status: string | null;
-  estimated_delivery_date: string | null;
-  status: string;
 }
 
 // Named export to match import in Index.tsx
@@ -108,17 +86,17 @@ export const AnalysisContent: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <ProductDetailsTable 
-            products={analysisProducts}
+            products={analysisProducts as any}
             isLoading={false}
             onQuantityChange={handleQuantityChange}
-            getTotalPrice={getTotalPrice}
+            getTotalPrice={getTotalPrice as any}
             onShowDetails={handleShowDetails}
           />
         </div>
         
         <div className="lg:col-span-1">
           <ProductSummary 
-            products={analysisProducts}
+            products={analysisProducts as any}
             isLoading={false}
             onShowDetails={handleShowDetails}
           />
@@ -129,16 +107,26 @@ export const AnalysisContent: React.FC = () => {
       {activeProductIndex !== null && analysisProducts[activeProductIndex] && (
         <ProductDetailsDrawer
           isOpen={isDrawerOpen}
-          onClose={() => setIsDrawerOpen(false)}
-          onQuantityChange={(quantity: any) => {
-            if (activeProductIndex !== null && analysisProducts[activeProductIndex]) {
-              handleQuantityChange(
-                analysisProducts[activeProductIndex].id, 
-                quantity as QuantityOption
-              );
+          onOpenChange={setIsDrawerOpen}
+          selectedProduct={analysisProducts[activeProductIndex]}
+          selectedProductIndex={activeProductIndex}
+          productsCount={analysisProducts.length}
+          onNavigate={(direction) => {
+            if (direction === 'prev' && activeProductIndex > 0) {
+              setActiveProductIndex(activeProductIndex - 1);
+            } else if (direction === 'next' && activeProductIndex < analysisProducts.length - 1) {
+              setActiveProductIndex(activeProductIndex + 1);
             }
           }}
-          product={analysisProducts[activeProductIndex]}
+          onQuantityChange={(productId, quantity) => {
+            handleQuantityChange(productId, quantity as QuantityOption);
+          }}
+          onUpdateProduct={(productId, updates) => {
+            console.log('Update product:', productId, updates);
+            // Implement product update logic
+          }}
+          getTotalPrice={getTotalPrice as any}
+          onCreateOrder={handleCreateOrder}
         />
       )}
     </div>

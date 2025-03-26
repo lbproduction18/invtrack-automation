@@ -14,9 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatDate } from "@/components/dashboard/low-stock/utils";
-import { Product } from "@/types/product";
+import { type Product } from "@/types/product";
+import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 
-type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000;
 type SelectedProduct = Product & { 
   selectedQuantity?: QuantityOption;
 };
@@ -36,7 +36,7 @@ const ProductDetailsTable: React.FC<ProductDetailsTableProps> = ({
   getTotalPrice,
   onShowDetails
 }) => {
-  const quantityOptions: QuantityOption[] = [1000, 2000, 3000, 4000, 5000];
+  const quantityOptions: QuantityOption[] = [1000, 2000, 3000, 4000, 5000, 8000];
 
   return (
     <div className="rounded-md border border-[#272727] overflow-hidden">

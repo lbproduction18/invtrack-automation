@@ -141,14 +141,14 @@ const OrderSimulationTable: React.FC<OrderSimulationTableProps> = ({
                 <TableCell className="text-center">{product.price_8000 ? `${product.price_8000} €` : '-'}</TableCell>
                 <TableCell className="text-center py-3">
                   <Select
-                    value={selectedQty === 0 ? '' : selectedQty.toString()}
+                    value={selectedQty === 0 ? undefined : selectedQty.toString()}
                     onValueChange={(value) => onQuantityChange(product.product_name, parseInt(value, 10) || 0)}
                   >
                     <SelectTrigger className="w-24 mx-auto">
                       <SelectValue placeholder="Quantité" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">0</SelectItem>
+                      <SelectItem value="0">0</SelectItem>
                       {quantityOptions.map((qty) => {
                         const priceKey = `price_${qty}` as keyof ProductPrice;
                         const hasPrice = product[priceKey] !== null;

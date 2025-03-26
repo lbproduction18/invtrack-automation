@@ -19,11 +19,10 @@ import {
 } from "@/components/ui/select";
 import { X, ShoppingCart, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { formatDate } from "@/components/dashboard/low-stock/utils";
-import { Product } from "@/types/product";
-import { supabase } from "@/integrations/supabase/client";
+import { type Product } from "@/types/product";
+import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { useToast } from "@/hooks/use-toast";
 
-type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000;
 type SelectedProduct = Product & { 
   selectedQuantity?: QuantityOption;
   labStatus?: string | null;
@@ -55,7 +54,7 @@ const ProductDetailsDrawer: React.FC<ProductDetailsDrawerProps> = ({
   onCreateOrder
 }) => {
   const { toast } = useToast();
-  const quantityOptions: QuantityOption[] = [1000, 2000, 3000, 4000, 5000];
+  const quantityOptions: QuantityOption[] = [1000, 2000, 3000, 4000, 5000, 8000];
 
   if (!selectedProduct) return null;
 
