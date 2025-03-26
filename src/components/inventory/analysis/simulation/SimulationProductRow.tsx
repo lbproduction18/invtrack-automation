@@ -75,21 +75,21 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
           );
         })}
         
-        {/* SKU Selection dropdown */}
-        <td className="py-3 border-t border-[#272727]">
+        {/* SKU Selection dropdown - placed at the right side */}
+        <td className="py-3 border-t border-[#272727] text-right">
           {availableSKUs.length > 0 ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="w-full flex items-center justify-between"
+                  className="flex items-center justify-between"
                 >
-                  <span className="flex-1 truncate">Ajouter une saveur</span>
-                  <PlusCircle className="h-4 w-4 ml-2" />
+                  <span className="flex-1 truncate mr-2">Ajouter une saveur</span>
+                  <PlusCircle className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-[#161616] border-[#272727]">
+              <DropdownMenuContent className="bg-[#161616] border-[#272727] z-50">
                 {availableSKUs.map(sku => (
                   <DropdownMenuItem 
                     key={sku.id}
@@ -104,9 +104,6 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
             <span className="text-gray-500 text-sm">Aucun SKU disponible</span>
           )}
         </td>
-        
-        {/* Total for this product row (empty in main row) */}
-        <td className="text-right py-3 border-t border-[#272727]"></td>
       </tr>
       
       {/* SKU rows if any are selected */}

@@ -68,6 +68,26 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
         return prev;
       }
       
+      // Find the matching product price for this product
+      const productPrice = productPrices.find(p => p.product_name === productName);
+      
+      // Default to first quantity option with a price
+      let defaultQuantity: QuantityOption = 1000;
+      let defaultPrice = 0;
+      
+      if (productPrice) {
+        // Try to find the first quantity that has a price
+        for (const qty of quantityOptions) {
+          const priceField = `price_${qty}` as keyof typeof productPrice;
+          const price = productPrice[priceField] as number;
+          if (price && price > 0) {
+            defaultQuantity = qty;
+            defaultPrice = price;
+            break;
+          }
+        }
+      }
+      
       return {
         ...prev,
         [productName]: [
@@ -76,8 +96,8 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
             productId: skuInfo.id,
             SKU: skuInfo.SKU,
             productName: skuInfo.productName,
-            quantity: 0,
-            price: 0
+            quantity: defaultQuantity,
+            price: defaultPrice
           }
         ]
       };
@@ -134,32 +154,6 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
     return sku.quantity * sku.price;
   };
   
-  // Calculate what the total would be if all products used the same quantity
-  const calculateTrancheTotals = () => {
-    const trancheTotals: Record<QuantityOption, number> = {
-      1000: 0,
-      2000: 0,
-      3000: 0,
-      4000: 0,
-      5000: 0,
-      8000: 0
-    };
-    
-    quantityOptions.forEach(qty => {
-      let trancheTotal = 0;
-      
-      productPrices.forEach(product => {
-        const priceField = `price_${qty}` as keyof typeof product;
-        const price = product[priceField] as number || 0;
-        trancheTotal += price > 0 ? price : 0;
-      });
-      
-      trancheTotals[qty] = trancheTotal;
-    });
-    
-    return trancheTotals;
-  };
-  
   // Refresh prices from Supabase
   const handleRefreshPrices = async () => {
     try {
@@ -197,9 +191,6 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
     calculateOrderTotal();
   }, [selectedSKUs]);
   
-  // Calculate tranche totals
-  const trancheTotals = calculateTrancheTotals();
-  
   return (
     <div className="space-y-6">
       {/* Budget Settings Panel */}
@@ -230,7 +221,6 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
         quantityOptions={quantityOptions}
         selectedSKUs={selectedSKUs}
         groupedAnalysisProducts={groupedAnalysisProducts}
-        trancheTotals={trancheTotals}
         simulationTotal={simulationTotal}
         onAddSKU={handleAddSKU}
         onQuantityChange={handleQuantityChange}

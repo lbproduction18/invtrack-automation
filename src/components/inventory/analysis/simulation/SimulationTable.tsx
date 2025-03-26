@@ -15,7 +15,6 @@ interface SimulationTableProps {
   quantityOptions: QuantityOption[];
   selectedSKUs: Record<string, SelectedSKU[]>;
   groupedAnalysisProducts: Record<string, Array<{ id: string, SKU: string, productName: string | null }>>;
-  trancheTotals: Record<QuantityOption, number>;
   simulationTotal: number;
   onAddSKU: (productName: string, skuInfo: { id: string, SKU: string, productName: string | null }) => void;
   onQuantityChange: (productName: string, skuIndex: number, quantity: QuantityOption) => void;
@@ -29,7 +28,6 @@ const SimulationTable: React.FC<SimulationTableProps> = ({
   quantityOptions,
   selectedSKUs,
   groupedAnalysisProducts,
-  trancheTotals,
   simulationTotal,
   onAddSKU,
   onQuantityChange,
@@ -42,7 +40,7 @@ const SimulationTable: React.FC<SimulationTableProps> = ({
         <Table>
           <tbody>
             <tr>
-              <td colSpan={9} className="h-24 text-center text-gray-500">
+              <td colSpan={8} className="h-24 text-center text-gray-500">
                 Chargement des prix...
               </td>
             </tr>
@@ -58,7 +56,7 @@ const SimulationTable: React.FC<SimulationTableProps> = ({
         <Table>
           <tbody>
             <tr>
-              <td colSpan={9} className="h-24 text-center text-gray-500">
+              <td colSpan={8} className="h-24 text-center text-gray-500">
                 Aucun produit trouvé dans la base de données
               </td>
             </tr>
@@ -73,7 +71,6 @@ const SimulationTable: React.FC<SimulationTableProps> = ({
       <Table>
         <SimulationTableHeader 
           quantityOptions={quantityOptions} 
-          trancheTotals={trancheTotals} 
           simulationTotal={simulationTotal} 
         />
         
