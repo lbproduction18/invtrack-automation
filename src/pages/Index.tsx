@@ -4,8 +4,7 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious
+  CarouselApi
 } from "@/components/ui/carousel";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { InventoryHeader } from '@/components/inventory/InventoryHeader';
@@ -16,7 +15,6 @@ import { OrderContent } from '@/components/inventory/OrderContent';
 import { DeliveryContent } from '@/components/inventory/DeliveryContent';
 import { Progress } from "@/components/ui/progress";
 import { useEffect } from 'react';
-import type { CarouselApi } from "@/components/ui/carousel";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -104,101 +102,103 @@ const Index = () => {
         </div>
       </div>
       
-      <Carousel 
-        className="w-full relative" 
-        setApi={setCarouselApi}
+      {/* Flèche de gauche */}
+      <button
+        onClick={() => carouselApi?.scrollPrev()}
+        disabled={currentStep === 0}
+        className={cn(
+          "fixed left-4 top-1/2 transform -translate-y-1/2 z-50 flex items-center justify-center w-12 h-12 rounded-full bg-[#1E1E1E] border border-[#272727] text-white shadow-md transition-all duration-300",
+          currentStep === 0 ? "opacity-50 cursor-not-allowed" : "hover:bg-[#272727] hover:scale-105"
+        )}
+        aria-label="Étape précédente"
       >
-        <CarouselContent>
-          {/* Low Stock Products */}
-          <CarouselItem>
-            <div className="space-y-4 p-4">
-              <InventoryHeader />
-              <LastUpdatedAlert />
-              <Card className="border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
-                <CardHeader className="px-4 py-3 border-b border-[#272727]">
-                  <CardTitle className="text-sm font-medium text-white">Produits à Faible Stock</CardTitle>
-                  <CardDescription className="text-xs text-gray-400">
-                    Étape 1: Identification des produits nécessitant un réapprovisionnement
-                  </CardDescription>
-                </CardHeader>
-                <InventoryContent />
-              </Card>
-            </div>
-          </CarouselItem>
+        <ChevronLeft size={24} />
+      </button>
+      
+      {/* Carousel principal */}
+      <div className="relative max-w-[calc(100%-80px)] mx-auto">
+        <Carousel 
+          className="w-full" 
+          setApi={setCarouselApi}
+        >
+          <CarouselContent>
+            {/* Low Stock Products */}
+            <CarouselItem>
+              <div className="space-y-4 p-4">
+                <InventoryHeader />
+                <LastUpdatedAlert />
+                <Card className="border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
+                  <CardHeader className="px-4 py-3 border-b border-[#272727]">
+                    <CardTitle className="text-sm font-medium text-white">Produits à Faible Stock</CardTitle>
+                    <CardDescription className="text-xs text-gray-400">
+                      Étape 1: Identification des produits nécessitant un réapprovisionnement
+                    </CardDescription>
+                  </CardHeader>
+                  <InventoryContent />
+                </Card>
+              </div>
+            </CarouselItem>
 
-          {/* Restock Analysis */}
-          <CarouselItem>
-            <div className="space-y-4 p-4">
-              <Card className="border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
-                <CardHeader className="px-4 py-3 border-b border-[#272727]">
-                  <CardTitle className="text-sm font-medium text-white">Analyse de Restock</CardTitle>
-                  <CardDescription className="text-xs text-gray-400">
-                    Étape 2: Analyse des besoins et recommandations
-                  </CardDescription>
-                </CardHeader>
-                <AnalysisContent />
-              </Card>
-            </div>
-          </CarouselItem>
+            {/* Restock Analysis */}
+            <CarouselItem>
+              <div className="space-y-4 p-4">
+                <Card className="border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
+                  <CardHeader className="px-4 py-3 border-b border-[#272727]">
+                    <CardTitle className="text-sm font-medium text-white">Analyse de Restock</CardTitle>
+                    <CardDescription className="text-xs text-gray-400">
+                      Étape 2: Analyse des besoins et recommandations
+                    </CardDescription>
+                  </CardHeader>
+                  <AnalysisContent />
+                </Card>
+              </div>
+            </CarouselItem>
 
-          {/* Purchase Order */}
-          <CarouselItem>
-            <div className="space-y-4 p-4">
-              <Card className="border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
-                <CardHeader className="px-4 py-3 border-b border-[#272727]">
-                  <CardTitle className="text-sm font-medium text-white">Bon de Commande</CardTitle>
-                  <CardDescription className="text-xs text-gray-400">
-                    Étape 3: Création et validation du bon de commande
-                  </CardDescription>
-                </CardHeader>
-                <OrderContent />
-              </Card>
-            </div>
-          </CarouselItem>
+            {/* Purchase Order */}
+            <CarouselItem>
+              <div className="space-y-4 p-4">
+                <Card className="border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
+                  <CardHeader className="px-4 py-3 border-b border-[#272727]">
+                    <CardTitle className="text-sm font-medium text-white">Bon de Commande</CardTitle>
+                    <CardDescription className="text-xs text-gray-400">
+                      Étape 3: Création et validation du bon de commande
+                    </CardDescription>
+                  </CardHeader>
+                  <OrderContent />
+                </Card>
+              </div>
+            </CarouselItem>
 
-          {/* Delivery Details */}
-          <CarouselItem>
-            <div className="space-y-4 p-4">
-              <Card className="border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
-                <CardHeader className="px-4 py-3 border-b border-[#272727]">
-                  <CardTitle className="text-sm font-medium text-white">Détails de Livraison</CardTitle>
-                  <CardDescription className="text-xs text-gray-400">
-                    Étape 4: Suivi et détails de la livraison
-                  </CardDescription>
-                </CardHeader>
-                <DeliveryContent />
-              </Card>
-            </div>
-          </CarouselItem>
-        </CarouselContent>
-        
-        {/* Flèches de navigation améliorées */}
-        <div className="absolute left-6 top-1/2 -translate-y-1/2 z-10">
-          <button 
-            onClick={() => carouselApi?.scrollPrev()}
-            disabled={currentStep === 0}
-            className={cn(
-              "flex items-center justify-center w-12 h-12 rounded-full bg-[#1E1E1E] border border-[#272727] text-white shadow-md transition-all duration-300",
-              currentStep === 0 ? "opacity-50 cursor-not-allowed" : "hover:bg-[#272727] hover:scale-105"
-            )}
-          >
-            <ChevronLeft size={24} />
-          </button>
-        </div>
-        
-        <div className="absolute right-6 top-1/2 -translate-y-1/2 z-10">
-          <button 
-            onClick={() => carouselApi?.scrollNext()}
-            disabled={currentStep === totalSteps - 1}
-            className={cn(
-              "flex items-center justify-center w-12 h-12 rounded-full bg-[#1E1E1E] border border-[#272727] text-white shadow-md transition-all duration-300",
-              currentStep === totalSteps - 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-[#272727] hover:scale-105"
-            )}
-          >
-            <ChevronRight size={24} />
-          </button>
-        </div>
-      </Carousel>
+            {/* Delivery Details */}
+            <CarouselItem>
+              <div className="space-y-4 p-4">
+                <Card className="border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
+                  <CardHeader className="px-4 py-3 border-b border-[#272727]">
+                    <CardTitle className="text-sm font-medium text-white">Détails de Livraison</CardTitle>
+                    <CardDescription className="text-xs text-gray-400">
+                      Étape 4: Suivi et détails de la livraison
+                    </CardDescription>
+                  </CardHeader>
+                  <DeliveryContent />
+                </Card>
+              </div>
+            </CarouselItem>
+          </CarouselContent>
+        </Carousel>
+      </div>
+      
+      {/* Flèche de droite */}
+      <button
+        onClick={() => carouselApi?.scrollNext()}
+        disabled={currentStep === totalSteps - 1}
+        className={cn(
+          "fixed right-4 top-1/2 transform -translate-y-1/2 z-50 flex items-center justify-center w-12 h-12 rounded-full bg-[#1E1E1E] border border-[#272727] text-white shadow-md transition-all duration-300",
+          currentStep === totalSteps - 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-[#272727] hover:scale-105"
+        )}
+        aria-label="Étape suivante"
+      >
+        <ChevronRight size={24} />
+      </button>
     </div>
   );
 };
