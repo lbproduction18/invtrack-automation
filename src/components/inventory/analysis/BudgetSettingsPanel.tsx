@@ -38,7 +38,10 @@ const BudgetSettingsPanel: React.FC<BudgetSettingsPanelProps> = ({
               budgetPercentage={budgetPercentage}
               configuredProductCount={configuredProductCount}
               totalProductCount={totalProductCount}
-              budgetAmount={budgetSettings?.budgetAmount || 300000}
+              productCount={totalProductCount || 0}
+              totalBudget={budgetSettings?.total_budget || 300000}
+              budgetAmount={budgetSettings?.total_budget}
+              onCreateOrder={onCreateOrder}
             />
           </div>
           

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Select,
   SelectContent,
@@ -7,77 +7,99 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 
-interface SKUSelectorProps {
-  productGroups: Record<string, Array<{ id: string, SKU: string, productName: string | null }>>;
+export interface SKUSelectorProps {
   productName: string;
-  onAddSKU: (productName: string, sku: string, skuId: string) => void;
-  disabled?: boolean;
+  skus?: Array<{ id: string; SKU: string; productName: string | null }>;
+  quantityOptions: QuantityOption[];
+  prices?: Record<string, number | null>;
+  onAdd: (productName: string, skuId: string, skuValue: string, quantity: QuantityOption) => void;
+  availableSKUs?: Array<{ id: string; SKU: string; productName: string | null }>;
 }
 
-const SKUSelector: React.FC<SKUSelectorProps> = ({ 
-  productGroups, 
+const SKUSelector: React.FC<SKUSelectorProps> = ({
   productName,
-  onAddSKU,
-  disabled = false
+  quantityOptions,
+  onAdd,
+  availableSKUs = [],
+  skus = []
 }) => {
-  const [availableSKUs, setAvailableSKUs] = useState<Array<{ id: string, SKU: string, productName: string | null }>>([]);
   const [selectedSKU, setSelectedSKU] = useState<string>('');
-  
-  // Filter SKUs based on the current product
-  useEffect(() => {
-    // Extract base product name (before any dash) to match with product groups
-    const baseProductName = productName.split('–')[0]?.trim() || productName;
-    
-    // Find matching product group
-    const matchingSKUs = productGroups[baseProductName] || [];
-    setAvailableSKUs(matchingSKUs);
-  }, [productGroups, productName]);
-  
-  // Handle SKU selection
-  const handleSkuChange = (value: string) => {
+  const [selectedSKUObject, setSelectedSKUObject] = useState<{ id: string; SKU: string; productName: string | null } | null>(null);
+  const [selectedQuantity, setSelectedQuantity] = useState<QuantityOption | null>(null);
+
+  // Use either availableSKUs or skus depending on what's provided
+  const skusToDisplay = availableSKUs.length > 0 ? availableSKUs : skus;
+
+  const handleSKUChange = (value: string) => {
     setSelectedSKU(value);
-    
-    // Find the selected SKU object
-    const selectedSkuObject = availableSKUs.find(sku => sku.SKU === value);
-    
-    if (selectedSkuObject) {
-      // Call the onAddSKU with the selected SKU information
-      onAddSKU(productName, value, selectedSkuObject.id);
-    }
-    
-    // Reset selection after adding
-    setSelectedSKU('');
+    const skuObject = skusToDisplay.find(sku => sku.SKU === value) || null;
+    setSelectedSKUObject(skuObject);
+    setSelectedQuantity(null); // Reset quantity when SKU changes
   };
-  
+
+  const handleQuantityChange = (value: string) => {
+    setSelectedQuantity(Number(value) as QuantityOption);
+  };
+
+  const handleAddClick = () => {
+    if (selectedSKU && selectedQuantity && selectedSKUObject) {
+      onAdd(productName, selectedSKUObject.id, selectedSKU, selectedQuantity);
+      // Reset after adding
+      setSelectedSKU('');
+      setSelectedSKUObject(null);
+      setSelectedQuantity(null);
+    }
+  };
+
   return (
-    <div className="w-full">
-      <Select
-        value={selectedSKU}
-        onValueChange={(value) => handleSkuChange(value)}
-        disabled={disabled || availableSKUs.length === 0}
-      >
-        <SelectTrigger className="w-full bg-[#121212] border-[#272727] text-gray-300">
-          <SelectValue placeholder="SKU..." />
-        </SelectTrigger>
-        <SelectContent className="bg-[#161616] border-[#272727]">
-          {availableSKUs.length > 0 ? (
-            availableSKUs.map((sku) => (
-              <SelectItem 
-                key={sku.id} 
-                value={sku.SKU}
-                className="text-gray-300 hover:bg-[#272727] focus:bg-[#272727]"
-              >
+    <div className="flex space-x-2 items-center">
+      <div className="w-40">
+        <Select value={selectedSKU} onValueChange={handleSKUChange}>
+          <SelectTrigger className="w-full bg-[#161616]">
+            <SelectValue placeholder="Sélectionner" />
+          </SelectTrigger>
+          <SelectContent>
+            {skusToDisplay.map((sku) => (
+              <SelectItem key={sku.id} value={sku.SKU}>
                 {sku.SKU}
               </SelectItem>
-            ))
-          ) : (
-            <SelectItem value="none" disabled className="text-gray-500">
-              Aucun SKU disponible
-            </SelectItem>
-          )}
-        </SelectContent>
-      </Select>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {selectedSKU && (
+        <>
+          <div className="w-24">
+            <Select onValueChange={handleQuantityChange}>
+              <SelectTrigger className="w-full bg-[#161616]">
+                <SelectValue placeholder="Qté" />
+              </SelectTrigger>
+              <SelectContent>
+                {quantityOptions.map((qty) => (
+                  <SelectItem key={qty} value={qty.toString()}>
+                    {qty.toLocaleString()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={handleAddClick}
+            disabled={!selectedQuantity}
+            className="h-9 w-9"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </>
+      )}
     </div>
   );
 };
