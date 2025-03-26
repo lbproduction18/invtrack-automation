@@ -33,22 +33,22 @@ export const ProductTableContainer: React.FC<ProductTableContainerProps> = ({
         <TableHeader className="bg-muted/30">
           <TableRow className="hover:bg-transparent border-b border-border/50">
             {columnVisibility
-              .sort((a, b) => a.order - b.order) // Trier par ordre avant d'afficher
+              .sort((a, b) => a.order - b.order)
               .map(column => (
                 column.isVisible && (
                   <TableHead 
                     key={column.id} 
                     className={cn(
                       "text-xs font-medium",
-                      (column.id === 'stock' || column.id === 'threshold' || column.id === 'age') && "text-right w-24",
-                      column.id === 'priority' && "w-28"
+                      (column.id === 'stock' || column.id === 'threshold' || column.id === 'age') && "text-right w-20",
+                      column.id === 'priority' && "w-24"
                     )}
                   >
                     {column.title}
                   </TableHead>
                 )
               ))}
-            <TableHead className="text-xs font-medium text-right">Actions</TableHead>
+            <TableHead className="text-xs font-medium text-right w-16">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

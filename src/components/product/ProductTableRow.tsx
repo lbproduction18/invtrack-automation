@@ -64,13 +64,13 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
             );
           case 'stock':
             return (
-              <TableCell key={`${product.id}-${column.id}`} className="text-right font-medium w-24">
+              <TableCell key={`${product.id}-${column.id}`} className="text-right font-medium w-20">
                 {product.current_stock}
               </TableCell>
             );
           case 'threshold':
             return (
-              <TableCell key={`${product.id}-${column.id}`} className="text-right font-medium w-24">
+              <TableCell key={`${product.id}-${column.id}`} className="text-right font-medium w-20">
                 {product.threshold}
               </TableCell>
             );
@@ -78,14 +78,14 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
             return (
               <TableCell 
                 key={`${product.id}-${column.id}`} 
-                className={cn("text-right w-24", getAgingColor(getDaysSinceAdded(product.created_at)))}
+                className={cn("text-right w-20", getAgingColor(getDaysSinceAdded(product.created_at)))}
               >
-                {getDaysSinceAdded(product.created_at)} jours
+                {getDaysSinceAdded(product.created_at)} j
               </TableCell>
             );
           case 'priority':
             return (
-              <TableCell key={`${product.id}-${column.id}`} className="w-28">
+              <TableCell key={`${product.id}-${column.id}`} className="w-24">
                 <PriorityDialog
                   productId={product.id}
                   currentPriority={product.priority_badge}
@@ -102,7 +102,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         }
       })}
       
-      <TableCell className="text-right">
+      <TableCell className="text-right w-16">
         <ProductRowActions 
           product={product} 
           onPriorityChange={onPriorityChange} 
