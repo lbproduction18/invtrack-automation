@@ -49,7 +49,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         switch(column.id) {
           case 'SKU':
             return (
-              <TableCell key={`${product.id}-${column.id}`} className="font-medium whitespace-nowrap p-1 pl-2">
+              <TableCell key={`${product.id}-${column.id}`} className="font-medium whitespace-nowrap p-1 text-center">
                 {product.SKU}
               </TableCell>
             );
@@ -64,13 +64,13 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
             );
           case 'stock':
             return (
-              <TableCell key={`${product.id}-${column.id}`} className="text-right font-medium whitespace-nowrap p-1 pr-2">
+              <TableCell key={`${product.id}-${column.id}`} className="text-center font-medium whitespace-nowrap p-1">
                 {product.current_stock}
               </TableCell>
             );
           case 'threshold':
             return (
-              <TableCell key={`${product.id}-${column.id}`} className="text-right font-medium whitespace-nowrap p-1 pr-2">
+              <TableCell key={`${product.id}-${column.id}`} className="text-center font-medium whitespace-nowrap p-1">
                 {product.threshold}
               </TableCell>
             );
@@ -78,7 +78,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
             return (
               <TableCell 
                 key={`${product.id}-${column.id}`} 
-                className={cn("text-right whitespace-nowrap p-1 pr-2", getAgingColor(getDaysSinceAdded(product.created_at)))}
+                className={cn("text-center whitespace-nowrap p-1", getAgingColor(getDaysSinceAdded(product.created_at)))}
               >
                 {getDaysSinceAdded(product.created_at)} j
               </TableCell>
@@ -91,7 +91,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
                   currentPriority={product.priority_badge}
                   onPriorityChange={(newPriority) => onPriorityChange(product.id, newPriority)}
                 >
-                  <div className="cursor-pointer">
+                  <div className="cursor-pointer flex justify-center">
                     <PriorityBadge priority={product.priority_badge} />
                   </div>
                 </PriorityDialog>
@@ -102,11 +102,13 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         }
       })}
       
-      <TableCell className="text-right whitespace-nowrap p-1 pr-2">
-        <ProductRowActions 
-          product={product} 
-          onPriorityChange={onPriorityChange} 
-        />
+      <TableCell className="text-center whitespace-nowrap p-1">
+        <div className="flex justify-center">
+          <ProductRowActions 
+            product={product} 
+            onPriorityChange={onPriorityChange} 
+          />
+        </div>
       </TableCell>
     </TableRow>
   );
