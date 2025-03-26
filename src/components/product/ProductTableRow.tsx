@@ -12,13 +12,15 @@ import { NoteDisplay } from '@/components/product/NoteDisplay';
 interface ProductTableRowProps {
   product: Product;
   columnVisibility: ColumnVisibility[];
-  onProductUpdate: (productId: string, updatedData: Partial<Product>) => void;
+  onProductUpdate?: (productId: string, updatedData: Partial<Product>) => void;
+  onPriorityChange?: (productId: string, newPriority: 'standard' | 'moyen' | 'prioritaire') => void;
 }
 
 export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   product,
   columnVisibility,
-  onProductUpdate
+  onProductUpdate = () => {},
+  onPriorityChange = () => {}
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   
@@ -41,10 +43,6 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
       console.error('Error calculating age:', error);
       return 0;
     }
-  };
-
-  const handlePriorityChange = (productId: string, newPriority: 'standard' | 'moyen' | 'prioritaire') => {
-    onProductUpdate(productId, { priority_badge: newPriority });
   };
 
   const toggleExpand = () => {
