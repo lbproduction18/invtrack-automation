@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ProductDetailsTable from './analysis/ProductDetailsTable';
 import ProductSummary from './analysis/ProductSummary';
 import ProductDetailsDrawer from './analysis/ProductDetailsDrawer';
-import BudgetSettingsPanel from './analysis/BudgetSettingsPanel';
-import OrderSimulationTable from './analysis/OrderSimulationTable';
+import BudgetSimulation from './analysis/BudgetSimulation';
 import { useProducts } from '@/hooks/useProducts';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { type Product } from '@/types/product';
@@ -23,10 +22,8 @@ interface AnalysisProduct extends Product {
 export const AnalysisContent: React.FC = () => {
   const { products } = useProducts('analysis');
   const { analysisItems } = useAnalysisItems();
-  const [selectedQuantities, setSelectedQuantities] = useState<Record<string, QuantityOption>>({});
   const [activeProductIndex, setActiveProductIndex] = useState<number | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [totalOrderAmount, setTotalOrderAmount] = useState(0);
 
   // Combine products with analysis items
   const analysisProducts = products
@@ -41,32 +38,12 @@ export const AnalysisContent: React.FC = () => {
       };
     }) as AnalysisProduct[];
 
-  // Handle quantity selection for a product
-  const handleQuantityChange = (productId: string, quantity: QuantityOption) => {
-    setSelectedQuantities(prev => ({
-      ...prev,
-      [productId]: quantity
-    }));
-    
-    // Update total order amount based on selected quantities
-    calculateTotalOrderAmount();
-  };
-
   // Calculate price for a product based on selected quantity
   const getTotalPrice = (product: AnalysisProduct): number => {
     if (!product.selectedQuantity) return 0;
     
     const priceField = `price_${product.selectedQuantity}` as keyof typeof product;
     return (product[priceField] as number || 0) * product.selectedQuantity;
-  };
-
-  // Calculate total order amount
-  const calculateTotalOrderAmount = () => {
-    const total = analysisProducts.reduce((sum, product) => {
-      return sum + getTotalPrice(product);
-    }, 0);
-    
-    setTotalOrderAmount(total);
   };
 
   // Show product details in drawer
@@ -77,7 +54,7 @@ export const AnalysisContent: React.FC = () => {
 
   // Handle order creation
   const handleCreateOrder = () => {
-    console.log('Create order with total amount:', totalOrderAmount);
+    console.log('Create order with selected products');
     // Implement order creation logic
   };
 
@@ -89,20 +66,10 @@ export const AnalysisContent: React.FC = () => {
 
   return (
     <div className="space-y-6 p-4">
-      {/* Budget Settings Panel - Now at the top */}
+      {/* Budget Simulation */}
       <div className="mb-8">
-        <BudgetSettingsPanel 
-          totalOrderAmount={totalOrderAmount}
+        <BudgetSimulation 
           onCreateOrder={handleCreateOrder}
-        />
-      </div>
-      
-      {/* Order Simulation Table */}
-      <div className="mb-8">
-        <OrderSimulationTable 
-          selectedQuantities={selectedQuantities}
-          onQuantityChange={handleQuantityChange}
-          onSimulationTotalChange={setTotalOrderAmount}
         />
       </div>
       
@@ -124,7 +91,7 @@ export const AnalysisContent: React.FC = () => {
           <ProductDetailsTable 
             products={analysisProducts}
             isLoading={false}
-            onQuantityChange={handleQuantityChange}
+            onQuantityChange={() => {}} // No longer needed since we're using the new simulation
             getTotalPrice={getTotalPrice}
             onShowDetails={handleShowDetails}
           />
@@ -154,9 +121,7 @@ export const AnalysisContent: React.FC = () => {
               setActiveProductIndex(activeProductIndex + 1);
             }
           }}
-          onQuantityChange={(productId, quantity) => {
-            handleQuantityChange(productId, quantity as QuantityOption);
-          }}
+          onQuantityChange={() => {}} // No longer needed
           onUpdateProduct={(productId, updates) => {
             console.log('Update product:', productId, updates);
             // Implement product update logic
