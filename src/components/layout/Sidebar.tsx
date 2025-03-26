@@ -9,7 +9,8 @@ import {
   Settings, 
   Layers,
   Menu,
-  X
+  X,
+  PackageOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -17,6 +18,7 @@ import { cn } from '@/lib/utils';
 const sidebarLinks = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { name: 'Inventory', path: '/inventory', icon: Package },
+  { name: 'Products', path: '/products', icon: PackageOpen },
   { name: 'Orders', path: '/orders', icon: ShoppingCart },
   { name: 'Logistics', path: '/logistics', icon: Calendar },
   { name: 'Stock Entry', path: '/stock-entry', icon: Layers },
