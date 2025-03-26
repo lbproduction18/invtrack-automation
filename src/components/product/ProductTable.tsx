@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Table,
@@ -58,7 +59,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         <TableCell colSpan={5} className="h-24 text-center">
           <div className="flex flex-col items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            <p className="mt-2 text-sm text-muted-foreground">Chargement des produits...</p>
+            <p className="mt-2 text-sm text-muted-foreground font-medium">Chargement des produits...</p>
           </div>
         </TableCell>
       </TableRow>
@@ -71,7 +72,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         <TableCell colSpan={5} className="h-24 text-center">
           <div className="flex flex-col items-center justify-center text-muted-foreground">
             <Package className="h-8 w-8 mb-2 opacity-50" />
-            <p>Aucun produit trouvé</p>
+            <p className="font-medium">Aucun produit trouvé</p>
             <p className="text-sm">Essayez d'ajuster votre recherche ou vos filtres, ou ajoutez des produits à la base de données</p>
           </div>
         </TableCell>
