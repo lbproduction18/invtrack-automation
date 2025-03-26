@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Table, 
@@ -11,7 +10,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ShoppingCart } from 'lucide-react';
+import { Flag, ArrowUp, ShoppingCart } from 'lucide-react';
+import { StockStatusBadge } from '@/components/product/StockStatusBadge';
 
 // Mock data for low stock items
 const lowStockItems = [
@@ -125,6 +125,15 @@ export const LowStockTable: React.FC = () => {
     return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
   };
 
+  const calculatePriority = (current: number, minimum: number) => {
+    const ratio = current / minimum;
+    
+    if (current <= 0) return { status: 'critical', label: 'Critique', icon: <Flag className="h-3.5 w-3.5 mr-1" /> };
+    if (ratio <= 0.5) return { status: 'high', label: 'Haute', icon: <Flag className="h-3.5 w-3.5 mr-1" /> };
+    if (ratio <= 0.75) return { status: 'medium', label: 'Moyenne', icon: <ArrowUp className="h-3.5 w-3.5 mr-1" /> };
+    return { status: 'low', label: 'Basse', icon: null };
+  };
+
   return (
     <div>
       {selectedItems.length > 0 && (
@@ -155,50 +164,45 @@ export const LowStockTable: React.FC = () => {
               <TableHead className="text-right">Stock</TableHead>
               <TableHead className="text-right">Minimum</TableHead>
               <TableHead>Date Added</TableHead>
-              <TableHead className="text-right">Status</TableHead>
+              <TableHead className="text-right">Priorité</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {lowStockItems.map((item) => (
-              <TableRow key={item.id} className="table-row-glass">
-                <TableCell>
-                  <Checkbox 
-                    checked={selectedItems.includes(item.id)} 
-                    onCheckedChange={() => toggleItem(item.id)}
-                    aria-label={`Select ${item.name}`}
-                  />
-                </TableCell>
-                <TableCell className="font-medium">{item.name}</TableCell>
-                <TableCell>{item.sku}</TableCell>
-                <TableCell className="text-right">
-                  <span className={item.status === 'critical' ? 'text-danger' : 'text-warning'}>
-                    {item.current}
-                  </span>
-                </TableCell>
-                <TableCell className="text-right">
-                  <span className="text-muted-foreground">{item.minimum}</span>
-                </TableCell>
-                <TableCell>{formatDate(item.added)}</TableCell>
-                <TableCell className="text-right">
-                  <Badge 
-                    variant="outline" 
-                    className={
-                      item.status === 'critical' 
-                        ? 'border-danger/50 text-danger bg-danger/10' 
-                        : 'border-warning/50 text-warning bg-warning/10'
-                    }
-                  >
-                    {item.status === 'critical' ? 'Critical' : 'Low'}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                    <ShoppingCart className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {lowStockItems.map((item) => {
+              const priority = calculatePriority(item.current, item.minimum);
+              
+              return (
+                <TableRow key={item.id} className="table-row-glass">
+                  <TableCell>
+                    <Checkbox 
+                      checked={selectedItems.includes(item.id)} 
+                      onCheckedChange={() => toggleItem(item.id)}
+                      aria-label={`Select ${item.name}`}
+                    />
+                  </TableCell>
+                  <TableCell className="font-medium">{item.name}</TableCell>
+                  <TableCell>{item.sku}</TableCell>
+                  <TableCell className="text-right">
+                    <span className={priority.status === 'critical' || priority.status === 'high' ? 'text-danger' : 'text-warning'}>
+                      {item.current}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <span className="text-muted-foreground">{item.minimum}</span>
+                  </TableCell>
+                  <TableCell>{formatDate(item.added)}</TableCell>
+                  <TableCell className="text-right">
+                    <StockStatusBadge stock={item.current} threshold={item.minimum} />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                      <ShoppingCart className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
