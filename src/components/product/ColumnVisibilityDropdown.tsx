@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Columns, ArrowUp, ArrowDown } from 'lucide-react';
@@ -73,7 +74,7 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
                     size="icon"
                     className="h-6 w-6 p-0 text-gray-400 hover:text-white"
                     onClick={() => onColumnOrderChange(column.id, 'up')}
-                    disabled={columns.findIndex(c => c.id === column.id) === 0}
+                    disabled={columns.findIndex(c => c.id === column.id) === 0 || column.id === 'SKU'}
                   >
                     <ArrowUp className="h-3 w-3" />
                   </Button>
@@ -82,7 +83,7 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
                     size="icon"
                     className="h-6 w-6 p-0 ml-1 text-gray-400 hover:text-white"
                     onClick={() => onColumnOrderChange(column.id, 'down')}
-                    disabled={columns.findIndex(c => c.id === column.id) === columns.length - 1}
+                    disabled={columns.findIndex(c => c.id === column.id) === columns.length - 1 || column.id === 'SKU'}
                   >
                     <ArrowDown className="h-3 w-3" />
                   </Button>

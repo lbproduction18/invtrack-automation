@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Package, 
@@ -66,6 +65,9 @@ const Products: React.FC = () => {
   };
 
   const handleColumnOrderChange = (columnId: string, direction: 'up' | 'down') => {
+    // Prevent reordering the SKU column
+    if (columnId === 'SKU') return;
+    
     setColumnVisibility(prevColumns => {
       const newColumns = [...prevColumns];
       const currentIndex = newColumns.findIndex(col => col.id === columnId);
