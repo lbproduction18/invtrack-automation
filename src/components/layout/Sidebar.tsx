@@ -10,14 +10,15 @@ import {
   Layers,
   Menu,
   X,
-  PackageOpen
+  PackageOpen,
+  AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const sidebarLinks = [
+  { name: 'Low Stock', path: '/inventory', icon: AlertTriangle },
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { name: 'Inventory', path: '/inventory', icon: Package },
   { name: 'Products', path: '/products', icon: PackageOpen },
   { name: 'Orders', path: '/orders', icon: ShoppingCart },
   { name: 'Logistics', path: '/logistics', icon: Calendar },

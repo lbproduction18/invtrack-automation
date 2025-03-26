@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { 
-  Package, 
+  AlertTriangle, 
   ArrowDown,
   Plus
 } from 'lucide-react';
@@ -104,9 +104,9 @@ const Inventory: React.FC = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Inventaire</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Low Stock</h1>
           <p className="text-muted-foreground">
-            Gérez votre inventaire de produits
+            Surveiller les produits à faible stock
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -123,9 +123,9 @@ const Inventory: React.FC = () => {
 
       <Card className="card-glass">
         <CardHeader className="px-6">
-          <CardTitle>Inventaire des Produits</CardTitle>
+          <CardTitle>Produits à Faible Stock</CardTitle>
           <CardDescription>
-            Consultez et gérez tous vos produits en stock
+            Surveillez et gérez les produits qui nécessitent un réapprovisionnement
           </CardDescription>
         </CardHeader>
         <CardContent className="px-6">
