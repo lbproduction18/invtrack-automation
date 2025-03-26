@@ -82,36 +82,57 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     );
   }
 
+  // Trier les colonnes par ordre
+  const sortedColumns = [...columnVisibility].sort((a, b) => a.order - b.order);
+
   return (
     <>
       {filteredProducts.map((product) => (
         <TableRow key={product.id} className="bg-transparent hover:bg-muted/30">
-          {columnVisibility.find(col => col.id === 'SKU')?.isVisible && (
-            <TableCell className="font-medium">{product.SKU}</TableCell>
-          )}
-          
-          {columnVisibility.find(col => col.id === 'date')?.isVisible && (
-            <TableCell>
-              {new Date(product.created_at).toLocaleDateString('fr-FR', {
-                month: 'short',
-                day: 'numeric'
-              })}
-            </TableCell>
-          )}
-          
-          {columnVisibility.find(col => col.id === 'stock')?.isVisible && (
-            <TableCell className="text-right font-medium w-24">{product.current_stock}</TableCell>
-          )}
-          
-          {columnVisibility.find(col => col.id === 'threshold')?.isVisible && (
-            <TableCell className="text-right font-medium w-24">{product.threshold}</TableCell>
-          )}
-          
-          {columnVisibility.find(col => col.id === 'age')?.isVisible && (
-            <TableCell className={cn("text-right w-24", getAgingColor(getDaysSinceAdded(product.created_at)))}>
-              {getDaysSinceAdded(product.created_at)} jours
-            </TableCell>
-          )}
+          {sortedColumns.map(column => {
+            if (!column.isVisible) return null;
+            
+            switch(column.id) {
+              case 'SKU':
+                return (
+                  <TableCell key={`${product.id}-${column.id}`} className="font-medium">
+                    {product.SKU}
+                  </TableCell>
+                );
+              case 'date':
+                return (
+                  <TableCell key={`${product.id}-${column.id}`}>
+                    {new Date(product.created_at).toLocaleDateString('fr-FR', {
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </TableCell>
+                );
+              case 'stock':
+                return (
+                  <TableCell key={`${product.id}-${column.id}`} className="text-right font-medium w-24">
+                    {product.current_stock}
+                  </TableCell>
+                );
+              case 'threshold':
+                return (
+                  <TableCell key={`${product.id}-${column.id}`} className="text-right font-medium w-24">
+                    {product.threshold}
+                  </TableCell>
+                );
+              case 'age':
+                return (
+                  <TableCell 
+                    key={`${product.id}-${column.id}`} 
+                    className={cn("text-right w-24", getAgingColor(getDaysSinceAdded(product.created_at)))}
+                  >
+                    {getDaysSinceAdded(product.created_at)} jours
+                  </TableCell>
+                );
+              default:
+                return null;
+            }
+          })}
           
           <TableCell className="text-right">
             <DropdownMenu>
@@ -141,4 +162,3 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     </>
   );
 };
-

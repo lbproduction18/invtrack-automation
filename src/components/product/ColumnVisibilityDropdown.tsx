@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Columns } from 'lucide-react';
+import { Columns, ArrowUp, ArrowDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -15,16 +15,19 @@ export interface ColumnVisibility {
   id: string;
   title: string;
   isVisible: boolean;
+  order: number;  // Ajout d'un ordre pour permettre la réorganisation
 }
 
 interface ColumnVisibilityDropdownProps {
   columns: ColumnVisibility[];
   onColumnVisibilityChange: (columnId: string, isVisible: boolean) => void;
+  onColumnOrderChange?: (columnId: string, direction: 'up' | 'down') => void;
 }
 
 export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> = ({
   columns,
-  onColumnVisibilityChange
+  onColumnVisibilityChange,
+  onColumnOrderChange
 }) => {
   return (
     <DropdownMenu>
@@ -39,18 +42,44 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="bg-[#161616] border-[#272727]">
-        <DropdownMenuLabel className="text-gray-400">Visibilité des colonnes</DropdownMenuLabel>
+        <DropdownMenuLabel className="text-gray-400">Visibilité et ordre des colonnes</DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-[#272727]" />
-        {columns.map((column) => (
-          <DropdownMenuCheckboxItem
-            key={column.id}
-            className="text-gray-300 focus:text-white focus:bg-[#272727]"
-            checked={column.isVisible}
-            onCheckedChange={(checked) => onColumnVisibilityChange(column.id, checked)}
-          >
-            {column.title}
-          </DropdownMenuCheckboxItem>
-        ))}
+        {columns
+          .sort((a, b) => a.order - b.order)
+          .map((column) => (
+            <div key={column.id} className="flex items-center px-2 py-1.5">
+              <DropdownMenuCheckboxItem
+                className="flex-1 text-gray-300 focus:text-white focus:bg-[#272727]"
+                checked={column.isVisible}
+                onCheckedChange={(checked) => onColumnVisibilityChange(column.id, checked)}
+              >
+                {column.title}
+              </DropdownMenuCheckboxItem>
+              
+              {onColumnOrderChange && (
+                <div className="flex ml-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 p-0 text-gray-400 hover:text-white"
+                    onClick={() => onColumnOrderChange(column.id, 'up')}
+                    disabled={columns.findIndex(c => c.id === column.id) === 0}
+                  >
+                    <ArrowUp className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 p-0 ml-1 text-gray-400 hover:text-white"
+                    onClick={() => onColumnOrderChange(column.id, 'down')}
+                    disabled={columns.findIndex(c => c.id === column.id) === columns.length - 1}
+                  >
+                    <ArrowDown className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

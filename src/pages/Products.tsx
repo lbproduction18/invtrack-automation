@@ -40,11 +40,11 @@ const Products: React.FC = () => {
   const [stockFilter, setStockFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('oldest');
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility[]>([
-    { id: 'SKU', title: 'SKU', isVisible: true },
-    { id: 'date', title: 'Date Ajoutée', isVisible: true },
-    { id: 'stock', title: 'Stock Actuel', isVisible: true },
-    { id: 'threshold', title: 'Seuil', isVisible: true },
-    { id: 'age', title: 'Âge', isVisible: true }
+    { id: 'SKU', title: 'SKU', isVisible: true, order: 0 },
+    { id: 'date', title: 'Date Ajoutée', isVisible: true, order: 1 },
+    { id: 'stock', title: 'Stock Actuel', isVisible: true, order: 2 },
+    { id: 'threshold', title: 'Seuil', isVisible: true, order: 3 },
+    { id: 'age', title: 'Âge', isVisible: true, order: 4 }
   ]);
   
   const { products, isLoading } = useProducts();
@@ -60,6 +60,25 @@ const Products: React.FC = () => {
     setColumnVisibility(prev => 
       prev.map(col => col.id === columnId ? { ...col, isVisible } : col)
     );
+  };
+
+  const handleColumnOrderChange = (columnId: string, direction: 'up' | 'down') => {
+    setColumnVisibility(prevColumns => {
+      const newColumns = [...prevColumns];
+      const currentIndex = newColumns.findIndex(col => col.id === columnId);
+      const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+      
+      if (targetIndex < 0 || targetIndex >= newColumns.length) {
+        return prevColumns;
+      }
+      
+      // Swap order values between the current column and target column
+      const currentOrder = newColumns[currentIndex].order;
+      newColumns[currentIndex].order = newColumns[targetIndex].order;
+      newColumns[targetIndex].order = currentOrder;
+      
+      return newColumns.sort((a, b) => a.order - b.order);
+    });
   };
 
   return (
@@ -105,6 +124,7 @@ const Products: React.FC = () => {
               <ColumnVisibilityDropdown 
                 columns={columnVisibility}
                 onColumnVisibilityChange={handleColumnVisibilityChange}
+                onColumnOrderChange={handleColumnOrderChange}
               />
               
               <Select
@@ -128,19 +148,21 @@ const Products: React.FC = () => {
             <Table>
               <TableHeader className="bg-muted/30">
                 <TableRow className="hover:bg-transparent border-b border-border/50">
-                  {columnVisibility.map(column => (
-                    column.isVisible && (
-                      <TableHead 
-                        key={column.id} 
-                        className={cn(
-                          "text-xs font-medium",
-                          (column.id === 'stock' || column.id === 'threshold' || column.id === 'age') && "text-right w-24"
-                        )}
-                      >
-                        {column.title}
-                      </TableHead>
-                    )
-                  ))}
+                  {columnVisibility
+                    .sort((a, b) => a.order - b.order) // Trier par ordre avant d'afficher
+                    .map(column => (
+                      column.isVisible && (
+                        <TableHead 
+                          key={column.id} 
+                          className={cn(
+                            "text-xs font-medium",
+                            (column.id === 'stock' || column.id === 'threshold' || column.id === 'age') && "text-right w-24"
+                          )}
+                        >
+                          {column.title}
+                        </TableHead>
+                      )
+                    ))}
                   <TableHead className="text-xs font-medium text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
