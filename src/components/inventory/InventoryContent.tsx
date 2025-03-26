@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CardContent } from '@/components/ui/card';
 import { FilteredProductsList, type SortOption } from '@/components/product/FilteredProductsList';
@@ -21,16 +20,15 @@ export const InventoryContent: React.FC = () => {
   
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility[]>([
     { id: 'SKU', title: 'SKU', isVisible: true, order: 0 },
-    { id: 'date', title: 'Date Ajoutée', isVisible: true, order: 1 },
-    { id: 'age', title: 'Âge', isVisible: true, order: 2 },
-    { id: 'priority', title: 'Priorité', isVisible: true, order: 3 },
-    { id: 'stock', title: 'Stock Actuel', isVisible: true, order: 4 },
-    { id: 'threshold', title: 'Seuil', isVisible: true, order: 5 },
-    { id: 'note', title: 'Note', isVisible: true, order: 6 }
+    { id: 'note', title: 'Note', isVisible: true, order: 1 },
+    { id: 'date', title: 'Date Ajoutée', isVisible: true, order: 2 },
+    { id: 'age', title: 'Âge', isVisible: true, order: 3 },
+    { id: 'priority', title: 'Priorité', isVisible: true, order: 4 },
+    { id: 'stock', title: 'Stock Actuel', isVisible: true, order: 5 },
+    { id: 'threshold', title: 'Seuil', isVisible: true, order: 6 }
   ]);
 
   const handleColumnVisibilityChange = (columnId: string, isVisible: boolean) => {
-    // Ensure SKU is always visible
     if (columnId === 'SKU') return;
     
     setColumnVisibility(prev => 
@@ -39,7 +37,6 @@ export const InventoryContent: React.FC = () => {
   };
   
   const handleColumnOrderChange = (columnId: string, direction: 'up' | 'down') => {
-    // Prevent reordering the SKU column
     if (columnId === 'SKU') return;
     
     setColumnVisibility(prevColumns => {
@@ -51,7 +48,6 @@ export const InventoryContent: React.FC = () => {
         return prevColumns;
       }
       
-      // Swap order values between the current column and target column
       const currentOrder = newColumns[currentIndex].order;
       newColumns[currentIndex].order = newColumns[targetIndex].order;
       newColumns[targetIndex].order = currentOrder;
@@ -69,7 +65,6 @@ export const InventoryContent: React.FC = () => {
 
       if (error) throw error;
       
-      // Rafraîchir la liste des produits
       refetch();
       
       toast({

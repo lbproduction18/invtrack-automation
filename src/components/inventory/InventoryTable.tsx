@@ -43,12 +43,12 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                     className={cn(
                       "text-xs font-medium text-gray-400 p-1 text-center",
                       column.id === 'SKU' && "w-[30%] text-left pl-3",
+                      column.id === 'note' && "w-[5%]",
                       column.id === 'date' && "w-[15%]",
                       column.id === 'age' && "w-[10%]",
                       column.id === 'priority' && "w-[10%]",
                       column.id === 'stock' && "w-[10%]",
-                      column.id === 'threshold' && "w-[10%]",
-                      column.id === 'note' && "w-[5%]"
+                      column.id === 'threshold' && "w-[10%]"
                     )}
                   >
                     {column.title}

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -24,12 +23,12 @@ const Products: React.FC = () => {
   const [sortBy, setSortBy] = useState<SortOption>('oldest');
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility[]>([
     { id: 'SKU', title: 'SKU', isVisible: true, order: 0 },
-    { id: 'date', title: 'Date Ajoutée', isVisible: true, order: 1 },
-    { id: 'age', title: 'Âge', isVisible: true, order: 2 },
-    { id: 'priority', title: 'Priorité', isVisible: true, order: 3 },
-    { id: 'stock', title: 'Stock Actuel', isVisible: true, order: 4 },
-    { id: 'threshold', title: 'Seuil', isVisible: true, order: 5 },
-    { id: 'note', title: 'Note', isVisible: true, order: 6 }
+    { id: 'note', title: 'Note', isVisible: true, order: 1 },
+    { id: 'date', title: 'Date Ajoutée', isVisible: true, order: 2 },
+    { id: 'age', title: 'Âge', isVisible: true, order: 3 },
+    { id: 'priority', title: 'Priorité', isVisible: true, order: 4 },
+    { id: 'stock', title: 'Stock Actuel', isVisible: true, order: 5 },
+    { id: 'threshold', title: 'Seuil', isVisible: true, order: 6 }
   ]);
   
   const { products, isLoading, refetch } = useProducts();
