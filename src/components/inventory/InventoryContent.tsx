@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AlertTriangle, ArrowDownAZ, MoreHorizontal } from 'lucide-react';
 import { 
@@ -31,6 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 export const InventoryContent: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [stockFilter, setStockFilter] = useState<string>('all');
+  const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('oldest');
   const { products, isLoading, refetch } = useProducts();
   const { toast } = useToast();
@@ -105,6 +105,7 @@ export const InventoryContent: React.FC = () => {
     products, 
     searchQuery, 
     stockFilter,
+    priorityFilter,
     sortBy
   });
 
@@ -115,7 +116,9 @@ export const InventoryContent: React.FC = () => {
           searchQuery={searchQuery} 
           setSearchQuery={setSearchQuery} 
           stockFilter={stockFilter} 
-          setStockFilter={setStockFilter} 
+          setStockFilter={setStockFilter}
+          priorityFilter={priorityFilter}
+          setPriorityFilter={setPriorityFilter}
         />
         
         <div className="flex items-center gap-2">
@@ -223,3 +226,4 @@ export const InventoryContent: React.FC = () => {
     </CardContent>
   );
 };
+

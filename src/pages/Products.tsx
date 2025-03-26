@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Package, 
@@ -41,6 +40,7 @@ import { Product } from '@/types/product';
 const Products: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [stockFilter, setStockFilter] = useState<string>('all');
+  const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('oldest');
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility[]>([
     { id: 'SKU', title: 'SKU', isVisible: true, order: 0 },
@@ -58,6 +58,7 @@ const Products: React.FC = () => {
     products,
     searchQuery,
     stockFilter,
+    priorityFilter,
     sortBy
   });
 
@@ -155,6 +156,8 @@ const Products: React.FC = () => {
               setSearchQuery={setSearchQuery}
               stockFilter={stockFilter}
               setStockFilter={setStockFilter}
+              priorityFilter={priorityFilter}
+              setPriorityFilter={setPriorityFilter}
             />
             
             <div className="flex items-center gap-2">

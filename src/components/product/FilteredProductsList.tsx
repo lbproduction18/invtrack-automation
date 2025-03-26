@@ -7,6 +7,7 @@ interface FilteredProductsListProps {
   products: Product[];
   searchQuery: string;
   stockFilter: string;
+  priorityFilter: string;
   sortBy: SortOption;
 }
 
@@ -15,6 +16,7 @@ export const FilteredProductsList = ({
   products,
   searchQuery,
   stockFilter,
+  priorityFilter = 'all', // Default to all priorities
   sortBy = 'oldest' // Default to oldest items first
 }: FilteredProductsListProps): Product[] => {
   // Filtrer les produits en fonction de la recherche
@@ -23,9 +25,13 @@ export const FilteredProductsList = ({
       searchQuery === '' || 
       product.SKU.toLowerCase().includes(searchQuery.toLowerCase());
     
+    const matchesPriority = 
+      priorityFilter === 'all' || 
+      product.priority_badge === priorityFilter;
+    
     // Add stock filtering if needed in the future
-    // For now, just return the search match
-    return matchesSearch;
+    // For now, just return the search and priority match
+    return matchesSearch && matchesPriority;
   });
 
   // Sort the filtered products
