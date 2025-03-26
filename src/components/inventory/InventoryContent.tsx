@@ -24,14 +24,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ColumnVisibilityDropdown, type ColumnVisibility } from '@/components/product/ColumnVisibilityDropdown';
-import { useToast } from '@/components/ui/use-toast';
 
 export const InventoryContent: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [stockFilter, setStockFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('oldest');
   const { products, isLoading } = useProducts();
-  const { toast } = useToast();
   
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility[]>([
     { id: 'SKU', title: 'SKU', isVisible: true, order: 0 },
@@ -66,69 +64,12 @@ export const InventoryContent: React.FC = () => {
     });
   };
   
-  const handleColumnReorder = (sourceIndex: number, destinationIndex: number) => {
-    setColumnVisibility(prev => {
-      const sortedColumns = [...prev].sort((a, b) => a.order - b.order);
-      const result = [...sortedColumns];
-      const [removed] = result.splice(sourceIndex, 1);
-      result.splice(destinationIndex, 0, removed);
-      
-      // Reassign order values
-      return result.map((col, index) => ({ ...col, order: index }));
-    });
-    
-    toast({
-      title: "Colonnes réorganisées",
-      description: "L'ordre des colonnes a été mis à jour",
-      duration: 2000
-    });
-  };
-  
   const filteredProducts = FilteredProductsList({ 
     products, 
     searchQuery, 
     stockFilter,
     sortBy
   });
-
-  // Add drag and drop functionality to table headers
-  const [draggedHeader, setDraggedHeader] = useState<string | null>(null);
-  
-  const handleHeaderDragStart = (e: React.DragEvent<HTMLTableCellElement>, id: string) => {
-    setDraggedHeader(id);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', id);
-    
-    setTimeout(() => {
-      if (e.currentTarget.classList) {
-        e.currentTarget.classList.add('opacity-50');
-      }
-    }, 0);
-  };
-  
-  const handleHeaderDragEnd = (e: React.DragEvent<HTMLTableCellElement>) => {
-    setDraggedHeader(null);
-    e.currentTarget.classList.remove('opacity-50');
-  };
-  
-  const handleHeaderDragOver = (e: React.DragEvent<HTMLTableCellElement>) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-  
-  const handleHeaderDrop = (e: React.DragEvent<HTMLTableCellElement>, targetId: string) => {
-    e.preventDefault();
-    
-    if (!draggedHeader || draggedHeader === targetId) return;
-    
-    const sortedColumns = [...columnVisibility].sort((a, b) => a.order - b.order);
-    const sourceIndex = sortedColumns.findIndex(c => c.id === draggedHeader);
-    const destinationIndex = sortedColumns.findIndex(c => c.id === targetId);
-    
-    if (sourceIndex !== -1 && destinationIndex !== -1) {
-      handleColumnReorder(sourceIndex, destinationIndex);
-    }
-  };
 
   return (
     <CardContent className="p-4">
@@ -145,7 +86,6 @@ export const InventoryContent: React.FC = () => {
             columns={columnVisibility}
             onColumnVisibilityChange={handleColumnVisibilityChange}
             onColumnOrderChange={handleColumnOrderChange}
-            onColumnReorder={handleColumnReorder}
           />
           
           <Select
@@ -176,14 +116,9 @@ export const InventoryContent: React.FC = () => {
                     <TableHead 
                       key={column.id} 
                       className={cn(
-                        "text-xs font-medium text-gray-400 cursor-move",
+                        "text-xs font-medium text-gray-400",
                         (column.id === 'stock' || column.id === 'threshold' || column.id === 'age') && "text-right w-24"
                       )}
-                      draggable={true}
-                      onDragStart={(e) => handleHeaderDragStart(e, column.id)}
-                      onDragEnd={handleHeaderDragEnd}
-                      onDragOver={handleHeaderDragOver}
-                      onDrop={(e) => handleHeaderDrop(e, column.id)}
                     >
                       {column.title}
                     </TableHead>

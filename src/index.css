@@ -1,101 +1,209 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 157 75% 53%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --background: 0 0% 6%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 9%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 156 61% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 9%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 13%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 0 0% 13%;
+    --accent-foreground: 0 0% 100%;
+
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 157 75% 53%;
-    --radius: 0.5rem;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 156 61% 53%;
+
+    --success: 142 72% 29%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 35 92% 50%;
+    --warning-foreground: 0 0% 100%;
     
-    /* Status Colors */
-    --success: 157 75% 53%;
-    --warning: 38 92% 50%;
-    --danger: 0 84.2% 60.2%;
-    --info: 217 92% 50%;
+    --danger: 0 84% 60%;
+    --danger-foreground: 0 0% 100%;
+    
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+
+    --radius: 0.25rem;
+
+    --sidebar-background: 230 30% 10%;
+    --sidebar-foreground: 0 0% 92%;
+    --sidebar-primary: 156 61% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 13%;
+    --sidebar-accent-foreground: 0 0% 92%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 156 61% 53%;
   }
-}
 
-/* Custom draggable styles */
-[draggable="true"] {
-  cursor: grab;
-}
+  .dark {
+    --background: 0 0% 6%;
+    --foreground: 0 0% 100%;
 
-[draggable="true"]:active {
-  cursor: grabbing;
-}
+    --card: 0 0% 9%;
+    --card-foreground: 0 0% 100%;
 
-[draggable="true"].opacity-50 {
-  opacity: 0.5;
-}
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 100%;
 
-[draggable="true"]:hover::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.05);
-  pointer-events: none;
-}
+    --primary: 156 61% 53%;
+    --primary-foreground: 0 0% 100%;
 
-/* Basic styles for dark mode */
-.dark {
-  --background: 0 0% 7%;
-  --foreground: 0 0% 98%;
-  --card: 0 0% 9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 0 0% 9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 157 75% 53%;
-  --primary-foreground: 0 0% 9%;
-  --secondary: 0 0% 14.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 0 0% 14.9%;
-  --muted-foreground: 0 0% 63.9%;
-  --accent: 0 0% 14.9%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 14.9%;
-  --input: 0 0% 14.9%;
-  --ring: 157 75% 53%;
-}
+    --secondary: 0 0% 9%;
+    --secondary-foreground: 0 0% 100%;
 
-/* Glass card effect */
-.card-glass {
-  @apply bg-background/60 backdrop-blur-sm border-border/40;
-}
+    --muted: 0 0% 13%;
+    --muted-foreground: 0 0% 65%;
 
-/* Glass table row effect */
-.table-row-glass:hover {
-  @apply bg-muted/40;
+    --accent: 0 0% 13%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 156 61% 53%;
+
+    --success: 142 72% 29%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 35 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --danger: 0 70% 45%;
+    --danger-foreground: 0 0% 100%;
+    
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 92%;
+    --sidebar-primary: 156 61% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 13%;
+    --sidebar-accent-foreground: 0 0% 92%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 156 61% 53%;
+  }
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground dark font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom Utility Classes */
+  .glass {
+    @apply bg-background/60 backdrop-blur-lg border border-white/10 shadow-glass;
+  }
+
+  .glass-dark {
+    @apply bg-background/30 backdrop-blur-lg border border-white/10 shadow-glass;
+  }
+
+  .card-glass {
+    @apply bg-card/80 backdrop-blur-md border border-border/50 shadow-sm transition-all duration-300 hover:shadow-md;
+  }
+
+  .neo {
+    @apply bg-card shadow-neomorphic border-none;
+  }
+
+  .page-container {
+    @apply container mx-auto px-4 py-6 max-w-7xl;
+  }
+
+  .fade-in {
+    @apply animate-fade-in;
+  }
+
+  .scale-in {
+    @apply animate-scale-in;
+  }
+
+  .slide-up {
+    @apply animate-slide-up;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .btn-glass {
+    @apply px-4 py-2 rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary-foreground backdrop-blur-md transition-all duration-300;
+  }
+
+  .btn-icon {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 rounded-md px-3 py-2 text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground;
+  }
+  
+  .sidebar-item-active {
+    @apply bg-sidebar-primary text-sidebar-primary-foreground;
+  }
+
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .status-badge-success {
+    @apply bg-success/15 text-success;
+  }
+  
+  .status-badge-warning {
+    @apply bg-warning/15 text-warning;
+  }
+  
+  .status-badge-danger {
+    @apply bg-danger/15 text-danger;
+  }
+  
+  .status-badge-info {
+    @apply bg-info/15 text-info;
+  }
+
+  .table-row-glass {
+    @apply hover:bg-card/60 transition-colors duration-200;
+  }
+
+  .card-hover {
+    @apply transform transition-all duration-300 hover:-translate-y-1 hover:shadow-md;
+  }
+
+  .grid-card {
+    @apply p-4 rounded-lg bg-card border border-border card-hover;
   }
 }
