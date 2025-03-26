@@ -2,28 +2,15 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
-  Package, 
-  ShoppingCart, 
-  Calendar, 
-  Settings, 
-  Layers,
+  Home,
   Menu,
-  X,
-  PackageOpen,
-  AlertTriangle
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const sidebarLinks = [
-  { name: 'Low Stock', path: '/inventory', icon: AlertTriangle },
-  { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { name: 'Products', path: '/products', icon: PackageOpen },
-  { name: 'Orders', path: '/orders', icon: ShoppingCart },
-  { name: 'Logistics', path: '/logistics', icon: Calendar },
-  { name: 'Stock Entry', path: '/stock-entry', icon: Layers },
-  { name: 'Settings', path: '/settings', icon: Settings },
+  { name: 'Home', path: '/', icon: Home },
 ];
 
 const Sidebar: React.FC = () => {
@@ -94,26 +81,6 @@ const Sidebar: React.FC = () => {
           ))}
         </ul>
       </nav>
-
-      <div className="p-4 border-t border-[#272727]">
-        <div className={cn(
-          "rounded-md bg-[#161616] p-3",
-          collapsed ? "text-center" : "text-left"
-        )}>
-          {collapsed ? (
-            <div className="flex flex-col items-center">
-              <ShoppingCart className="h-5 w-5 text-[#3ECF8E]" />
-            </div>
-          ) : (
-            <>
-              <h4 className="text-sm font-medium text-white">Pro Version</h4>
-              <p className="text-xs mt-1 text-gray-400">
-                Upgrade for AI recommendations and advanced analytics
-              </p>
-            </>
-          )}
-        </div>
-      </div>
     </aside>
   );
 };
