@@ -3,106 +3,191 @@ import React from 'react';
 import { CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { CalendarIcon, MapPinIcon, TruckIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CheckCircle2, Package, Truck, Clock, AlertTriangle, CalendarDays } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from "@/components/ui/progress";
 
 export const DeliveryContent: React.FC = () => {
+  // Données d'exemple pour les livraisons
+  const deliveryItems = [
+    { 
+      id: 1, 
+      sku: 'SKU-001', 
+      name: 'Produit A',
+      orderDate: '2025-03-01',
+      eta: '2025-03-20',
+      quantity: 15,
+      received: 0,
+      status: 'transit',
+      trackingNo: 'TRK-12345',
+      notes: 'En transit - Arrivée prévue dans 5 jours'
+    },
+    { 
+      id: 2, 
+      sku: 'SKU-002', 
+      name: 'Produit B',
+      orderDate: '2025-03-01',
+      eta: '2025-03-15',
+      quantity: 25,
+      received: 15,
+      status: 'partial',
+      trackingNo: 'TRK-67890',
+      notes: 'Livraison partielle reçue le 12/03'
+    },
+    { 
+      id: 3, 
+      sku: 'SKU-003', 
+      name: 'Produit C',
+      orderDate: '2025-03-01',
+      eta: '2025-03-10',
+      quantity: 10,
+      received: 10,
+      status: 'complete',
+      trackingNo: 'TRK-54321',
+      notes: 'Livraison complète reçue le 09/03'
+    },
+  ];
+
+  // Historique des entrées en stock
+  const stockHistory = [
+    { 
+      id: 1, 
+      date: '2025-03-09', 
+      sku: 'SKU-003',
+      name: 'Produit C',
+      quantity: 10, 
+      recipient: 'Alice Martin',
+      notes: 'Bon état, conforme à la commande'
+    },
+    { 
+      id: 2, 
+      date: '2025-03-12',
+      sku: 'SKU-002',
+      name: 'Produit B',
+      quantity: 15, 
+      recipient: 'Thomas Dupont',
+      notes: 'Livraison partielle, reste à venir'
+    },
+  ];
+
+  const getStatusBadge = (status) => {
+    switch(status) {
+      case 'transit':
+        return <Badge variant="outline" className="flex items-center gap-1 bg-blue-900/20 text-blue-400 border-blue-800">
+                <Truck className="h-3 w-3" />En transit
+               </Badge>;
+      case 'partial':
+        return <Badge variant="outline" className="flex items-center gap-1 bg-yellow-900/20 text-yellow-400 border-yellow-800">
+                <Package className="h-3 w-3" />Partielle
+               </Badge>;
+      case 'complete':
+        return <Badge variant="outline" className="flex items-center gap-1 bg-green-900/20 text-green-400 border-green-800">
+                <CheckCircle2 className="h-3 w-3" />Complète
+               </Badge>;
+      case 'delayed':
+        return <Badge variant="outline" className="flex items-center gap-1 bg-red-900/20 text-red-400 border-red-800">
+                <AlertTriangle className="h-3 w-3" />Retardée
+               </Badge>;
+      default:
+        return null;
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR');
+  };
+
   return (
     <CardContent className="p-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#272727]">
-          <div className="flex items-center gap-2 mb-2">
-            <CalendarIcon className="h-4 w-4 text-[#3ECF8E]" />
-            <span className="text-sm font-medium">Date de livraison</span>
-          </div>
-          <p className="text-lg font-bold">28 Mars 2025</p>
-        </div>
+      <Tabs defaultValue="current">
+        <TabsList className="mb-4">
+          <TabsTrigger value="current">Livraisons en cours</TabsTrigger>
+          <TabsTrigger value="history">Historique d'entrées</TabsTrigger>
+        </TabsList>
         
-        <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#272727]">
-          <div className="flex items-center gap-2 mb-2">
-            <TruckIcon className="h-4 w-4 text-[#3ECF8E]" />
-            <span className="text-sm font-medium">Transporteur</span>
+        <TabsContent value="current" className="space-y-4">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>SKU</TableHead>
+                <TableHead>Produit</TableHead>
+                <TableHead>Commande</TableHead>
+                <TableHead>ETA</TableHead>
+                <TableHead>Quantité</TableHead>
+                <TableHead>Progression</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead>Tracking</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {deliveryItems.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="font-medium">{item.sku}</TableCell>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{formatDate(item.orderDate)}</TableCell>
+                  <TableCell className="whitespace-nowrap">{formatDate(item.eta)}</TableCell>
+                  <TableCell>{item.received} / {item.quantity}</TableCell>
+                  <TableCell>
+                    <div className="w-full flex items-center gap-2">
+                      <Progress value={(item.received / item.quantity) * 100} className="h-2 w-24" />
+                      <span className="text-xs">{Math.round((item.received / item.quantity) * 100)}%</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{getStatusBadge(item.status)}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground">{item.trackingNo}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          
+          <div className="border border-[#272727] rounded-md p-3">
+            <h4 className="text-xs font-medium mb-2 flex items-center gap-2">
+              <CalendarDays className="h-3 w-3" /> 
+              Notes et calendrier de livraison
+            </h4>
+            <div className="space-y-2">
+              {deliveryItems.map((item) => (
+                <div key={item.id} className="text-xs p-2 border border-[#272727] rounded bg-[#121212]/40">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">{item.sku} - {item.name}</span>
+                    {getStatusBadge(item.status)}
+                  </div>
+                  <p className="text-muted-foreground mt-1">{item.notes}</p>
+                </div>
+              ))}
+            </div>
           </div>
-          <p className="text-lg font-bold">Transport Express</p>
-        </div>
+        </TabsContent>
         
-        <div className="bg-[#1A1A1A] p-3 rounded-lg border border-[#272727]">
-          <div className="flex items-center gap-2 mb-2">
-            <MapPinIcon className="h-4 w-4 text-[#3ECF8E]" />
-            <span className="text-sm font-medium">Numéro de suivi</span>
-          </div>
-          <p className="text-lg font-bold">TE23456789</p>
-        </div>
-      </div>
-      
-      <div className="mb-6">
-        <div className="flex justify-between mb-2">
-          <span className="text-sm font-medium">Statut de livraison</span>
-          <Badge variant="outline" className="bg-[#3ECF8E]/10 text-[#3ECF8E] border-[#3ECF8E]/20">
-            En transit
-          </Badge>
-        </div>
-        <Progress value={65} className="h-2 bg-[#272727]" />
-        <div className="flex justify-between mt-2 text-xs text-gray-400">
-          <span>Commande</span>
-          <span>Préparation</span>
-          <span>Expédition</span>
-          <span>Livraison</span>
-        </div>
-      </div>
-      
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Étape</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Lieu</TableHead>
-            <TableHead>Statut</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <TableRow>
-            <TableCell>Commande validée</TableCell>
-            <TableCell>25/03/2025</TableCell>
-            <TableCell>-</TableCell>
-            <TableCell>
-              <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                Complété
-              </Badge>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Préparation</TableCell>
-            <TableCell>26/03/2025</TableCell>
-            <TableCell>Entrepôt central</TableCell>
-            <TableCell>
-              <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                Complété
-              </Badge>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Expédition</TableCell>
-            <TableCell>27/03/2025</TableCell>
-            <TableCell>Centre logistique</TableCell>
-            <TableCell>
-              <Badge variant="outline" className="bg-[#3ECF8E]/10 text-[#3ECF8E] border-[#3ECF8E]/20">
-                En cours
-              </Badge>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Livraison</TableCell>
-            <TableCell>28/03/2025</TableCell>
-            <TableCell>Votre entrepôt</TableCell>
-            <TableCell>
-              <Badge variant="outline" className="bg-gray-500/10 text-gray-400 border-gray-500/20">
-                À venir
-              </Badge>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+        <TabsContent value="history">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>SKU</TableHead>
+                <TableHead>Produit</TableHead>
+                <TableHead>Quantité</TableHead>
+                <TableHead>Réceptionné par</TableHead>
+                <TableHead>Notes</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {stockHistory.map((entry) => (
+                <TableRow key={entry.id}>
+                  <TableCell className="whitespace-nowrap">{formatDate(entry.date)}</TableCell>
+                  <TableCell>{entry.sku}</TableCell>
+                  <TableCell>{entry.name}</TableCell>
+                  <TableCell>{entry.quantity}</TableCell>
+                  <TableCell>{entry.recipient}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground">{entry.notes}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TabsContent>
+      </Tabs>
     </CardContent>
   );
 };
