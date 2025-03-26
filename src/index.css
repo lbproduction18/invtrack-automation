@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -230,11 +231,11 @@
   }
 
   .carousel-arrow.left {
-    left: calc(var(--main-container-left) - 52px);
+    left: 24px;
   }
 
   .carousel-arrow.right {
-    right: calc(100vw - var(--main-container-right) - 52px);
+    right: 24px;
   }
 
   .carousel-arrow:hover:not(:disabled) {
