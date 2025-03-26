@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Home, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -48,6 +48,44 @@ const Sidebar: React.FC = () => {
         >
           <Menu className="h-4 w-4" />
         </Button>
+      </div>
+      
+      <div className="py-4">
+        <nav className="space-y-1 px-3">
+          <NavLink 
+            to="/" 
+            className={({ isActive }) => cn(
+              "flex items-center px-2 py-2 text-sm font-medium rounded-md",
+              isActive 
+                ? "bg-[#1A1A1A] text-[#3ECF8E]" 
+                : "text-gray-300 hover:bg-[#1A1A1A] hover:text-white"
+            )}
+          >
+            {({ isActive }) => (
+              <>
+                <Home size={20} className={cn("mr-3", collapsed && "mx-auto")} />
+                {!collapsed && <span>Processus</span>}
+              </>
+            )}
+          </NavLink>
+          
+          <NavLink 
+            to="/inventory" 
+            className={({ isActive }) => cn(
+              "flex items-center px-2 py-2 text-sm font-medium rounded-md",
+              isActive 
+                ? "bg-[#1A1A1A] text-[#3ECF8E]" 
+                : "text-gray-300 hover:bg-[#1A1A1A] hover:text-white"
+            )}
+          >
+            {({ isActive }) => (
+              <>
+                <Package size={20} className={cn("mr-3", collapsed && "mx-auto")} />
+                {!collapsed && <span>Inventaire</span>}
+              </>
+            )}
+          </NavLink>
+        </nav>
       </div>
     </aside>
   );
