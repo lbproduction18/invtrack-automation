@@ -1,3 +1,4 @@
+
 export type PriorityLevel = 'standard' | 'moyen' | 'prioritaire' | 'important';
 
 export interface Product {
@@ -15,6 +16,7 @@ export interface Product {
   price_3000: number;
   price_4000: number;
   price_5000: number;
+  price_8000?: number;
   last_order_quantity: number | null;
   last_order_date: string | null;
   lab_status: string | null;
