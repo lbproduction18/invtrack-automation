@@ -54,6 +54,9 @@
     --sidebar-accent-foreground: 0 0% 92%;
     --sidebar-border: 0 0% 16%;
     --sidebar-ring: 156 61% 53%;
+    
+    --main-container-left: 0px;
+    --main-container-right: 0px;
   }
 
   .dark {
@@ -205,5 +208,42 @@
 
   .grid-card {
     @apply p-4 rounded-lg bg-card border border-border card-hover;
+  }
+
+  /* Styles pour les flèches de navigation du carousel */
+  .carousel-arrow {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+    width: 44px;
+    height: 44px;
+    background-color: #1f1f1f;
+    color: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .carousel-arrow.left {
+    left: calc(var(--main-container-left) - 52px);
+  }
+
+  .carousel-arrow.right {
+    right: calc(100vw - var(--main-container-right) - 52px);
+  }
+
+  .carousel-arrow:hover:not(:disabled) {
+    background-color: #2e2e2e;
+    transform: translateY(-50%) scale(1.1);
+  }
+  
+  .carousel-arrow:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
