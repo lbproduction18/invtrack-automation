@@ -24,7 +24,8 @@ const lowStockItems = [
     minimum: 10,
     supplier: 'Tech Distributors',
     price: 89.99,
-    status: 'critical'
+    status: 'critical',
+    added: '2023-11-15'
   },
   {
     id: '2',
@@ -35,7 +36,8 @@ const lowStockItems = [
     minimum: 25,
     supplier: 'Fashion Wholesale',
     price: 24.99,
-    status: 'warning'
+    status: 'warning',
+    added: '2023-12-22'
   },
   {
     id: '3',
@@ -46,7 +48,8 @@ const lowStockItems = [
     minimum: 15,
     supplier: 'Tech Distributors',
     price: 129.95,
-    status: 'critical'
+    status: 'critical',
+    added: '2024-01-10'
   },
   {
     id: '4',
@@ -57,7 +60,8 @@ const lowStockItems = [
     minimum: 20,
     supplier: 'Home Essentials Co.',
     price: 35.50,
-    status: 'warning'
+    status: 'warning',
+    added: '2024-02-05'
   },
   {
     id: '5',
@@ -68,7 +72,8 @@ const lowStockItems = [
     minimum: 15,
     supplier: 'Accessory World',
     price: 49.99,
-    status: 'warning'
+    status: 'warning',
+    added: '2024-03-18'
   },
   {
     id: '6',
@@ -79,7 +84,8 @@ const lowStockItems = [
     minimum: 12,
     supplier: 'Sound Systems Inc.',
     price: 75.00,
-    status: 'critical'
+    status: 'critical',
+    added: '2024-04-02'
   },
   {
     id: '7',
@@ -90,7 +96,8 @@ const lowStockItems = [
     minimum: 10,
     supplier: 'Beauty Essentials',
     price: 28.99,
-    status: 'critical'
+    status: 'critical',
+    added: '2024-05-11'
   }
 ];
 
@@ -111,6 +118,11 @@ export const LowStockTable: React.FC = () => {
         ? [] 
         : lowStockItems.map(item => item.id)
     );
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
   };
 
   return (
@@ -140,9 +152,9 @@ export const LowStockTable: React.FC = () => {
               </TableHead>
               <TableHead>Product</TableHead>
               <TableHead>SKU</TableHead>
-              <TableHead>Category</TableHead>
               <TableHead className="text-right">Stock</TableHead>
-              <TableHead className="text-right">Price</TableHead>
+              <TableHead className="text-right">Minimum</TableHead>
+              <TableHead>Date Added</TableHead>
               <TableHead className="text-right">Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -159,15 +171,15 @@ export const LowStockTable: React.FC = () => {
                 </TableCell>
                 <TableCell className="font-medium">{item.name}</TableCell>
                 <TableCell>{item.sku}</TableCell>
-                <TableCell>{item.category}</TableCell>
                 <TableCell className="text-right">
                   <span className={item.status === 'critical' ? 'text-danger' : 'text-warning'}>
                     {item.current}
                   </span>
-                  {' / '}
+                </TableCell>
+                <TableCell className="text-right">
                   <span className="text-muted-foreground">{item.minimum}</span>
                 </TableCell>
-                <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
+                <TableCell>{formatDate(item.added)}</TableCell>
                 <TableCell className="text-right">
                   <Badge 
                     variant="outline" 

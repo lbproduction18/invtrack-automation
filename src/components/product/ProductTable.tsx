@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, MoreHorizontal, Package, Pencil, Plus, Trash2 } from 'lucide-react';
 import { StockStatusBadge } from './StockStatusBadge';
 import { type Product } from '@/types/product';
+import { format } from 'date-fns';
 
 interface ProductTableProps {
   products: Product[];
@@ -66,10 +67,11 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         <TableRow key={product.id} className="bg-transparent hover:bg-muted/30">
           <TableCell className="font-mono text-xs text-muted-foreground">{product.product_id}</TableCell>
           <TableCell className="font-medium">{product.name}</TableCell>
-          <TableCell>{product.unit}</TableCell>
-          <TableCell>{product.supplier_name}</TableCell>
           <TableCell className="text-right">{product.current_stock}</TableCell>
           <TableCell className="text-right">{product.threshold}</TableCell>
+          <TableCell>
+            {format(new Date(product.created_at), 'dd/MM/yyyy')}
+          </TableCell>
           <TableCell className="text-right">
             <StockStatusBadge stock={product.current_stock} threshold={product.threshold} />
           </TableCell>

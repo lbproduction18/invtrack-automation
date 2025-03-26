@@ -260,12 +260,11 @@ const Inventory: React.FC = () => {
             <Table>
               <TableHeader className="bg-[#161616]">
                 <TableRow className="hover:bg-transparent border-b border-[#272727]">
-                  <TableHead className="text-xs font-medium text-gray-400">ID Produit</TableHead>
+                  <TableHead className="text-xs font-medium text-gray-400">SKU</TableHead>
                   <TableHead className="text-xs font-medium text-gray-400">Nom</TableHead>
-                  <TableHead className="text-xs font-medium text-gray-400">Unité</TableHead>
-                  <TableHead className="text-xs font-medium text-gray-400">Fournisseur</TableHead>
                   <TableHead className="text-xs font-medium text-gray-400 text-right">Stock Actuel</TableHead>
-                  <TableHead className="text-xs font-medium text-gray-400 text-right">Seuil</TableHead>
+                  <TableHead className="text-xs font-medium text-gray-400 text-right">Minimum</TableHead>
+                  <TableHead className="text-xs font-medium text-gray-400">Date Ajoutée</TableHead>
                   <TableHead className="text-xs font-medium text-gray-400 text-right">Statut</TableHead>
                   <TableHead className="text-xs font-medium text-gray-400 text-right">Actions</TableHead>
                 </TableRow>
@@ -287,37 +286,11 @@ const Inventory: React.FC = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredProducts.map((product) => (
-                    <TableRow key={product.id} className="border-b border-[#272727] hover:bg-[#161616] text-white">
-                      <TableCell className="font-mono text-xs text-gray-300">{product.product_id}</TableCell>
-                      <TableCell className="font-medium text-white">{product.name}</TableCell>
-                      <TableCell className="text-gray-300">{product.unit}</TableCell>
-                      <TableCell className="text-gray-300">{product.supplier_name}</TableCell>
-                      <TableCell className="text-right font-medium text-white">{product.current_stock}</TableCell>
-                      <TableCell className="text-right text-gray-300">{product.threshold}</TableCell>
-                      <TableCell className="text-right">
-                        {product.current_stock <= 0 ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/30 text-red-400">
-                            Rupture
-                          </span>
-                        ) : product.current_stock <= product.threshold ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-900/30 text-yellow-400">
-                            Stock Bas
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900/30 text-green-400">
-                            Normal
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-white hover:bg-[#272727]">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Actions</span>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                  <ProductTable 
+                    products={products} 
+                    isLoading={isLoading} 
+                    filteredProducts={filteredProducts} 
+                  />
                 )}
               </TableBody>
             </Table>
