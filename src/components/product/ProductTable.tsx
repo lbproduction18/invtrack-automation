@@ -65,7 +65,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     <>
       {filteredProducts.map((product) => (
         <TableRow key={product.id} className="bg-transparent hover:bg-muted/30">
-          <TableCell className="font-mono text-xs text-muted-foreground">{product.product_id}</TableCell>
+          <TableCell className="font-mono text-xs text-muted-foreground">{product.SKU}</TableCell>
           <TableCell className="font-medium">{product.name}</TableCell>
           <TableCell className="text-right">{product.current_stock}</TableCell>
           <TableCell className="text-right">{product.threshold}</TableCell>

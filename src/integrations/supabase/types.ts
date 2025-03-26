@@ -18,7 +18,7 @@ export type Database = {
           id: string
           lead_time: number | null
           name: string
-          product_id: string
+          SKU: string
           supplier_id: string | null
           threshold: number
           unit: string
@@ -32,7 +32,7 @@ export type Database = {
           id?: string
           lead_time?: number | null
           name: string
-          product_id: string
+          SKU: string
           supplier_id?: string | null
           threshold?: number
           unit: string
@@ -46,7 +46,7 @@ export type Database = {
           id?: string
           lead_time?: number | null
           name?: string
-          product_id?: string
+          SKU?: string
           supplier_id?: string | null
           threshold?: number
           unit?: string
