@@ -9,11 +9,11 @@ interface BudgetSimulationProps {
 }
 
 const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) => {
-  const [selectedQuantities, setSelectedQuantities] = useState<Record<string, number>>({});
+  const [selectedQuantities, setSelectedQuantities] = useState<Record<string, QuantityOption>>({});
   const [simulationTotal, setSimulationTotal] = useState<number>(0);
 
   // Handle quantity change for a product
-  const handleQuantityChange = (productKey: string, quantity: number) => {
+  const handleQuantityChange = (productKey: string, quantity: QuantityOption) => {
     setSelectedQuantities(prev => ({
       ...prev,
       [productKey]: quantity

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { 
   ShoppingCart, 
@@ -110,31 +109,48 @@ const Orders: React.FC = () => {
     queryFn: async () => {
       console.log('Fetching orders from Supabase...');
       
-      // Requête pour obtenir les commandes avec le nom du fournisseur
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          suppliers:supplier_id (name)
-        `)
-        .order('date', { ascending: false });
+      // Mock orders data until we have an actual orders table
+      // In a real implementation, this would query the actual orders table
+      const mockOrders: Order[] = [
+        {
+          id: '1',
+          order_id: 'ORD-2023-001',
+          date: '2023-05-15',
+          supplier_id: 'SUP001',
+          supplier_name: 'Fournisseur Principal',
+          status: 'delivered',
+          created_at: '2023-05-15T10:00:00',
+          updated_at: '2023-05-15T10:00:00',
+          items_count: 15,
+          total_amount: 3250
+        },
+        {
+          id: '2',
+          order_id: 'ORD-2023-002',
+          date: '2023-06-22',
+          supplier_id: 'SUP002',
+          supplier_name: 'Fournisseur Secondaire',
+          status: 'processing',
+          created_at: '2023-06-22T14:30:00',
+          updated_at: '2023-06-22T14:30:00',
+          items_count: 8,
+          total_amount: 1750
+        },
+        {
+          id: '3',
+          order_id: 'ORD-2023-003',
+          date: '2023-07-10',
+          supplier_id: 'SUP001',
+          supplier_name: 'Fournisseur Principal',
+          status: 'pending',
+          created_at: '2023-07-10T09:15:00',
+          updated_at: '2023-07-10T09:15:00',
+          items_count: 22,
+          total_amount: 4800
+        }
+      ];
       
-      if (error) {
-        console.error('Error fetching orders:', error);
-        throw error;
-      }
-      
-      console.log('Orders fetched:', data);
-      
-      // Transformation des données pour inclure les informations du fournisseur
-      return data.map((order: any) => ({
-        ...order,
-        supplier_name: order.suppliers?.name || 'Fournisseur inconnu',
-        // Valeurs temporaires pour le nombre d'articles et le montant total
-        // Dans une application réelle, nous les obtiendrions via une autre requête
-        items_count: Math.floor(Math.random() * 25) + 1,
-        total_amount: (Math.random() * 5000 + 100).toFixed(2)
-      }));
+      return mockOrders;
     },
     refetchOnWindowFocus: false
   });
@@ -265,7 +281,7 @@ const Orders: React.FC = () => {
                       <TableCell>{formatDate(order.date)}</TableCell>
                       <TableCell>{order.supplier_name}</TableCell>
                       <TableCell className="text-right">{order.items_count}</TableCell>
-                      <TableCell className="text-right">{order.total_amount}€</TableCell>
+                      <TableCell className="text-right">{order.total_amount} $ CAD</TableCell>
                       <TableCell className="text-right">
                         <StatusBadge status={order.status} />
                       </TableCell>

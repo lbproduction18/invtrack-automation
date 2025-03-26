@@ -5,11 +5,14 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PriorityBadge } from './PriorityBadge';
+import { type Product } from '@/types/product';
+
+type PriorityLevel = Product['priority_badge'];
 
 interface PriorityDialogProps {
   productId: string;
-  currentPriority: 'standard' | 'moyen' | 'prioritaire';
-  onPriorityChange: (newPriority: 'standard' | 'moyen' | 'prioritaire') => void;
+  currentPriority: PriorityLevel;
+  onPriorityChange: (newPriority: PriorityLevel) => void;
   children: React.ReactNode;
 }
 
@@ -22,7 +25,7 @@ export const PriorityDialog: React.FC<PriorityDialogProps> = ({
   const { toast } = useToast();
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const handlePriorityChange = async (priority: 'standard' | 'moyen' | 'prioritaire') => {
+  const handlePriorityChange = async (priority: PriorityLevel) => {
     try {
       const { error } = await supabase
         .from('Low stock product')
@@ -75,6 +78,14 @@ export const PriorityDialog: React.FC<PriorityDialogProps> = ({
               <PriorityBadge priority="moyen" />
               <span className="ml-3 text-gray-300">Moyenne</span>
               {currentPriority === 'moyen' && <span className="ml-auto text-xs text-gray-400">Actuel</span>}
+            </div>
+            <div 
+              className="flex items-center p-3 rounded-md cursor-pointer hover:bg-[#272727]"
+              onClick={() => handlePriorityChange('important')}
+            >
+              <PriorityBadge priority="important" />
+              <span className="ml-3 text-gray-300">Important</span>
+              {currentPriority === 'important' && <span className="ml-auto text-xs text-gray-400">Actuel</span>}
             </div>
             <div 
               className="flex items-center p-3 rounded-md cursor-pointer hover:bg-[#272727]"

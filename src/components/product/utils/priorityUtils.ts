@@ -11,6 +11,13 @@ export const getPriorityStyles = (priority: Product['priority_badge']) => {
         border: "border-red-600/60",   // Brighter red border
         text: "text-white"             // White text for better contrast on red
       };
+    case 'important':
+      return {
+        bg: "bg-amber-600/50",  // Amber background for important
+        hover: "hover:bg-amber-600/60", 
+        border: "border-amber-500/60",  
+        text: "text-white"      // White text for better contrast on amber
+      };
     case 'moyen':
       return {
         bg: "bg-orange-400/40",  // Brighter orange with good opacity
