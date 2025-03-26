@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import OrderSimulationTable from './OrderSimulationTable';
 import BudgetSettingsPanel from './BudgetSettingsPanel';
+import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 
 interface BudgetSimulationProps {
   onCreateOrder: () => void;

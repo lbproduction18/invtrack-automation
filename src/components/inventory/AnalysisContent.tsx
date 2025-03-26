@@ -3,14 +3,43 @@ import React, { useState } from 'react';
 import ProductDetailsTable from './analysis/ProductDetailsTable';
 import ProductSummary from './analysis/ProductSummary';
 import ProductDetailsDrawer from './analysis/ProductDetailsDrawer';
-import BudgetSettingsPanel from './analysis/BudgetSettingsPanel';
 import BudgetSimulation from './analysis/BudgetSimulation';
 import { useProducts } from '@/hooks/useProducts';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 
-type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000 | 8000;
+// Define QuantityOption type consistently in this file
+export type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000 | 8000;
 
-const AnalysisContent: React.FC = () => {
+// Define product shape explicitly
+interface AnalysisProduct extends Product {
+  selectedQuantity?: QuantityOption;
+}
+
+interface Product {
+  id: string;
+  SKU: string;
+  product_name: string;
+  current_stock: number;
+  threshold: number;
+  created_at: string;
+  updated_at: string;
+  priority_badge: "standard" | "important" | "prioritaire";
+  note: string | null;
+  price_1000: number | null;
+  price_2000: number | null;
+  price_3000: number | null;
+  price_4000: number | null;
+  price_5000: number | null;
+  price_8000: number | null;
+  last_order_quantity: number | null;
+  last_order_date: string | null;
+  lab_status: string | null;
+  estimated_delivery_date: string | null;
+  status: string;
+}
+
+// Named export to match import in Index.tsx
+export const AnalysisContent: React.FC = () => {
   const { products } = useProducts('analysis');
   const { analysisItems } = useAnalysisItems();
   const [selectedQuantities, setSelectedQuantities] = useState<Record<string, QuantityOption>>({});
@@ -19,15 +48,17 @@ const AnalysisContent: React.FC = () => {
   const [totalOrderAmount, setTotalOrderAmount] = useState(0);
 
   // Combine products with analysis items
-  const analysisProducts = products.filter(product => {
-    return analysisItems.some(item => item.product_id === product.id);
-  }).map(product => {
-    const analysisItem = analysisItems.find(item => item.product_id === product.id);
-    return {
-      ...product,
-      selectedQuantity: analysisItem?.quantity_selected as QuantityOption | undefined
-    };
-  });
+  const analysisProducts = products
+    .filter(product => {
+      return analysisItems.some(item => item.product_id === product.id);
+    })
+    .map(product => {
+      const analysisItem = analysisItems.find(item => item.product_id === product.id);
+      return {
+        ...product,
+        selectedQuantity: analysisItem?.quantity_selected as QuantityOption | undefined
+      };
+    }) as AnalysisProduct[];
 
   // Handle quantity selection for a product
   const handleQuantityChange = (productId: string, quantity: QuantityOption) => {
@@ -41,7 +72,7 @@ const AnalysisContent: React.FC = () => {
   };
 
   // Calculate price for a product based on selected quantity
-  const getTotalPrice = (product: any): number => {
+  const getTotalPrice = (product: AnalysisProduct): number => {
     if (!product.selectedQuantity) return 0;
     
     const priceField = `price_${product.selectedQuantity}` as keyof typeof product;
@@ -95,16 +126,24 @@ const AnalysisContent: React.FC = () => {
       </div>
       
       {/* Product Details Drawer */}
-      {activeProductIndex !== null && (
+      {activeProductIndex !== null && analysisProducts[activeProductIndex] && (
         <ProductDetailsDrawer
-          product={analysisProducts[activeProductIndex]}
           isOpen={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
-          onQuantityChange={(quantity) => handleQuantityChange(analysisProducts[activeProductIndex].id, quantity as QuantityOption)}
+          onQuantityChange={(quantity: any) => {
+            if (activeProductIndex !== null && analysisProducts[activeProductIndex]) {
+              handleQuantityChange(
+                analysisProducts[activeProductIndex].id, 
+                quantity as QuantityOption
+              );
+            }
+          }}
+          product={analysisProducts[activeProductIndex]}
         />
       )}
     </div>
   );
 };
 
+// Also add default export to maintain compatibility
 export default AnalysisContent;

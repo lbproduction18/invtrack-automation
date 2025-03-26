@@ -10,7 +10,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { InventoryHeader } from '@/components/inventory/InventoryHeader';
 import { LastUpdatedAlert } from '@/components/inventory/LastUpdatedAlert';
 import { InventoryContent } from '@/components/inventory/InventoryContent';
-import { AnalysisContent } from '@/components/inventory/AnalysisContent';
+import { AnalysisContent } from '@/components/inventory/AnalysisContent'; // Using named import
 import { OrderContent } from '@/components/inventory/OrderContent';
 import { DeliveryContent } from '@/components/inventory/DeliveryContent';
 import { Progress } from "@/components/ui/progress";
