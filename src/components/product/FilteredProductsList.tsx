@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { type Product } from '@/types/product';
 
 interface FilteredProductsListProps {
@@ -8,11 +7,12 @@ interface FilteredProductsListProps {
   stockFilter: string;
 }
 
-export const FilteredProductsList: React.FC<FilteredProductsListProps> = ({
+// Convert from React component to a regular utility function
+export const FilteredProductsList = ({
   products,
   searchQuery,
   stockFilter
-}) => {
+}: FilteredProductsListProps): Product[] => {
   // Filtrer les produits en fonction de la recherche et du filtre de stock
   const filteredProducts = products.filter((product: Product) => {
     const matchesSearch = 

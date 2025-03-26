@@ -32,8 +32,8 @@ const Products: React.FC = () => {
   // Use the custom hook to fetch products
   const { products, isLoading } = useProducts();
   
-  // Use the FilteredProductsList component to get filtered products
-  const { filteredProducts } = FilteredProductsList({
+  // Use the FilteredProductsList utility function to get filtered products
+  const filteredProducts = FilteredProductsList({
     products,
     searchQuery,
     stockFilter
