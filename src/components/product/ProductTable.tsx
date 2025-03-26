@@ -26,6 +26,7 @@ interface ProductTableProps {
   products: Product[];
   isLoading: boolean;
   filteredProducts: Product[];
+  columnVisibility: ColumnVisibility[];
 }
 
 // Fonction pour calculer le nombre de jours écoulés depuis une date
@@ -51,22 +52,9 @@ const getAgingColor = (days: number): string => {
 export const ProductTable: React.FC<ProductTableProps> = ({
   products,
   isLoading,
-  filteredProducts
+  filteredProducts,
+  columnVisibility
 }) => {
-  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility[]>([
-    { id: 'SKU', title: 'SKU', isVisible: true },
-    { id: 'date', title: 'Date Ajoutée', isVisible: true },
-    { id: 'stock', title: 'Stock Actuel', isVisible: true },
-    { id: 'threshold', title: 'Seuil', isVisible: true },
-    { id: 'age', title: 'Âge', isVisible: true }
-  ]);
-
-  const handleColumnVisibilityChange = (columnId: string, isVisible: boolean) => {
-    setColumnVisibility(prev => 
-      prev.map(col => col.id === columnId ? { ...col, isVisible } : col)
-    );
-  };
-  
   if (isLoading) {
     return (
       <TableRow>
@@ -93,8 +81,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       </TableRow>
     );
   }
-
-  const visibleColumns = columnVisibility.filter(col => col.isVisible);
 
   return (
     <>
@@ -155,3 +141,4 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     </>
   );
 };
+

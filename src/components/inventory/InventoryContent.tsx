@@ -15,6 +15,7 @@ import { ProductFilterControls } from '@/components/product/ProductFilterControl
 import { FilteredProductsList, type SortOption } from '@/components/product/FilteredProductsList';
 import { useProducts } from '@/hooks/useProducts';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -50,8 +51,6 @@ export const InventoryContent: React.FC = () => {
     stockFilter,
     sortBy
   });
-
-  const visibleColumns = columnVisibility.filter(col => col.isVisible);
 
   return (
     <CardContent className="p-4">
@@ -90,21 +89,19 @@ export const InventoryContent: React.FC = () => {
         <Table>
           <TableHeader className="bg-[#161616]">
             <TableRow className="hover:bg-transparent border-b border-[#272727]">
-              {columnVisibility.find(col => col.id === 'SKU')?.isVisible && (
-                <TableHead className="text-xs font-medium text-gray-400">SKU</TableHead>
-              )}
-              {columnVisibility.find(col => col.id === 'date')?.isVisible && (
-                <TableHead className="text-xs font-medium text-gray-400">Date Ajoutée</TableHead>
-              )}
-              {columnVisibility.find(col => col.id === 'stock')?.isVisible && (
-                <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Stock Actuel</TableHead>
-              )}
-              {columnVisibility.find(col => col.id === 'threshold')?.isVisible && (
-                <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Seuil</TableHead>
-              )}
-              {columnVisibility.find(col => col.id === 'age')?.isVisible && (
-                <TableHead className="text-xs font-medium text-gray-400 text-right w-24">Âge</TableHead>
-              )}
+              {columnVisibility.map(column => (
+                column.isVisible && (
+                  <TableHead 
+                    key={column.id} 
+                    className={cn(
+                      "text-xs font-medium text-gray-400",
+                      (column.id === 'stock' || column.id === 'threshold' || column.id === 'age') && "text-right w-24"
+                    )}
+                  >
+                    {column.title}
+                  </TableHead>
+                )
+              ))}
               <TableHead className="text-xs font-medium text-gray-400 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -128,7 +125,8 @@ export const InventoryContent: React.FC = () => {
               <ProductTable 
                 products={products} 
                 isLoading={isLoading} 
-                filteredProducts={filteredProducts} 
+                filteredProducts={filteredProducts}
+                columnVisibility={columnVisibility}
               />
             )}
           </TableBody>
@@ -164,3 +162,4 @@ export const InventoryContent: React.FC = () => {
     </CardContent>
   );
 };
+
