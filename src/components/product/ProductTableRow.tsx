@@ -6,7 +6,6 @@ import { type Product } from '@/types/product';
 import { type ColumnVisibility } from './ColumnVisibilityDropdown';
 import { PriorityBadge } from './PriorityBadge';
 import { PriorityDialog } from './PriorityDialog';
-import { StickyNote } from 'lucide-react';
 
 // Helper functions
 const getDaysSinceAdded = (createdDate: string): number => {
@@ -30,13 +29,13 @@ const getAgingColor = (days: number): string => {
 interface ProductTableRowProps {
   product: Product;
   columnVisibility: ColumnVisibility[];
-  onPriorityChange: (productId: string, newPriority: 'standard' | 'moyen' | 'prioritaire') => void;
+  onPriorityChange?: (productId: string, newPriority: 'standard' | 'moyen' | 'prioritaire') => void;
 }
 
 export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   product,
   columnVisibility,
-  onPriorityChange
+  onPriorityChange = () => {}
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   
@@ -49,9 +48,16 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
     }
   };
 
+  // Determine if this product has a note to apply special styling
+  const hasNote = Boolean(product.note);
+
   return (
     <>
-      <TableRow className="bg-transparent hover:bg-muted/30">
+      <TableRow className={cn(
+        "bg-transparent transition-colors", 
+        hasNote ? "hover:bg-warning/10" : "hover:bg-muted/30",
+        hasNote && "border-l-4 border-l-warning"
+      )}>
         {sortedColumns.map(column => {
           if (!column.isVisible) return null;
           
@@ -112,10 +118,13 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
                   {product.note ? (
                     <button 
                       onClick={toggleExpand}
-                      className="inline-flex items-center justify-center hover:bg-muted/20 rounded-full p-1 transition-colors"
+                      className={cn(
+                        "inline-flex items-center justify-center rounded-full p-1 transition-colors animate-pulse",
+                        hasNote ? "bg-warning/20 hover:bg-warning/30 text-warning" : "hover:bg-muted/20"
+                      )}
                       aria-label="Voir la note"
                     >
-                      <StickyNote className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-base">⚠️</span>
                     </button>
                   ) : null}
                 </TableCell>
@@ -127,10 +136,14 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
       </TableRow>
       
       {isExpanded && product.note && (
-        <TableRow className="bg-muted/10 border-t-0">
-          <TableCell colSpan={sortedColumns.filter(col => col.isVisible).length} className="px-4 py-2 text-sm">
-            <div className="text-muted-foreground">
-              <span className="font-medium">Note:</span> {product.note}
+        <TableRow className="bg-warning/10 border-t-0 border-l-4 border-l-warning">
+          <TableCell colSpan={sortedColumns.filter(col => col.isVisible).length} className="px-4 py-3 text-sm">
+            <div className="flex items-start space-x-2">
+              <span className="text-lg mt-0.5">⚠️</span>
+              <div className="text-warning-foreground font-medium">
+                <span className="block text-warning text-sm uppercase tracking-wider font-bold mb-1">Note importante:</span>
+                {product.note}
+              </div>
             </div>
           </TableCell>
         </TableRow>
