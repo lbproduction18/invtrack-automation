@@ -41,20 +41,20 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                   <TableHead 
                     key={column.id} 
                     className={cn(
-                      "text-xs font-medium text-gray-400 p-1",
-                      column.id === 'SKU' && "w-[35%]",
-                      column.id === 'date' && "w-[10%] text-center",
-                      column.id === 'stock' && "text-right w-[10%]",
-                      column.id === 'threshold' && "text-right w-[10%]",
-                      column.id === 'age' && "text-right w-[5%]",
-                      column.id === 'priority' && "w-[25%] text-center"
+                      "text-xs font-medium text-gray-400 p-1 text-center",
+                      column.id === 'SKU' && "w-[30%]",
+                      column.id === 'date' && "w-[15%]",
+                      column.id === 'stock' && "w-[10%]",
+                      column.id === 'threshold' && "w-[10%]",
+                      column.id === 'age' && "w-[10%]",
+                      column.id === 'priority' && "w-[10%]"
                     )}
                   >
                     {column.title}
                   </TableHead>
                 )
               ))}
-            <TableHead className="text-xs font-medium text-gray-400 text-right w-[5%] p-1">Actions</TableHead>
+            <TableHead className="text-xs font-medium text-gray-400 text-center w-[10%] p-1">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

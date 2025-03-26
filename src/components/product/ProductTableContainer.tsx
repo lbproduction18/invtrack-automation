@@ -45,7 +45,7 @@ export const ProductTableContainer: React.FC<ProductTableContainerProps> = ({
                       column.id === 'stock' && "w-[10%]",
                       column.id === 'threshold' && "w-[10%]",
                       column.id === 'age' && "w-[10%]",
-                      column.id === 'priority' && "w-[15%]"
+                      column.id === 'priority' && "w-[10%]"
                     )}
                   >
                     {column.title}

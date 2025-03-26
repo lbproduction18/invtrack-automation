@@ -49,7 +49,7 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         switch(column.id) {
           case 'SKU':
             return (
-              <TableCell key={`${product.id}-${column.id}`} className="font-medium whitespace-nowrap p-1 text-center">
+              <TableCell key={`${product.id}-${column.id}`} className="font-medium whitespace-nowrap p-1 text-left pl-3">
                 {product.SKU}
               </TableCell>
             );
