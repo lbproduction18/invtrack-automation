@@ -5,7 +5,11 @@ import {
   ArrowDown,
   Plus,
   RefreshCw,
-  Clock
+  Clock,
+  Filter,
+  Search,
+  MoreHorizontal,
+  Download
 } from 'lucide-react';
 import { 
   Card, 
@@ -147,20 +151,27 @@ const Inventory: React.FC = () => {
   });
 
   return (
-    <div className="space-y-4 animate-fade-in">
+    <div className="space-y-4">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-xl font-medium tracking-tight">Low Stock</h1>
-          <p className="text-sm text-muted-foreground">
-            Surveiller les produits à faible stock
+          <h1 className="text-xl font-medium text-white tracking-tight">Low Stock</h1>
+          <p className="text-sm text-gray-400">
+            Produits nécessitant un réapprovisionnement
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-8 text-xs">
-            <ArrowDown className="mr-2 h-3 w-3" />
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-8 text-xs border-[#2E2E2E] bg-[#121212] text-gray-300 hover:bg-[#1E1E1E] hover:border-[#3ECF8E] hover:text-white"
+          >
+            <Download className="mr-2 h-3 w-3" />
             Exporter
           </Button>
-          <Button size="sm" className="h-8 text-xs bg-emerald-600 hover:bg-emerald-700">
+          <Button 
+            size="sm" 
+            className="h-8 text-xs bg-[#3ECF8E] hover:bg-[#2DBC7F] text-white"
+          >
             <Plus className="mr-2 h-3 w-3" />
             Nouveau Produit
           </Button>
@@ -168,68 +179,175 @@ const Inventory: React.FC = () => {
       </div>
 
       {/* Last Updated Section */}
-      <Alert className="bg-blue-50/30 border-blue-200 backdrop-blur-sm">
-        <Clock className="h-4 w-4 text-blue-600" />
-        <AlertDescription className="text-sm">
-          <span className="font-medium">Dernière mise à jour automatique:</span> {formatLastUpdated()}
-          <div className="mt-1 text-xs text-muted-foreground">
+      <Alert className="bg-[#121212]/60 border-[#272727] backdrop-blur-sm">
+        <Clock className="h-4 w-4 text-[#3ECF8E]" />
+        <AlertDescription className="text-sm text-gray-300">
+          <span className="font-medium text-white">Dernière mise à jour automatique:</span> {formatLastUpdated()}
+          <div className="mt-1 text-xs text-gray-400">
             Les données sont automatiquement mises à jour chaque jour à 04:00
           </div>
         </AlertDescription>
       </Alert>
 
-      <Card className="border border-border/30 bg-card/30 backdrop-blur-sm shadow-sm">
-        <CardHeader className="px-4 py-3 border-b border-border/30">
+      <Card className="border border-[#272727] bg-[#121212]/60 backdrop-blur-sm shadow-sm">
+        <CardHeader className="px-4 py-3 border-b border-[#272727]">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="text-sm font-medium">Produits à Faible Stock</CardTitle>
-              <CardDescription className="text-xs">
+              <CardTitle className="text-sm font-medium text-white">Produits à Faible Stock</CardTitle>
+              <CardDescription className="text-xs text-gray-400">
                 Surveillez et gérez les produits qui nécessitent un réapprovisionnement
               </CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-4">
-          <ProductFilter 
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            stockFilter={stockFilter}
-            setStockFilter={setStockFilter}
-          />
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-4">
+            <div className="relative w-full sm:max-w-xs">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+              <input
+                type="search"
+                placeholder="Rechercher..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-9 w-full rounded-md border border-[#2E2E2E] bg-[#0F0F0F] py-2 pl-8 pr-3 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-[#3ECF8E] text-white"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant={stockFilter === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setStockFilter('all')}
+                className={stockFilter === 'all' 
+                  ? 'bg-[#3ECF8E] hover:bg-[#2DBC7F] text-white' 
+                  : 'bg-[#121212] border-[#272727] text-gray-300 hover:border-[#3ECF8E] hover:text-white'}
+              >
+                Tous
+              </Button>
+              <Button
+                variant={stockFilter === 'normal' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setStockFilter('normal')}
+                className={stockFilter === 'normal' 
+                  ? 'bg-green-900/30 hover:bg-green-900/50 text-green-400 border-green-900' 
+                  : 'bg-[#121212] border-[#272727] text-gray-300 hover:border-[#3ECF8E] hover:text-white'}
+              >
+                Normal
+              </Button>
+              <Button
+                variant={stockFilter === 'low' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setStockFilter('low')}
+                className={stockFilter === 'low' 
+                  ? 'bg-yellow-900/30 hover:bg-yellow-900/50 text-yellow-400 border-yellow-900' 
+                  : 'bg-[#121212] border-[#272727] text-gray-300 hover:border-[#3ECF8E] hover:text-white'}
+              >
+                Stock Bas
+              </Button>
+              <Button
+                variant={stockFilter === 'out' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setStockFilter('out')}
+                className={stockFilter === 'out' 
+                  ? 'bg-red-900/30 hover:bg-red-900/50 text-red-400 border-red-900' 
+                  : 'bg-[#121212] border-[#272727] text-gray-300 hover:border-[#3ECF8E] hover:text-white'}
+              >
+                Rupture
+              </Button>
+            </div>
+          </div>
           
-          <div className="rounded-md border border-border/30 overflow-hidden">
+          <div className="rounded-md border border-[#272727] overflow-hidden">
             <Table>
-              <TableHeader className="bg-muted/20">
-                <TableRow className="hover:bg-transparent border-b border-border/30">
-                  <TableHead className="text-xs font-medium">ID Produit</TableHead>
-                  <TableHead className="text-xs font-medium">Nom</TableHead>
-                  <TableHead className="text-xs font-medium">Unité</TableHead>
-                  <TableHead className="text-xs font-medium">Fournisseur</TableHead>
-                  <TableHead className="text-xs font-medium text-right">Stock Actuel</TableHead>
-                  <TableHead className="text-xs font-medium text-right">Seuil</TableHead>
-                  <TableHead className="text-xs font-medium text-right">Statut</TableHead>
-                  <TableHead className="text-xs font-medium text-right">Actions</TableHead>
+              <TableHeader className="bg-[#161616]">
+                <TableRow className="hover:bg-transparent border-b border-[#272727]">
+                  <TableHead className="text-xs font-medium text-gray-400">ID Produit</TableHead>
+                  <TableHead className="text-xs font-medium text-gray-400">Nom</TableHead>
+                  <TableHead className="text-xs font-medium text-gray-400">Unité</TableHead>
+                  <TableHead className="text-xs font-medium text-gray-400">Fournisseur</TableHead>
+                  <TableHead className="text-xs font-medium text-gray-400 text-right">Stock Actuel</TableHead>
+                  <TableHead className="text-xs font-medium text-gray-400 text-right">Seuil</TableHead>
+                  <TableHead className="text-xs font-medium text-gray-400 text-right">Statut</TableHead>
+                  <TableHead className="text-xs font-medium text-gray-400 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <ProductTable 
-                  products={products}
-                  isLoading={isLoading}
-                  filteredProducts={filteredProducts}
-                />
+                {isLoading ? (
+                  Array.from({ length: 5 }).map((_, index) => (
+                    <TableRow key={`loading-${index}`} className="border-b border-[#272727] hover:bg-[#161616]">
+                      <TableCell colSpan={8} className="h-12 animate-pulse bg-[#161616]/50"></TableCell>
+                    </TableRow>
+                  ))
+                ) : filteredProducts.length === 0 ? (
+                  <TableRow className="hover:bg-[#161616]">
+                    <TableCell colSpan={8} className="h-24 text-center text-gray-400">
+                      <div className="flex flex-col items-center justify-center">
+                        <AlertTriangle className="h-8 w-8 text-gray-400 mb-2" />
+                        <p>Aucun produit trouvé</p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredProducts.map((product) => (
+                    <TableRow key={product.id} className="border-b border-[#272727] hover:bg-[#161616] text-white">
+                      <TableCell className="font-mono text-xs text-gray-300">{product.product_id}</TableCell>
+                      <TableCell className="font-medium text-white">{product.name}</TableCell>
+                      <TableCell className="text-gray-300">{product.unit}</TableCell>
+                      <TableCell className="text-gray-300">{product.supplier_name}</TableCell>
+                      <TableCell className="text-right font-medium text-white">{product.current_stock}</TableCell>
+                      <TableCell className="text-right text-gray-300">{product.threshold}</TableCell>
+                      <TableCell className="text-right">
+                        {product.current_stock <= 0 ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/30 text-red-400">
+                            Rupture
+                          </span>
+                        ) : product.current_stock <= product.threshold ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-900/30 text-yellow-400">
+                            Stock Bas
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900/30 text-green-400">
+                            Normal
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-white hover:bg-[#272727]">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Actions</span>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
           
           <div className="mt-4 flex items-center justify-between">
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-gray-400">
               {filteredProducts.length} résultats
             </div>
-            <Pagination 
-              filteredCount={filteredProducts.length}
-              totalCount={products.length}
-              isLoading={isLoading}
-            />
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isLoading}
+                className="h-7 bg-[#121212] border-[#272727] text-gray-300 hover:border-[#3ECF8E] hover:text-white disabled:opacity-50"
+              >
+                Précédent
+              </Button>
+              <div className="text-xs text-gray-400">
+                Page <span className="font-medium text-white">1</span> sur <span className="font-medium text-white">1</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isLoading}
+                className="h-7 bg-[#121212] border-[#272727] text-gray-300 hover:border-[#3ECF8E] hover:text-white disabled:opacity-50"
+              >
+                Suivant
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
