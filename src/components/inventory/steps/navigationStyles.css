@@ -3,8 +3,8 @@
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -15,12 +15,14 @@
   cursor: pointer;
   transition: all 0.2s ease;
   z-index: 10;
+  backdrop-filter: blur(6px);
 }
 
 .carousel-arrow:hover:not(:disabled) {
   background-color: rgba(30, 30, 30, 0.9);
   transform: translateY(-50%) scale(1.05);
-  box-shadow: 0 0 10px rgba(62, 207, 142, 0.3);
+  box-shadow: 0 0 15px rgba(62, 207, 142, 0.4);
+  border-color: rgba(62, 207, 142, 0.6);
 }
 
 .carousel-arrow.left {
@@ -32,5 +34,19 @@
 }
 
 .carousel-arrow:disabled {
+  opacity: 0.3;
   cursor: not-allowed;
+}
+
+.carousel-arrow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  padding: 1px;
+  background: linear-gradient(90deg, rgba(62, 207, 142, 0.3), transparent);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
