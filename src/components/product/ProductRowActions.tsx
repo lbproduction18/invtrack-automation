@@ -15,7 +15,7 @@ import { type Product } from '@/types/product';
 
 interface ProductRowActionsProps {
   product: Product;
-  onPriorityChange: (productId: string, newPriority: 'standard' | 'moyen' | 'prioritaire') => void;
+  onPriorityChange: (productId: string, newPriority: 'standard' | 'moyen' | 'prioritaire' | 'important') => void;
 }
 
 export const ProductRowActions: React.FC<ProductRowActionsProps> = ({ 

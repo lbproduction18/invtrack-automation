@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CardContent } from '@/components/ui/card';
 import { FilteredProductsList, type SortOption } from '@/components/product/FilteredProductsList';
@@ -16,7 +15,6 @@ export const InventoryContent: React.FC = () => {
   const [stockFilter, setStockFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('oldest');
-  // Only show products with status 'low_stock'
   const { products, isLoading, refetch } = useProducts('low_stock');
   const { toast } = useToast();
   
@@ -60,9 +58,15 @@ export const InventoryContent: React.FC = () => {
 
   const handleProductUpdate = async (productId: string, updatedData: Partial<Product>) => {
     try {
+      const dataToSubmit = { ...updatedData };
+      
+      if (dataToSubmit.priority_badge === 'important') {
+        dataToSubmit.priority_badge = 'prioritaire';
+      }
+      
       const { error } = await supabase
         .from('Low stock product')
-        .update(updatedData)
+        .update(dataToSubmit)
         .eq('id', productId);
 
       if (error) throw error;

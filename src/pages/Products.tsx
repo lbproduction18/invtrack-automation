@@ -76,9 +76,16 @@ const Products: React.FC = () => {
 
   const handleProductUpdate = async (productId: string, updatedData: Partial<Product>) => {
     try {
+      // Convert 'important' priority to 'prioritaire' when sending to the database
+      const dataToSubmit = { ...updatedData };
+      
+      if (dataToSubmit.priority_badge === 'important') {
+        dataToSubmit.priority_badge = 'prioritaire';
+      }
+      
       const { error } = await supabase
         .from('Low stock product')
-        .update(updatedData)
+        .update(dataToSubmit)
         .eq('id', productId);
 
       if (error) throw error;

@@ -17,7 +17,7 @@ import { getPriorityStyles } from './utils/priorityUtils';
 interface ProductTableRowProps {
   product: Product;
   columnVisibility: ColumnVisibility[];
-  onPriorityChange?: (productId: string, newPriority: 'standard' | 'moyen' | 'prioritaire') => void;
+  onPriorityChange?: (productId: string, newPriority: 'standard' | 'moyen' | 'prioritaire' | 'important') => void;
   isSelected?: boolean;
   onSelect?: () => void;
   showAnalysisButton?: boolean;
