@@ -40,15 +40,18 @@ export const ProductTableContainer: React.FC<ProductTableContainerProps> = ({
                     key={column.id} 
                     className={cn(
                       "text-xs font-medium",
-                      (column.id === 'stock' || column.id === 'threshold' || column.id === 'age') && "text-right w-20",
-                      column.id === 'priority' && "w-24"
+                      column.id === 'SKU' && "w-[30%]",
+                      column.id === 'date' && "w-[15%]",
+                      (column.id === 'stock' || column.id === 'threshold') && "text-right w-[10%]",
+                      column.id === 'age' && "text-right w-[5%]",
+                      column.id === 'priority' && "w-[15%]"
                     )}
                   >
                     {column.title}
                   </TableHead>
                 )
               ))}
-            <TableHead className="text-xs font-medium text-right w-16">Actions</TableHead>
+            <TableHead className="text-xs font-medium text-right w-[5%]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
