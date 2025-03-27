@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { type SelectedSKU } from '@/types/product';
@@ -14,8 +15,14 @@ export function useSimulationSKUs(
   const { analysisItems } = useAnalysisItems();
   const quantityOptions: QuantityOption[] = [1000, 2000, 3000, 4000, 5000, 8000];
 
+  useEffect(() => {
+    console.log("Current selected SKUs:", selectedSKUs);
+  }, [selectedSKUs]);
+
   // Add a SKU to a product row
   const handleAddSKU = (productName: string, skuInfo: { id: string, SKU: string, productName: string | null }) => {
+    console.log(`Adding SKU - Product: ${productName}, SKU:`, skuInfo);
+    
     setSelectedSKUs(prev => {
       const currentSKUs = prev[productName] || [];
       
@@ -30,11 +37,26 @@ export function useSimulationSKUs(
         return prev;
       }
       
-      // Find the matching product price for this product
-      const productPrice = productPrices.find(p => p.product_name === productName);
+      // Extract product category from SKU for pricing lookup
+      // For example, if SKU is "COLLAGENE-LOTUS", we want "COLLAGENE" for price lookup
+      const skuParts = skuInfo.SKU.split('-');
+      const productCategory = skuParts[0];
+      
+      console.log(`Looking for price for product category: ${productCategory}`);
+      
+      // Find the matching product price for this product category
+      const productPrice = productPrices.find(p => {
+        // Case insensitive comparison and normalize accents
+        const normalizedProductName = p.product_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        const normalizedCategory = productCategory.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        return normalizedProductName.includes(normalizedCategory) || normalizedCategory.includes(normalizedProductName);
+      });
+      
+      console.log("Found product price:", productPrice);
       
       // Check if this product has an analysis item
       const analysisItem = analysisItems.find(item => item.product_id === skuInfo.id);
+      console.log("Found analysis item:", analysisItem);
       
       // Default to first quantity option with a price
       let defaultQuantity: QuantityOption = analysisItem?.quantity_selected as QuantityOption || 1000;
@@ -45,6 +67,7 @@ export function useSimulationSKUs(
         if (analysisItem?.quantity_selected) {
           const priceField = `price_${analysisItem.quantity_selected}` as keyof typeof productPrice;
           defaultPrice = productPrice[priceField] as number || 0;
+          console.log(`Using quantity ${analysisItem.quantity_selected} with price ${defaultPrice}`);
         } else {
           // Otherwise try to find the first quantity that has a price
           for (const qty of quantityOptions) {
@@ -53,11 +76,14 @@ export function useSimulationSKUs(
             if (price && price > 0) {
               defaultQuantity = qty;
               defaultPrice = price;
+              console.log(`Found price ${price} for quantity ${qty}`);
               break;
             }
           }
         }
       }
+      
+      console.log(`Adding SKU with default quantity ${defaultQuantity} and price ${defaultPrice}`);
       
       return {
         ...prev,
@@ -77,6 +103,8 @@ export function useSimulationSKUs(
   
   // Remove a SKU from a product row
   const handleRemoveSKU = (productName: string, skuIndex: number) => {
+    console.log(`Removing SKU - Product: ${productName}, Index: ${skuIndex}`);
+    
     setSelectedSKUs(prev => {
       const updatedSKUs = [...(prev[productName] || [])];
       updatedSKUs.splice(skuIndex, 1);
@@ -97,14 +125,30 @@ export function useSimulationSKUs(
   
   // Handle quantity change for a SKU
   const handleQuantityChange = (productName: string, skuIndex: number, quantity: QuantityOption) => {
+    console.log(`Changing quantity - Product: ${productName}, Index: ${skuIndex}, Quantity: ${quantity}`);
+    
     setSelectedSKUs(prev => {
       const updatedSKUs = [...(prev[productName] || [])];
       
       if (updatedSKUs[skuIndex]) {
-        // Find the price for this product and quantity
-        const productPrice = productPrices.find(p => p.product_name === productName);
+        const sku = updatedSKUs[skuIndex];
+        
+        // Extract product category from SKU for pricing lookup
+        const skuParts = sku.SKU.split('-');
+        const productCategory = skuParts[0];
+        
+        // Find the matching product price for this product category
+        const productPrice = productPrices.find(p => {
+          // Case insensitive comparison and normalize accents
+          const normalizedProductName = p.product_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+          const normalizedCategory = productCategory.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+          return normalizedProductName.includes(normalizedCategory) || normalizedCategory.includes(normalizedProductName);
+        });
+        
         const priceField = `price_${quantity}` as keyof typeof productPrice;
         const price = productPrice ? (productPrice[priceField] as number || 0) : 0;
+        
+        console.log(`Found price ${price} for quantity ${quantity}`);
         
         updatedSKUs[skuIndex] = {
           ...updatedSKUs[skuIndex],

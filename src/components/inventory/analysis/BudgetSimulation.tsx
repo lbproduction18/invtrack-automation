@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useProductPrices } from '@/hooks/useProductPrices';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { useProducts } from '@/hooks/useProducts';
@@ -44,9 +44,9 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
     products.forEach(product => {
       // Check if the product is in analysis
       if (analysisItems.some(item => item.product_id === product.id)) {
-        const productName = product.product_name || '';
-        // Extract the base product name (before any dash/hyphen)
-        const baseProductName = productName.split('–')[0]?.trim() || productName;
+        // Extract the base product name from SKU (before any dash)
+        const baseProductNameMatch = product.SKU.match(/^([^-]+)/);
+        const baseProductName = baseProductNameMatch ? baseProductNameMatch[0] : product.SKU;
         
         if (!groupedProducts[baseProductName]) {
           groupedProducts[baseProductName] = [];
@@ -62,6 +62,12 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
     
     return groupedProducts;
   }, [products, analysisItems]);
+
+  useEffect(() => {
+    console.log("Grouped Analysis Products:", groupedAnalysisProducts);
+    console.log("Analysis Items:", analysisItems);
+    console.log("Products:", products.filter(p => analysisItems.some(item => item.product_id === p.id)));
+  }, [groupedAnalysisProducts, analysisItems, products]);
   
   // Refresh prices from Supabase
   const handleRefreshPrices = async () => {

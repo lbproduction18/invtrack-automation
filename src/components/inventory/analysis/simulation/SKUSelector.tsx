@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Select,
   SelectContent,
@@ -35,19 +35,32 @@ const SKUSelector: React.FC<SKUSelectorProps> = ({
   // Use either availableSKUs or skus depending on what's provided
   const skusToDisplay = availableSKUs.length > 0 ? availableSKUs : skus;
 
+  useEffect(() => {
+    console.log("SKUs to display in selector:", skusToDisplay);
+  }, [skusToDisplay]);
+
   const handleSKUChange = (value: string) => {
+    console.log("SKU selected:", value);
     setSelectedSKU(value);
     const skuObject = skusToDisplay.find(sku => sku.SKU === value) || null;
+    console.log("Found SKU object:", skuObject);
     setSelectedSKUObject(skuObject);
     setSelectedQuantity(null); // Reset quantity when SKU changes
   };
 
   const handleQuantityChange = (value: string) => {
+    console.log("Quantity selected:", value);
     setSelectedQuantity(Number(value) as QuantityOption);
   };
 
   const handleAddClick = () => {
     if (selectedSKU && selectedQuantity && selectedSKUObject) {
+      console.log("Adding SKU to selection:", {
+        productName,
+        skuId: selectedSKUObject.id,
+        sku: selectedSKU,
+        quantity: selectedQuantity
+      });
       onAdd(productName, selectedSKUObject.id, selectedSKU, selectedQuantity);
       // Reset after adding
       setSelectedSKU('');

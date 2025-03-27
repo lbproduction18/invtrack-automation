@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Loader2 } from "lucide-react";
 import { type ProductPrice } from '@/hooks/useProductPrices';
@@ -35,6 +35,10 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
 }) => {
   const productPrice = productPrices.find(price => price.product_name === productName);
   
+  useEffect(() => {
+    console.log(`SimulationProductRow - Product: ${productName}, Available SKUs:`, groupedSKUs);
+  }, [productName, groupedSKUs]);
+  
   // Prepare the prices object for the product
   const prices: Record<string, number | null> = {};
   quantityOptions.forEach(qty => {
@@ -45,8 +49,14 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
   // Handle adding a SKU with a specific quantity
   const handleAddSKUWithQuantity = (productName: string, skuId: string, skuValue: string, quantity: QuantityOption) => {
     // Find the SKU object
+    console.log(`Adding SKU with quantity - Product: ${productName}, SKU: ${skuValue}, Quantity: ${quantity}`);
     const skuInfo = groupedSKUs.find(sku => sku.SKU === skuValue);
-    if (!skuInfo) return;
+    if (!skuInfo) {
+      console.error(`SKU ${skuValue} not found in groupedSKUs`);
+      return;
+    }
+    
+    console.log("Found SKU info:", skuInfo);
     
     // Add the SKU
     onAddSKU(productName, skuInfo);
@@ -57,6 +67,7 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
       const newSkuIndex = selectedSKUs[productName].length - 1;
       
       // Update its quantity
+      console.log(`Updating quantity for index ${newSkuIndex} to ${quantity}`);
       onQuantityChange(productName, newSkuIndex, quantity);
     }
   };

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   Table, 
   TableBody 
@@ -35,6 +35,11 @@ const SimulationTable: React.FC<SimulationTableProps> = ({
   onRemoveSKU,
   calculateSKUTotal
 }) => {
+  useEffect(() => {
+    console.log("SimulationTable - Product Prices:", productPrices);
+    console.log("SimulationTable - Grouped Analysis Products:", groupedAnalysisProducts);
+  }, [productPrices, groupedAnalysisProducts]);
+
   if (isLoading) {
     return (
       <div className="rounded-md border border-[#272727] overflow-hidden">
@@ -77,26 +82,41 @@ const SimulationTable: React.FC<SimulationTableProps> = ({
         />
         
         <TableBody className="relative">
-          {productPrices.map(product => {
-            const productName = product.product_name;
-            const availableSKUs = groupedAnalysisProducts[productName] || [];
-            
-            return (
-              <SimulationProductRow
-                key={product.id}
-                productName={productName}
-                productPrices={productPrices}
-                isLoading={isLoading}
-                quantityOptions={quantityOptions}
-                selectedSKUs={selectedSKUs}
-                groupedSKUs={availableSKUs}
-                onAddSKU={onAddSKU}
-                onQuantityChange={onQuantityChange}
-                onRemoveSKU={onRemoveSKU}
-                calculateSKUTotal={calculateSKUTotal}
-              />
-            );
-          })}
+          {Object.keys(groupedAnalysisProducts).length === 0 ? (
+            <tr>
+              <td colSpan={quantityOptions.length + 2} className="h-24 text-center text-gray-500">
+                Aucun produit en analyse trouvé
+              </td>
+            </tr>
+          ) : (
+            Object.entries(groupedAnalysisProducts).map(([productName, skus]) => {
+              const matchingPrice = productPrices.find(price => {
+                // Case insensitive comparison and normalize accents
+                const normalizedProductName = price.product_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                const normalizedCategory = productName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                return normalizedProductName.includes(normalizedCategory) || normalizedCategory.includes(normalizedProductName);
+              });
+              
+              if (matchingPrice) {
+                return (
+                  <SimulationProductRow
+                    key={productName}
+                    productName={matchingPrice.product_name}
+                    productPrices={productPrices}
+                    isLoading={isLoading}
+                    quantityOptions={quantityOptions}
+                    selectedSKUs={selectedSKUs}
+                    groupedSKUs={skus}
+                    onAddSKU={onAddSKU}
+                    onQuantityChange={onQuantityChange}
+                    onRemoveSKU={onRemoveSKU}
+                    calculateSKUTotal={calculateSKUTotal}
+                  />
+                );
+              }
+              return null;
+            })
+          )}
         </TableBody>
       </Table>
     </div>
