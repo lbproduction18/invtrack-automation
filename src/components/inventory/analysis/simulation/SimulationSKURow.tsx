@@ -59,7 +59,7 @@ const SimulationSKURow: React.FC<SimulationSKURowProps> = ({
             <SelectTrigger className="w-28 h-8 bg-[#161616] border-[#272727]">
               <SelectValue placeholder="Quantité" />
             </SelectTrigger>
-            <SelectContent className="bg-[#161616] border-[#272727] z-50">
+            <SelectContent className="bg-[#161616] border-[#272727] z-[100]">
               {quantityOptions.map(qty => (
                 <SelectItem key={qty} value={qty.toString()}>
                   {qty.toLocaleString()}

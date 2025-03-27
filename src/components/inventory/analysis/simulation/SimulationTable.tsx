@@ -68,7 +68,7 @@ const SimulationTable: React.FC<SimulationTableProps> = ({
   }
 
   return (
-    <div className="rounded-md border border-[#272727] overflow-hidden">
+    <div className="rounded-md border border-[#272727] overflow-hidden relative">
       <Table>
         <SimulationTableHeader 
           quantityOptions={quantityOptions} 
@@ -76,7 +76,7 @@ const SimulationTable: React.FC<SimulationTableProps> = ({
           showSkuColumn={true}
         />
         
-        <TableBody>
+        <TableBody className="relative">
           {productPrices.map(product => {
             const productName = product.product_name;
             const availableSKUs = groupedAnalysisProducts[productName] || [];
