@@ -32,6 +32,7 @@ const SimulationSKURow: React.FC<SimulationSKURowProps> = ({
   calculateSKUTotal
 }) => {
   const skuTotal = calculateSKUTotal(sku);
+  const price = sku.price || 0;
   
   return (
     <tr className="bg-[#1A1A1A] hover:bg-[#222]">
@@ -43,7 +44,7 @@ const SimulationSKURow: React.FC<SimulationSKURowProps> = ({
       {quantityOptions.map(qty => (
         <td key={qty} className="text-center py-2 border-t border-[#272727]">
           {qty === sku.quantity ? (
-            <span className="text-white font-medium">{sku.price.toLocaleString()} €</span>
+            <span className="text-white font-medium">{price.toLocaleString()} €</span>
           ) : ''}
         </td>
       ))}

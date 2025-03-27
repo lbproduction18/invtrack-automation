@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { type SelectedSKU } from '@/types/product';
 import { type ProductPrice } from '@/hooks/useProductPrices';
+import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 
 export function useSimulationSKUs(
   selectedSKUs: Record<string, SelectedSKU[]>,
@@ -11,6 +11,7 @@ export function useSimulationSKUs(
   productPrices: ProductPrice[]
 ) {
   const { toast } = useToast();
+  const { analysisItems } = useAnalysisItems();
   const quantityOptions: QuantityOption[] = [1000, 2000, 3000, 4000, 5000, 8000];
 
   // Add a SKU to a product row
@@ -32,19 +33,28 @@ export function useSimulationSKUs(
       // Find the matching product price for this product
       const productPrice = productPrices.find(p => p.product_name === productName);
       
+      // Check if this product has an analysis item
+      const analysisItem = analysisItems.find(item => item.product_id === skuInfo.id);
+      
       // Default to first quantity option with a price
-      let defaultQuantity: QuantityOption = 1000;
+      let defaultQuantity: QuantityOption = analysisItem?.quantity_selected as QuantityOption || 1000;
       let defaultPrice = 0;
       
       if (productPrice) {
-        // Try to find the first quantity that has a price
-        for (const qty of quantityOptions) {
-          const priceField = `price_${qty}` as keyof typeof productPrice;
-          const price = productPrice[priceField] as number;
-          if (price && price > 0) {
-            defaultQuantity = qty;
-            defaultPrice = price;
-            break;
+        // If we have an analysis item with quantity, use that
+        if (analysisItem?.quantity_selected) {
+          const priceField = `price_${analysisItem.quantity_selected}` as keyof typeof productPrice;
+          defaultPrice = productPrice[priceField] as number || 0;
+        } else {
+          // Otherwise try to find the first quantity that has a price
+          for (const qty of quantityOptions) {
+            const priceField = `price_${qty}` as keyof typeof productPrice;
+            const price = productPrice[priceField] as number;
+            if (price && price > 0) {
+              defaultQuantity = qty;
+              defaultPrice = price;
+              break;
+            }
           }
         }
       }

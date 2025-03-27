@@ -63,7 +63,7 @@ const SKUSelector: React.FC<SKUSelectorProps> = ({
           <SelectTrigger className="w-full bg-[#161616]">
             <SelectValue placeholder="Sélectionner" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-50 bg-[#161616] border-[#272727]">
             {skusToDisplay.map((sku) => (
               <SelectItem key={sku.id} value={sku.SKU}>
                 {sku.SKU}
@@ -80,7 +80,7 @@ const SKUSelector: React.FC<SKUSelectorProps> = ({
               <SelectTrigger className="w-full bg-[#161616]">
                 <SelectValue placeholder="Qté" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-50 bg-[#161616] border-[#272727]">
                 {quantityOptions.map((qty) => (
                   <SelectItem key={qty} value={qty.toString()}>
                     {qty.toLocaleString()}

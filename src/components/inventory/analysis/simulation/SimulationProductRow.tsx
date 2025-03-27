@@ -87,7 +87,6 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
         <TableCell>
           <SKUSelector
             productName={productName}
-            skus={groupedSKUs}
             availableSKUs={groupedSKUs}
             quantityOptions={quantityOptions}
             prices={prices}
