@@ -10,6 +10,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { 
   Select,
   SelectContent,
@@ -193,6 +194,22 @@ const ProductDetailsDrawer: React.FC<ProductDetailsDrawerProps> = ({
                   />
                   <Calendar className="absolute right-3 top-2.5 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-400 mb-1">Délai de livraison (semaines)</p>
+                <Input
+                  type="number"
+                  className="w-full px-3 py-2 bg-[#121212] border border-[#272727] rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  value={selectedProduct.weeks_delivery || ""}
+                  placeholder="Ex: 6"
+                  onChange={(e) => {
+                    const value = e.target.value ? parseInt(e.target.value) : null;
+                    onUpdateProduct(selectedProduct.id, { 
+                      weeks_delivery: value
+                    });
+                  }}
+                />
               </div>
             </div>
           </div>

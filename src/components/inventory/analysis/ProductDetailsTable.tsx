@@ -47,6 +47,7 @@ const ProductDetailsTable: React.FC<ProductDetailsTableProps> = ({
             <TableHead className="text-xs font-medium text-gray-400 text-center">Stock Actuel</TableHead>
             <TableHead className="text-xs font-medium text-gray-400 text-center">Seuil</TableHead>
             <TableHead className="text-xs font-medium text-gray-400 text-center">Dernière Commande</TableHead>
+            <TableHead className="text-xs font-medium text-gray-400 text-center">Délai (sem.)</TableHead>
             <TableHead className="text-xs font-medium text-gray-400 text-center">Quantité</TableHead>
             <TableHead className="text-xs font-medium text-gray-400 text-center">Prix</TableHead>
             <TableHead className="text-xs font-medium text-gray-400 text-center">Actions</TableHead>
@@ -57,7 +58,7 @@ const ProductDetailsTable: React.FC<ProductDetailsTableProps> = ({
             // Loading state
             Array.from({ length: 3 }).map((_, index) => (
               <TableRow key={`loading-${index}`}>
-                <TableCell colSpan={7} className="h-16">
+                <TableCell colSpan={8} className="h-16">
                   <div className="w-full h-full animate-pulse bg-[#161616]/50" />
                 </TableCell>
               </TableRow>
@@ -65,7 +66,7 @@ const ProductDetailsTable: React.FC<ProductDetailsTableProps> = ({
           ) : products.length === 0 ? (
             // Empty state
             <TableRow>
-              <TableCell colSpan={7} className="h-32 text-center">
+              <TableCell colSpan={8} className="h-32 text-center">
                 <div className="flex flex-col items-center justify-center">
                   <AlertCircle className="h-8 w-8 text-gray-400 mb-2" />
                   <p className="text-gray-400">Aucun produit en analyse</p>
@@ -98,6 +99,15 @@ const ProductDetailsTable: React.FC<ProductDetailsTableProps> = ({
                       <span>{formatDate(product.last_order_date)}</span>
                       <span className="text-gray-400">{product.last_order_quantity} pcs</span>
                     </div>
+                  ) : (
+                    <span className="text-gray-500">-</span>
+                  )}
+                </TableCell>
+                
+                {/* Délai de livraison en semaines */}
+                <TableCell className="text-center">
+                  {product.weeks_delivery ? (
+                    <span>{product.weeks_delivery} sem.</span>
                   ) : (
                     <span className="text-gray-500">-</span>
                   )}
