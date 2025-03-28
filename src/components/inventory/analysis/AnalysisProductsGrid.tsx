@@ -4,13 +4,11 @@ import {
   Table, TableBody, TableCell, TableHead, 
   TableHeader, TableRow 
 } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar as CalendarIcon, AlertCircle, RefreshCw, Trash2, Check, Loader2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { formatDate } from '@/components/dashboard/low-stock/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
@@ -42,6 +40,7 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
       initialValues[`last_order_${item.id}`] = item.last_order_info || '';
       initialValues[`lab_status_${item.id}`] = item.lab_status_text || '';
       initialValues[`last_order_date_${item.id}`] = item.last_order_date || null;
+      initialValues[`weeks_delivery_${item.id}`] = item.weeks_delivery || '';
     });
     setEditableValues(initialValues);
   }, [analysisProducts]);
@@ -220,68 +219,44 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     }
   };
   
-  const updateLabStatus = async (productId: string, labStatus: string) => {
-    try {
-      const { error } = await supabase
-        .from('Low stock product')
-        .update({ lab_status: labStatus })
-        .eq('id', productId);
-      
-      if (error) {
-        throw error;
-      }
-      
-      toast({
-        title: "Statut labo mis à jour",
-        description: "Le statut labo a été mis à jour avec succès."
-      });
-      
-      refetchAnalysis();
-    } catch (error) {
-      console.error('Error updating lab status:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de mettre à jour le statut labo.",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  const updateEstimatedDeliveryDate = async (productId: string, date: Date | null) => {
-    setIsUpdating(prev => ({ ...prev, [`delivery_${productId}`]: true }));
-    setSaveSuccess(prev => ({ ...prev, [`delivery_${productId}`]: false }));
+  const updateWeeksDelivery = async (analysisItemId: string) => {
+    const weeksKey = `weeks_delivery_${analysisItemId}`;
+    const weeksValue = editableValues[weeksKey];
+    
+    setIsUpdating(prev => ({ ...prev, [weeksKey]: true }));
+    setSaveSuccess(prev => ({ ...prev, [weeksKey]: false }));
     
     try {
       const { error } = await supabase
-        .from('Low stock product')
-        .update({ estimated_delivery_date: date ? date.toISOString() : null })
-        .eq('id', productId);
+        .from('analysis_items')
+        .update({ weeks_delivery: weeksValue })
+        .eq('id', analysisItemId);
       
       if (error) {
         throw error;
       }
       
       toast({
-        title: "Date de livraison mise à jour",
-        description: "La date de livraison estimée a été mise à jour avec succès."
+        title: "Délai de livraison mis à jour",
+        description: "Le délai de livraison a été mis à jour avec succès."
       });
       
-      setSaveSuccess(prev => ({ ...prev, [`delivery_${productId}`]: true }));
+      setSaveSuccess(prev => ({ ...prev, [weeksKey]: true }));
       
       setTimeout(() => {
-        setSaveSuccess(prev => ({ ...prev, [`delivery_${productId}`]: false }));
+        setSaveSuccess(prev => ({ ...prev, [weeksKey]: false }));
       }, 3000);
       
       refetchAnalysis();
     } catch (error) {
-      console.error('Error updating delivery date:', error);
+      console.error('Error updating weeks delivery:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de mettre à jour la date de livraison estimée.",
+        description: "Impossible de mettre à jour le délai de livraison.",
         variant: "destructive"
       });
     } finally {
-      setIsUpdating(prev => ({ ...prev, [`delivery_${productId}`]: false }));
+      setIsUpdating(prev => ({ ...prev, [weeksKey]: false }));
     }
   };
   
@@ -356,7 +331,7 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
               <TableHead className="text-xs font-medium text-gray-400 text-center">Qt dernière commande</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center">Date de dernière commande</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center">Étiquette labo</TableHead>
-              <TableHead className="text-xs font-medium text-gray-400 text-center">Date livraison est.</TableHead>
+              <TableHead className="text-xs font-medium text-gray-400 text-center">Délai de livraison</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center w-[10%]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -486,32 +461,17 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                   
                   <TableCell className="text-center">
                     <div className="flex items-center justify-center space-x-2">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="w-full max-w-[120px] mx-auto bg-[#121212] border-[#272727] h-10 justify-between"
-                            disabled={isUpdating[`delivery_${item.productDetails?.id}`]}
-                          >
-                            {item.productDetails?.estimated_delivery_date ? (
-                              format(new Date(item.productDetails.estimated_delivery_date), 'P', { locale: fr })
-                            ) : (
-                              <span className="text-gray-500">Date</span>
-                            )}
-                            <CalendarIcon className="ml-2 h-4 w-4" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="bg-[#161616] border-[#272727] p-0">
-                          <Calendar
-                            mode="single"
-                            selected={item.productDetails?.estimated_delivery_date ? new Date(item.productDetails.estimated_delivery_date) : undefined}
-                            onSelect={(date) => updateEstimatedDeliveryDate(item.productDetails?.id || "", date)}
-                            className="bg-[#161616] pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      {isUpdating[`delivery_${item.productDetails?.id}`] && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
-                      {saveSuccess[`delivery_${item.productDetails?.id}`] && <Check className="w-4 h-4 text-green-500" />}
+                      <Input
+                        className="w-32 bg-[#121212] border-[#272727] text-center"
+                        value={editableValues[`weeks_delivery_${item.id}`] || ''}
+                        onChange={(e) => handleInputChange(`weeks_delivery_${item.id}`, e.target.value)}
+                        onBlur={() => updateWeeksDelivery(item.id)}
+                        onKeyDown={(e) => handleKeyDown(e, () => updateWeeksDelivery(item.id))}
+                        placeholder="Ex: 6, 6-8 semaines"
+                        disabled={isUpdating[`weeks_delivery_${item.id}`]}
+                      />
+                      {isUpdating[`weeks_delivery_${item.id}`] && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
+                      {saveSuccess[`weeks_delivery_${item.id}`] && <Check className="w-4 h-4 text-green-500" />}
                     </div>
                   </TableCell>
                   
