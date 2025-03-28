@@ -1,12 +1,28 @@
 
 import React, { useState, useEffect } from 'react';
-import { useAnalysisItems } from '@/hooks/useAnalysisItems';
+import { useAnalysisItems, type AnalysisItem } from '@/hooks/useAnalysisItems';
 import { useProducts } from '@/hooks/useProducts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AnalysisProductsGrid from './analysis/AnalysisProductsGrid';
+import BudgetSimulation from './analysis/BudgetSimulation';
 
 // Define QuantityOption type consistently in this file
 export type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000 | 8000;
+
+// Define the interface for combined analysis items and product details
+export interface AnalysisProduct extends AnalysisItem {
+  productDetails: {
+    id: string;
+    SKU: string;
+    product_name: string | null;
+    current_stock: number;
+    threshold: number;
+    lab_status: string | null;
+    estimated_delivery_date: string | null;
+    last_order_date: string | null;
+    last_order_quantity: number | null;
+  } | null;
+}
 
 // Named export to match import in Index.tsx
 export const AnalysisContent: React.FC = () => {
@@ -22,7 +38,7 @@ export const AnalysisContent: React.FC = () => {
     return {
       ...item,
       productDetails: product || null
-    };
+    } as AnalysisProduct;
   }).filter(item => item.productDetails !== null);
   
   const isLoading = isLoadingAnalysis || isLoadingProducts;
@@ -60,9 +76,9 @@ export const AnalysisContent: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="simulation" className="mt-0">
-          <div className="rounded-md border border-[#272727] p-8 flex items-center justify-center">
-            <p className="text-gray-400">Module de simulation tarifaire</p>
-          </div>
+          <BudgetSimulation
+            onCreateOrder={() => {}}
+          />
         </TabsContent>
         
         <TabsContent value="budget" className="mt-0">

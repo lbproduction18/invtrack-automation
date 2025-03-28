@@ -18,6 +18,7 @@ import RefreshPricesButton from './simulation/RefreshPricesButton';
 import { Loader2 } from 'lucide-react';
 import BudgetSummary from './BudgetSummary';
 import BudgetLoadingState from './budget/BudgetLoadingState';
+import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 
 interface BudgetSimulationProps {
   onCreateOrder: () => void;
@@ -28,7 +29,7 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
   const { analysisItems } = useAnalysisItems();
   const { productPrices, isLoading: isPricesLoading, refetch } = useProductPrices();
   const { budgetSettings, isLoading: isBudgetLoading } = useBudgetSettings();
-  const [selectedQuantities, setSelectedQuantities] = useState<Record<string, number>>({});
+  const [selectedQuantities, setSelectedQuantities] = useState<Record<string, QuantityOption>>({});
   const [simulationTotal, setSimulationTotal] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<string>('order');
   
@@ -75,7 +76,7 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
   } = useSimulationSKUs(selectedSKUs, setSelectedSKUs, productPrices);
   
   // Handle quantity changes in the OrderSimulationTable
-  const handleOrderQuantityChange = (productId: string, quantity: number) => {
+  const handleOrderQuantityChange = (productId: string, quantity: QuantityOption) => {
     setSelectedQuantities(prev => ({
       ...prev,
       [productId]: quantity
@@ -88,6 +89,11 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
       // Logic to pre-populate selectedSKUs based on analysisItems
     }
   }, [analysisItems, products, productPrices]);
+
+  // Handle refresh button click
+  const handleRefresh = async () => {
+    await refetch();
+  };
 
   // Loading state
   if (isBudgetLoading || isPricesLoading) {
@@ -113,7 +119,7 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
                 </TabsList>
                 
                 <RefreshPricesButton 
-                  onRefresh={() => refetch()} 
+                  onRefresh={handleRefresh} 
                   isLoading={isPricesLoading}
                 />
               </div>
@@ -182,7 +188,12 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
             </CardContent>
           </Card>
           
-          <BudgetSettingsPanel />
+          <BudgetSettingsPanel 
+            totalOrderAmount={simulationTotal}
+            depositAmount={depositAmount}
+            budgetPercentage={budgetPercentage}
+            onCreateOrder={onCreateOrder}
+          />
         </div>
       </div>
     </div>

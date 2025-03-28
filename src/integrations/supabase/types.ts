@@ -13,6 +13,8 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          lab_status_text: string | null
+          last_order_info: string | null
           product_id: string | null
           quantity_selected: number | null
           status: string | null
@@ -21,6 +23,8 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          lab_status_text?: string | null
+          last_order_info?: string | null
           product_id?: string | null
           quantity_selected?: number | null
           status?: string | null
@@ -29,6 +33,8 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          lab_status_text?: string | null
+          last_order_info?: string | null
           product_id?: string | null
           quantity_selected?: number | null
           status?: string | null

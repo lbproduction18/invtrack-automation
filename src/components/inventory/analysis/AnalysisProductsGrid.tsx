@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Table, TableBody, TableCell, TableHead, 
@@ -15,28 +16,7 @@ import { fr } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
-
-interface AnalysisProduct {
-  id: string;
-  product_id: string;
-  quantity_selected: number | null;
-  status: string | null;
-  created_at: string;
-  updated_at: string;
-  last_order_info: string | null;
-  lab_status_text: string | null;
-  productDetails: {
-    id: string;
-    SKU: string;
-    product_name: string | null;
-    current_stock: number;
-    threshold: number;
-    lab_status: string | null;
-    estimated_delivery_date: string | null;
-    last_order_date: string | null;
-    last_order_quantity: number | null;
-  } | null;
-}
+import { type AnalysisProduct } from '@/components/inventory/AnalysisContent';
 
 interface AnalysisProductsGridProps {
   analysisProducts: AnalysisProduct[];
