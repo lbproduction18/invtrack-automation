@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Table, TableBody, TableCell, TableHead, 
   TableHeader, TableRow 
@@ -7,7 +6,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Calendar as CalendarIcon, AlertCircle, RefreshCw, Trash2 } from 'lucide-react';
+import { Calendar as CalendarIcon, AlertCircle, RefreshCw, Trash2, Check, Loader2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { formatDate } from '@/components/dashboard/low-stock/utils';
@@ -17,7 +16,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 
-// Create interfaces for our component props
 interface AnalysisProduct {
   id: string;
   product_id: string;
@@ -25,6 +23,8 @@ interface AnalysisProduct {
   status: string | null;
   created_at: string;
   updated_at: string;
+  last_order_info: string | null;
+  lab_status_text: string | null;
   productDetails: {
     id: string;
     SKU: string;
@@ -51,11 +51,11 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
 }) => {
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
-  const quantityOptions: QuantityOption[] = [1000, 2000, 3000, 4000, 5000, 8000];
+  const [saveSuccess, setSaveSuccess] = useState<Record<string, boolean>>({});
   
-  // Function to update quantity selected
-  const updateQuantity = async (analysisItemId: string, quantity: QuantityOption) => {
+  const updateQuantity = async (analysisItemId: string, quantity: number) => {
     setIsUpdating(prev => ({ ...prev, [analysisItemId]: true }));
+    setSaveSuccess(prev => ({ ...prev, [analysisItemId]: false }));
     
     try {
       const { error } = await supabase
@@ -72,6 +72,12 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
         description: "La quantité sélectionnée a été mise à jour avec succès."
       });
       
+      setSaveSuccess(prev => ({ ...prev, [analysisItemId]: true }));
+      
+      setTimeout(() => {
+        setSaveSuccess(prev => ({ ...prev, [analysisItemId]: false }));
+      }, 3000);
+      
       refetchAnalysis();
     } catch (error) {
       console.error('Error updating quantity:', error);
@@ -85,7 +91,82 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     }
   };
   
-  // Function to update lab status
+  const updateLastOrderInfo = async (analysisItemId: string, lastOrderInfo: string) => {
+    setIsUpdating(prev => ({ ...prev, [`last_order_${analysisItemId}`]: true }));
+    setSaveSuccess(prev => ({ ...prev, [`last_order_${analysisItemId}`]: false }));
+    
+    try {
+      const { error } = await supabase
+        .from('analysis_items')
+        .update({ last_order_info: lastOrderInfo })
+        .eq('id', analysisItemId);
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Dernière commande mise à jour",
+        description: "Les informations de dernière commande ont été mises à jour avec succès."
+      });
+      
+      setSaveSuccess(prev => ({ ...prev, [`last_order_${analysisItemId}`]: true }));
+      
+      setTimeout(() => {
+        setSaveSuccess(prev => ({ ...prev, [`last_order_${analysisItemId}`]: false }));
+      }, 3000);
+      
+      refetchAnalysis();
+    } catch (error) {
+      console.error('Error updating last order info:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour les informations de dernière commande.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUpdating(prev => ({ ...prev, [`last_order_${analysisItemId}`]: false }));
+    }
+  };
+  
+  const updateLabStatusText = async (analysisItemId: string, labStatusText: string) => {
+    setIsUpdating(prev => ({ ...prev, [`lab_status_${analysisItemId}`]: true }));
+    setSaveSuccess(prev => ({ ...prev, [`lab_status_${analysisItemId}`]: false }));
+    
+    try {
+      const { error } = await supabase
+        .from('analysis_items')
+        .update({ lab_status_text: labStatusText })
+        .eq('id', analysisItemId);
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Étiquette labo mise à jour",
+        description: "L'étiquette labo a été mise à jour avec succès."
+      });
+      
+      setSaveSuccess(prev => ({ ...prev, [`lab_status_${analysisItemId}`]: true }));
+      
+      setTimeout(() => {
+        setSaveSuccess(prev => ({ ...prev, [`lab_status_${analysisItemId}`]: false }));
+      }, 3000);
+      
+      refetchAnalysis();
+    } catch (error) {
+      console.error('Error updating lab status text:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour l'étiquette labo.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUpdating(prev => ({ ...prev, [`lab_status_${analysisItemId}`]: false }));
+    }
+  };
+  
   const updateLabStatus = async (productId: string, labStatus: string) => {
     try {
       const { error } = await supabase
@@ -113,8 +194,10 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     }
   };
   
-  // Function to update estimated delivery date
   const updateEstimatedDeliveryDate = async (productId: string, date: Date | null) => {
+    setIsUpdating(prev => ({ ...prev, [`delivery_${productId}`]: true }));
+    setSaveSuccess(prev => ({ ...prev, [`delivery_${productId}`]: false }));
+    
     try {
       const { error } = await supabase
         .from('Low stock product')
@@ -130,6 +213,12 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
         description: "La date de livraison estimée a été mise à jour avec succès."
       });
       
+      setSaveSuccess(prev => ({ ...prev, [`delivery_${productId}`]: true }));
+      
+      setTimeout(() => {
+        setSaveSuccess(prev => ({ ...prev, [`delivery_${productId}`]: false }));
+      }, 3000);
+      
       refetchAnalysis();
     } catch (error) {
       console.error('Error updating delivery date:', error);
@@ -138,13 +227,13 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
         description: "Impossible de mettre à jour la date de livraison estimée.",
         variant: "destructive"
       });
+    } finally {
+      setIsUpdating(prev => ({ ...prev, [`delivery_${productId}`]: false }));
     }
   };
   
-  // Function to remove item from analysis
   const removeFromAnalysis = async (analysisItemId: string, productId: string) => {
     try {
-      // First update the product status back to low_stock
       const { error: productError } = await supabase
         .from('Low stock product')
         .update({ status: 'low_stock' })
@@ -154,7 +243,6 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
         throw productError;
       }
       
-      // Then delete the analysis item
       const { error } = await supabase
         .from('analysis_items')
         .delete()
@@ -219,7 +307,6 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              // Loading state
               Array.from({ length: 3 }).map((_, index) => (
                 <TableRow key={`loading-${index}`}>
                   <TableCell colSpan={8} className="h-16">
@@ -228,7 +315,6 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                 </TableRow>
               ))
             ) : analysisProducts.length === 0 ? (
-              // Empty state
               <TableRow>
                 <TableCell colSpan={8} className="h-32 text-center">
                   <div className="flex flex-col items-center justify-center">
@@ -241,10 +327,8 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                 </TableCell>
               </TableRow>
             ) : (
-              // Analysis products table
               analysisProducts.map((item) => (
                 <TableRow key={item.id} className="hover:bg-[#161616] border-t border-[#272727]">
-                  {/* SKU / Product Name */}
                   <TableCell className="font-medium whitespace-nowrap pl-4">
                     <div className="flex flex-col">
                       <span>{item.productDetails?.SKU}</span>
@@ -254,97 +338,96 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                     </div>
                   </TableCell>
                   
-                  {/* Current Stock */}
                   <TableCell className="text-center">
                     <span className={item.productDetails?.current_stock < item.productDetails?.threshold ? "text-red-500" : ""}>
                       {item.productDetails?.current_stock}
                     </span>
                   </TableCell>
                   
-                  {/* Threshold */}
                   <TableCell className="text-center text-gray-400">
                     {item.productDetails?.threshold}
                   </TableCell>
                   
-                  {/* Quantity Selector */}
                   <TableCell className="text-center">
-                    <Select
-                      value={item.quantity_selected?.toString() || ""}
-                      onValueChange={(value) => updateQuantity(item.id, parseInt(value) as QuantityOption)}
-                      disabled={isUpdating[item.id]}
-                    >
-                      <SelectTrigger className="w-full max-w-[120px] mx-auto bg-[#121212] border-[#272727]">
-                        <SelectValue placeholder="Choisir" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#161616] border-[#272727] z-[100]">
-                        {quantityOptions.map(qty => (
-                          <SelectItem key={qty} value={qty.toString()}>
-                            {qty.toLocaleString()}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center justify-center space-x-2">
+                      <Input
+                        type="number"
+                        className="w-32 bg-[#121212] border-[#272727] text-center"
+                        value={item.quantity_selected || ''}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value);
+                          if (!isNaN(value)) {
+                            updateQuantity(item.id, value);
+                          }
+                        }}
+                        step="1000"
+                        min="0"
+                        disabled={isUpdating[item.id]}
+                      />
+                      {isUpdating[item.id] && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
+                      {saveSuccess[item.id] && <Check className="w-4 h-4 text-green-500" />}
+                    </div>
                   </TableCell>
                   
-                  {/* Last Order */}
-                  <TableCell className="text-center text-xs">
-                    {item.productDetails?.last_order_date ? (
-                      <div className="flex flex-col items-center">
-                        <span>{formatDate(item.productDetails.last_order_date)}</span>
-                        <span className="text-gray-400">{item.productDetails.last_order_quantity} pcs</span>
-                      </div>
-                    ) : (
-                      <span className="text-gray-500">-</span>
-                    )}
-                  </TableCell>
-                  
-                  {/* Lab Status */}
                   <TableCell className="text-center">
-                    <Select
-                      value={item.productDetails?.lab_status || ""}
-                      onValueChange={(value) => updateLabStatus(item.productDetails?.id || "", value)}
-                    >
-                      <SelectTrigger className="w-full max-w-[120px] mx-auto bg-[#121212] border-[#272727]">
-                        <SelectValue placeholder="Statut" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#161616] border-[#272727] z-[100]">
-                        {labStatusOptions.map(status => (
-                          <SelectItem key={status.value} value={status.value}>
-                            {status.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center justify-center space-x-2">
+                      <Input
+                        className="w-32 bg-[#121212] border-[#272727] text-center"
+                        value={item.last_order_info || ''}
+                        onChange={(e) => updateLastOrderInfo(item.id, e.target.value)}
+                        placeholder="Info dernière commande"
+                        disabled={isUpdating[`last_order_${item.id}`]}
+                      />
+                      {isUpdating[`last_order_${item.id}`] && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
+                      {saveSuccess[`last_order_${item.id}`] && <Check className="w-4 h-4 text-green-500" />}
+                    </div>
                   </TableCell>
                   
-                  {/* Estimated Delivery Date */}
                   <TableCell className="text-center">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full max-w-[120px] mx-auto bg-[#121212] border-[#272727] h-10 justify-between"
-                        >
-                          {item.productDetails?.estimated_delivery_date ? (
-                            format(new Date(item.productDetails.estimated_delivery_date), 'P', { locale: fr })
-                          ) : (
-                            <span className="text-gray-500">Date</span>
-                          )}
-                          <CalendarIcon className="ml-2 h-4 w-4" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="bg-[#161616] border-[#272727] p-0">
-                        <Calendar
-                          mode="single"
-                          selected={item.productDetails?.estimated_delivery_date ? new Date(item.productDetails.estimated_delivery_date) : undefined}
-                          onSelect={(date) => updateEstimatedDeliveryDate(item.productDetails?.id || "", date)}
-                          className="bg-[#161616]"
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <div className="flex items-center justify-center space-x-2">
+                      <Input
+                        className="w-32 bg-[#121212] border-[#272727] text-center"
+                        value={item.lab_status_text || ''}
+                        onChange={(e) => updateLabStatusText(item.id, e.target.value)}
+                        placeholder="Étiquette labo"
+                        disabled={isUpdating[`lab_status_${item.id}`]}
+                      />
+                      {isUpdating[`lab_status_${item.id}`] && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
+                      {saveSuccess[`lab_status_${item.id}`] && <Check className="w-4 h-4 text-green-500" />}
+                    </div>
                   </TableCell>
                   
-                  {/* Actions */}
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center space-x-2">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full max-w-[120px] mx-auto bg-[#121212] border-[#272727] h-10 justify-between"
+                            disabled={isUpdating[`delivery_${item.productDetails?.id}`]}
+                          >
+                            {item.productDetails?.estimated_delivery_date ? (
+                              format(new Date(item.productDetails.estimated_delivery_date), 'P', { locale: fr })
+                            ) : (
+                              <span className="text-gray-500">Date</span>
+                            )}
+                            <CalendarIcon className="ml-2 h-4 w-4" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="bg-[#161616] border-[#272727] p-0">
+                          <Calendar
+                            mode="single"
+                            selected={item.productDetails?.estimated_delivery_date ? new Date(item.productDetails.estimated_delivery_date) : undefined}
+                            onSelect={(date) => updateEstimatedDeliveryDate(item.productDetails?.id || "", date)}
+                            className="bg-[#161616] pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      {isUpdating[`delivery_${item.productDetails?.id}`] && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
+                      {saveSuccess[`delivery_${item.productDetails?.id}`] && <Check className="w-4 h-4 text-green-500" />}
+                    </div>
+                  </TableCell>
+                  
                   <TableCell className="text-center">
                     <Button
                       variant="ghost"

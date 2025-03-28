@@ -12,6 +12,8 @@ export interface AnalysisItem {
   created_at: string;
   updated_at: string;
   status: string;
+  last_order_info: string | null;
+  lab_status_text: string | null;
 }
 
 export function useAnalysisItems() {
@@ -64,7 +66,9 @@ export function useAnalysisItems() {
       // Then create analysis items
       const analysisItems = productIds.map(id => ({
         product_id: id,
-        quantity_selected: null
+        quantity_selected: null,
+        last_order_info: null,
+        lab_status_text: null
       }));
       
       const { data, error } = await supabase
