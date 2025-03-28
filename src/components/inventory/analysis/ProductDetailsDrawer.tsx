@@ -27,6 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 type SelectedProduct = Product & { 
   selectedQuantity?: QuantityOption;
   labStatus?: string | null;
+  weeks_delivery?: string | null; // Ajouté le champ weeks_delivery ici
 };
 
 interface ProductDetailsDrawerProps {
@@ -37,7 +38,7 @@ interface ProductDetailsDrawerProps {
   productsCount: number;
   onNavigate: (direction: 'prev' | 'next') => void;
   onQuantityChange: (productId: string, quantity: QuantityOption) => void;
-  onUpdateProduct: (productId: string, updates: Partial<Product>) => void;
+  onUpdateProduct: (productId: string, updates: Partial<Product> | { weeks_delivery?: string }) => void;
   getTotalPrice: (product: SelectedProduct) => number;
   onCreateOrder: () => void;
 }
@@ -199,14 +200,13 @@ const ProductDetailsDrawer: React.FC<ProductDetailsDrawerProps> = ({
               <div>
                 <p className="text-sm text-gray-400 mb-1">Délai de livraison (semaines)</p>
                 <Input
-                  type="number"
+                  type="text" // Changé de "number" à "text"
                   className="w-full px-3 py-2 bg-[#121212] border border-[#272727] rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                   value={selectedProduct.weeks_delivery || ""}
-                  placeholder="Ex: 6"
+                  placeholder="Ex: 6, 6-8, ~6..."
                   onChange={(e) => {
-                    const value = e.target.value ? parseInt(e.target.value) : null;
                     onUpdateProduct(selectedProduct.id, { 
-                      weeks_delivery: value
+                      weeks_delivery: e.target.value 
                     });
                   }}
                 />

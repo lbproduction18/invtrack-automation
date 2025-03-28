@@ -40,8 +40,7 @@ export function useProducts(statusFilter: string = 'low_stock') {
             last_order_date,
             lab_status,
             estimated_delivery_date,
-            status,
-            weeks_delivery
+            status
           `)
           .order('SKU');
           

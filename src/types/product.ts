@@ -26,7 +26,7 @@ export interface Product {
   lab_status: string | null;
   estimated_delivery_date: string | null;
   status: string | null;
-  weeks_delivery: number | null;
+  // weeks_delivery a été supprimé d'ici car il est maintenant dans la table analysis_items
 }
 
 // Define type for SKU selection

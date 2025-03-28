@@ -20,6 +20,7 @@ export type Database = {
           quantity_selected: number | null
           status: string | null
           updated_at: string | null
+          weeks_delivery: string | null
         }
         Insert: {
           created_at?: string | null
@@ -31,6 +32,7 @@ export type Database = {
           quantity_selected?: number | null
           status?: string | null
           updated_at?: string | null
+          weeks_delivery?: string | null
         }
         Update: {
           created_at?: string | null
@@ -42,6 +44,7 @@ export type Database = {
           quantity_selected?: number | null
           status?: string | null
           updated_at?: string | null
+          weeks_delivery?: string | null
         }
         Relationships: [
           {
@@ -101,7 +104,6 @@ export type Database = {
           status: string | null
           threshold: number
           updated_at: string | null
-          weeks_delivery: number | null
         }
         Insert: {
           created_at?: string
@@ -123,7 +125,6 @@ export type Database = {
           status?: string | null
           threshold?: number
           updated_at?: string | null
-          weeks_delivery?: number | null
         }
         Update: {
           created_at?: string
@@ -145,7 +146,6 @@ export type Database = {
           status?: string | null
           threshold?: number
           updated_at?: string | null
-          weeks_delivery?: number | null
         }
         Relationships: []
       }

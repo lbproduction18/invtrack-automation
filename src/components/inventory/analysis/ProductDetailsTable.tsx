@@ -19,6 +19,7 @@ import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 
 type SelectedProduct = Product & { 
   selectedQuantity?: QuantityOption;
+  weeks_delivery?: string | null; // Ajouté le champ weeks_delivery ici
 };
 
 interface ProductDetailsTableProps {
@@ -47,7 +48,7 @@ const ProductDetailsTable: React.FC<ProductDetailsTableProps> = ({
             <TableHead className="text-xs font-medium text-gray-400 text-center">Stock Actuel</TableHead>
             <TableHead className="text-xs font-medium text-gray-400 text-center">Seuil</TableHead>
             <TableHead className="text-xs font-medium text-gray-400 text-center">Dernière Commande</TableHead>
-            <TableHead className="text-xs font-medium text-gray-400 text-center">Délai (sem.)</TableHead>
+            <TableHead className="text-xs font-medium text-gray-400 text-center">Délai</TableHead>
             <TableHead className="text-xs font-medium text-gray-400 text-center">Quantité</TableHead>
             <TableHead className="text-xs font-medium text-gray-400 text-center">Prix</TableHead>
             <TableHead className="text-xs font-medium text-gray-400 text-center">Actions</TableHead>
@@ -104,10 +105,10 @@ const ProductDetailsTable: React.FC<ProductDetailsTableProps> = ({
                   )}
                 </TableCell>
                 
-                {/* Délai de livraison en semaines */}
+                {/* Délai de livraison (texte) */}
                 <TableCell className="text-center">
                   {product.weeks_delivery ? (
-                    <span>{product.weeks_delivery} sem.</span>
+                    <span>{product.weeks_delivery}</span>
                   ) : (
                     <span className="text-gray-500">-</span>
                   )}

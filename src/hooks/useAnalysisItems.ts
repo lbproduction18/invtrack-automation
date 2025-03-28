@@ -14,7 +14,8 @@ export interface AnalysisItem {
   status: string;
   last_order_info: string | null;
   lab_status_text: string | null;
-  last_order_date: string | null; // Champ pour la date de dernière commande
+  last_order_date: string | null;
+  weeks_delivery: string | null; // Ajouté en tant que champ texte
 }
 
 export function useAnalysisItems() {
