@@ -14,6 +14,7 @@ export type Database = {
           created_at: string | null
           id: string
           lab_status_text: string | null
+          last_order_date: string | null
           last_order_info: string | null
           product_id: string | null
           quantity_selected: number | null
@@ -24,6 +25,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           lab_status_text?: string | null
+          last_order_date?: string | null
           last_order_info?: string | null
           product_id?: string | null
           quantity_selected?: number | null
@@ -34,6 +36,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           lab_status_text?: string | null
+          last_order_date?: string | null
           last_order_info?: string | null
           product_id?: string | null
           quantity_selected?: number | null
