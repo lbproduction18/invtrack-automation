@@ -22,18 +22,18 @@ const BudgetMetrics: React.FC<BudgetMetricsProps> = ({
     <div className="space-y-3">
       <div className="flex justify-between text-sm border-b border-[#272727] pb-1">
         <span className="text-gray-400">TOTAL DU BON DE COMMANDE</span>
-        <span className="font-medium">{totalOrderAmount.toLocaleString()} $ CAD</span>
+        <span className="font-medium">{totalOrderAmount.toLocaleString()} $</span>
       </div>
       
       <div className="flex justify-between text-sm border-b border-[#272727] pb-1">
         <span className="text-gray-400">TOTAL DÉPÔT ({depositPercentage}%)</span>
-        <span className="font-medium">{depositAmount.toLocaleString()} $ CAD</span>
+        <span className="font-medium">{depositAmount.toLocaleString()} $</span>
       </div>
       
       <div className="flex justify-between text-sm border-b border-[#272727] pb-1">
         <span className="text-gray-400">BUDGET CASH RESTANT</span>
         <span className={`font-medium ${remainingBudget < 0 ? 'text-red-400' : ''}`}>
-          {remainingBudget.toLocaleString()} $ CAD
+          {remainingBudget.toLocaleString()} $
         </span>
       </div>
       

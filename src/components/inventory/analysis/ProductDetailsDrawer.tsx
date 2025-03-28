@@ -137,7 +137,7 @@ const ProductDetailsDrawer: React.FC<ProductDetailsDrawerProps> = ({
                 <SelectTrigger className="w-full bg-[#121212] border-[#272727]">
                   <SelectValue placeholder="Choisir une quantité" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#161616] border-[#272727]">
+                <SelectContent className="bg-[#161616] border-[#272727] z-[100]">
                   {quantityOptions.map(qty => (
                     <SelectItem key={qty} value={qty.toString()}>
                       {qty}
@@ -149,7 +149,7 @@ const ProductDetailsDrawer: React.FC<ProductDetailsDrawerProps> = ({
               {selectedProduct.selectedQuantity && (
                 <div className="mt-2 text-right">
                   <div className="text-xs text-gray-400">Prix total:</div>
-                  <div className="font-medium">{getTotalPrice(selectedProduct).toLocaleString()} $ CAD</div>
+                  <div className="font-medium">{getTotalPrice(selectedProduct).toLocaleString()} $</div>
                   <div className="text-xs text-gray-400">
                     {(getTotalPrice(selectedProduct) / selectedProduct.selectedQuantity * 1000).toFixed(2)} $ / 1000
                   </div>
@@ -169,7 +169,7 @@ const ProductDetailsDrawer: React.FC<ProductDetailsDrawerProps> = ({
                   <SelectTrigger className="w-full bg-[#121212] border-[#272727]">
                     <SelectValue placeholder="Choisir un statut" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#161616] border-[#272727]">
+                  <SelectContent className="bg-[#161616] border-[#272727] z-[100]">
                     <SelectItem value="OK">OK</SelectItem>
                     <SelectItem value="À commander">À commander</SelectItem>
                     <SelectItem value="Manquante">Manquante</SelectItem>

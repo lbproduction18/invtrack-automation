@@ -124,12 +124,12 @@ const OrderSimulationTable: React.FC<OrderSimulationTableProps> = ({
               <TableCell className="font-medium text-gray-400">Total par tranche</TableCell>
               {quantityOptions.map(qty => (
                 <TableCell key={qty} className="text-center font-medium text-gray-300">
-                  {trancheTotals[qty] > 0 ? `${trancheTotals[qty].toLocaleString()} $ CAD` : '-'}
+                  {trancheTotals[qty] > 0 ? `${trancheTotals[qty].toLocaleString()} $` : '-'}
                 </TableCell>
               ))}
               <TableCell></TableCell>
               <TableCell className="text-right font-medium text-white">
-                {simulationTotal > 0 ? `${simulationTotal.toLocaleString()} $ CAD` : '-'}
+                {simulationTotal > 0 ? `${simulationTotal.toLocaleString()} $` : '-'}
               </TableCell>
             </TableRow>
           </TableHeader>
@@ -188,7 +188,7 @@ const OrderSimulationTable: React.FC<OrderSimulationTableProps> = ({
                         <SelectTrigger className="w-full bg-[#121212] border-[#272727]">
                           <SelectValue placeholder="Choisir" />
                         </SelectTrigger>
-                        <SelectContent className="bg-[#161616] border-[#272727]">
+                        <SelectContent className="bg-[#161616] border-[#272727] z-[100]">
                           {quantityOptions.map(qty => (
                             <SelectItem key={qty} value={qty.toString()}>
                               {qty}
@@ -201,7 +201,7 @@ const OrderSimulationTable: React.FC<OrderSimulationTableProps> = ({
                     {/* Total price */}
                     <TableCell className="text-right">
                       {totalPrice > 0 ? 
-                        <span className="font-medium">{totalPrice.toLocaleString()} $ CAD</span> :
+                        <span className="font-medium">{totalPrice.toLocaleString()} $</span> :
                         <span className="text-gray-500">-</span>
                       }
                     </TableCell>

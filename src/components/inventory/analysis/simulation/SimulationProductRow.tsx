@@ -80,13 +80,13 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
         
         {/* Price cells for each quantity option */}
         {quantityOptions.map(qty => (
-          <TableCell key={qty} className="text-right">
+          <TableCell key={qty} className="text-center">
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin mx-auto" />
             ) : (
               <>
                 {productPrice && productPrice[`price_${qty}` as keyof typeof productPrice] ? 
-                  `${(productPrice[`price_${qty}` as keyof typeof productPrice] as number).toLocaleString()} €` : 
+                  `${(productPrice[`price_${qty}` as keyof typeof productPrice] as number).toLocaleString()} $` : 
                   '—'
                 }
               </>

@@ -117,7 +117,7 @@ const ProductDetailsTable: React.FC<ProductDetailsTableProps> = ({
                     <SelectTrigger className="w-full bg-[#121212] border-[#272727]">
                       <SelectValue placeholder="Choisir" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#161616] border-[#272727]">
+                    <SelectContent className="bg-[#161616] border-[#272727] z-[100]">
                       {quantityOptions.map(qty => (
                         <SelectItem key={qty} value={qty.toString()}>
                           {qty}
@@ -131,7 +131,7 @@ const ProductDetailsTable: React.FC<ProductDetailsTableProps> = ({
                   {product.selectedQuantity ? (
                     <div className="flex flex-col">
                       <span className="font-medium">
-                        {getTotalPrice(product).toLocaleString()} $ CAD
+                        {getTotalPrice(product).toLocaleString()} $
                       </span>
                       <span className="text-xs text-gray-400">
                         {(getTotalPrice(product) / product.selectedQuantity * 1000).toFixed(2)} $ / 1000

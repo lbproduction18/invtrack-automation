@@ -44,7 +44,7 @@ const SimulationSKURow: React.FC<SimulationSKURowProps> = ({
       {quantityOptions.map(qty => (
         <td key={qty} className="text-center py-2 border-t border-[#272727]">
           {qty === sku.quantity ? (
-            <span className="text-white font-medium">{price.toLocaleString()} €</span>
+            <span className="text-white font-medium">{price.toLocaleString()} $</span>
           ) : ''}
         </td>
       ))}
@@ -69,7 +69,7 @@ const SimulationSKURow: React.FC<SimulationSKURowProps> = ({
           </Select>
           
           <span className="font-medium text-white min-w-28 text-right">
-            {skuTotal > 0 ? `${skuTotal.toLocaleString()} €` : '0 €'}
+            {skuTotal > 0 ? `${skuTotal.toLocaleString()} $` : '0 $'}
           </span>
           
           <Button

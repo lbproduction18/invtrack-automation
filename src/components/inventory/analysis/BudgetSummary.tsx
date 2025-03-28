@@ -54,7 +54,7 @@ const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           {isLoading ? (
             <Skeleton className="h-4 w-20" />
           ) : (
-            <span className="font-semibold">{formatNumber(budgetAmount)} €</span>
+            <span className="font-semibold">{formatNumber(budgetAmount)} $</span>
           )}
         </div>
         <div className="flex justify-between text-sm">
@@ -62,7 +62,7 @@ const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           {isLoading ? (
             <Skeleton className="h-4 w-20" />
           ) : (
-            <span className="font-semibold">{formatNumber(totalOrderAmount)} €</span>
+            <span className="font-semibold">{formatNumber(totalOrderAmount)} $</span>
           )}
         </div>
         <div className="flex justify-between text-sm">
