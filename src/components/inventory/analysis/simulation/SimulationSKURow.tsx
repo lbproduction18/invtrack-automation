@@ -56,7 +56,7 @@ const SimulationSKURow: React.FC<SimulationSKURowProps> = ({
             value={sku.quantity.toString()}
             onValueChange={(value) => onQuantityChange(productName, index, parseInt(value) as QuantityOption)}
           >
-            <SelectTrigger className="w-28 h-8 bg-[#161616] border-[#272727]">
+            <SelectTrigger className="w-28 h-8 bg-[#161616] border-[#272727] z-[1]">
               <SelectValue placeholder="Quantité" />
             </SelectTrigger>
             <SelectContent className="bg-[#161616] border-[#272727] z-[100]">

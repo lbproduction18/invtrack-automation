@@ -113,7 +113,7 @@ const OrderSimulationTable: React.FC<OrderSimulationTableProps> = ({
               <TableHead className="text-xs text-left text-gray-400 w-1/4">Produit</TableHead>
               {quantityOptions.map(qty => (
                 <TableHead key={qty} className="text-xs text-center text-gray-400 w-1/12">
-                  Prix {qty}
+                  Prix {qty.toLocaleString()}
                 </TableHead>
               ))}
               <TableHead className="text-xs text-center text-gray-400 w-1/6">Quantité</TableHead>
@@ -185,13 +185,13 @@ const OrderSimulationTable: React.FC<OrderSimulationTableProps> = ({
                           }
                         }}
                       >
-                        <SelectTrigger className="w-full bg-[#121212] border-[#272727]">
+                        <SelectTrigger className="w-full bg-[#121212] border-[#272727] z-[1]">
                           <SelectValue placeholder="Choisir" />
                         </SelectTrigger>
                         <SelectContent className="bg-[#161616] border-[#272727] z-[100]">
                           {quantityOptions.map(qty => (
                             <SelectItem key={qty} value={qty.toString()}>
-                              {qty}
+                              {qty.toLocaleString()}
                             </SelectItem>
                           ))}
                         </SelectContent>
