@@ -14,6 +14,7 @@ export interface AnalysisItem {
   status: string;
   last_order_info: string | null;
   lab_status_text: string | null;
+  last_order_date: string | null; // New field for date of last order
 }
 
 export function useAnalysisItems() {
@@ -68,7 +69,8 @@ export function useAnalysisItems() {
         product_id: id,
         quantity_selected: null,
         last_order_info: null,
-        lab_status_text: null
+        lab_status_text: null,
+        last_order_date: null // Initialize the new field
       }));
       
       const { data, error } = await supabase

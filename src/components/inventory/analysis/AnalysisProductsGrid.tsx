@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, KeyboardEvent } from 'react';
 import { 
   Table, TableBody, TableCell, TableHead, 
   TableHeader, TableRow 
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,15 +32,40 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
   const [saveSuccess, setSaveSuccess] = useState<Record<string, boolean>>({});
+  const [editableValues, setEditableValues] = useState<Record<string, any>>({});
   
-  const updateQuantity = async (analysisItemId: string, quantity: number) => {
+  // Initialize editable values from the analysis products
+  useEffect(() => {
+    const initialValues: Record<string, any> = {};
+    analysisProducts.forEach(item => {
+      initialValues[`quantity_${item.id}`] = item.quantity_selected || '';
+      initialValues[`last_order_${item.id}`] = item.last_order_info || '';
+      initialValues[`lab_status_${item.id}`] = item.lab_status_text || '';
+      initialValues[`last_order_date_${item.id}`] = item.last_order_date || null;
+    });
+    setEditableValues(initialValues);
+  }, [analysisProducts]);
+  
+  const handleInputChange = (key: string, value: any) => {
+    setEditableValues(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+  
+  const updateQuantity = async (analysisItemId: string) => {
+    const quantityKey = `quantity_${analysisItemId}`;
+    const quantityValue = editableValues[quantityKey];
+    
+    if (quantityValue === '') return;
+    
     setIsUpdating(prev => ({ ...prev, [analysisItemId]: true }));
     setSaveSuccess(prev => ({ ...prev, [analysisItemId]: false }));
     
     try {
       const { error } = await supabase
         .from('analysis_items')
-        .update({ quantity_selected: quantity })
+        .update({ quantity_selected: parseInt(quantityValue) })
         .eq('id', analysisItemId);
       
       if (error) {
@@ -71,14 +96,17 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     }
   };
   
-  const updateLastOrderInfo = async (analysisItemId: string, lastOrderInfo: string) => {
-    setIsUpdating(prev => ({ ...prev, [`last_order_${analysisItemId}`]: true }));
-    setSaveSuccess(prev => ({ ...prev, [`last_order_${analysisItemId}`]: false }));
+  const updateLastOrderInfo = async (analysisItemId: string) => {
+    const infoKey = `last_order_${analysisItemId}`;
+    const infoValue = editableValues[infoKey];
+    
+    setIsUpdating(prev => ({ ...prev, [infoKey]: true }));
+    setSaveSuccess(prev => ({ ...prev, [infoKey]: false }));
     
     try {
       const { error } = await supabase
         .from('analysis_items')
-        .update({ last_order_info: lastOrderInfo })
+        .update({ last_order_info: infoValue })
         .eq('id', analysisItemId);
       
       if (error) {
@@ -90,10 +118,10 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
         description: "Les informations de dernière commande ont été mises à jour avec succès."
       });
       
-      setSaveSuccess(prev => ({ ...prev, [`last_order_${analysisItemId}`]: true }));
+      setSaveSuccess(prev => ({ ...prev, [infoKey]: true }));
       
       setTimeout(() => {
-        setSaveSuccess(prev => ({ ...prev, [`last_order_${analysisItemId}`]: false }));
+        setSaveSuccess(prev => ({ ...prev, [infoKey]: false }));
       }, 3000);
       
       refetchAnalysis();
@@ -105,18 +133,63 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
         variant: "destructive"
       });
     } finally {
-      setIsUpdating(prev => ({ ...prev, [`last_order_${analysisItemId}`]: false }));
+      setIsUpdating(prev => ({ ...prev, [infoKey]: false }));
     }
   };
   
-  const updateLabStatusText = async (analysisItemId: string, labStatusText: string) => {
-    setIsUpdating(prev => ({ ...prev, [`lab_status_${analysisItemId}`]: true }));
-    setSaveSuccess(prev => ({ ...prev, [`lab_status_${analysisItemId}`]: false }));
+  const updateLastOrderDate = async (analysisItemId: string, date: Date | null) => {
+    const dateKey = `last_order_date_${analysisItemId}`;
+    
+    setIsUpdating(prev => ({ ...prev, [dateKey]: true }));
+    setSaveSuccess(prev => ({ ...prev, [dateKey]: false }));
     
     try {
       const { error } = await supabase
         .from('analysis_items')
-        .update({ lab_status_text: labStatusText })
+        .update({ last_order_date: date ? date.toISOString() : null })
+        .eq('id', analysisItemId);
+      
+      if (error) {
+        throw error;
+      }
+      
+      handleInputChange(dateKey, date);
+      
+      toast({
+        title: "Date de dernière commande mise à jour",
+        description: "La date de dernière commande a été mise à jour avec succès."
+      });
+      
+      setSaveSuccess(prev => ({ ...prev, [dateKey]: true }));
+      
+      setTimeout(() => {
+        setSaveSuccess(prev => ({ ...prev, [dateKey]: false }));
+      }, 3000);
+      
+      refetchAnalysis();
+    } catch (error) {
+      console.error('Error updating last order date:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour la date de dernière commande.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUpdating(prev => ({ ...prev, [dateKey]: false }));
+    }
+  };
+  
+  const updateLabStatusText = async (analysisItemId: string) => {
+    const statusKey = `lab_status_${analysisItemId}`;
+    const statusValue = editableValues[statusKey];
+    
+    setIsUpdating(prev => ({ ...prev, [statusKey]: true }));
+    setSaveSuccess(prev => ({ ...prev, [statusKey]: false }));
+    
+    try {
+      const { error } = await supabase
+        .from('analysis_items')
+        .update({ lab_status_text: statusValue })
         .eq('id', analysisItemId);
       
       if (error) {
@@ -128,10 +201,10 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
         description: "L'étiquette labo a été mise à jour avec succès."
       });
       
-      setSaveSuccess(prev => ({ ...prev, [`lab_status_${analysisItemId}`]: true }));
+      setSaveSuccess(prev => ({ ...prev, [statusKey]: true }));
       
       setTimeout(() => {
-        setSaveSuccess(prev => ({ ...prev, [`lab_status_${analysisItemId}`]: false }));
+        setSaveSuccess(prev => ({ ...prev, [statusKey]: false }));
       }, 3000);
       
       refetchAnalysis();
@@ -143,7 +216,7 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
         variant: "destructive"
       });
     } finally {
-      setIsUpdating(prev => ({ ...prev, [`lab_status_${analysisItemId}`]: false }));
+      setIsUpdating(prev => ({ ...prev, [statusKey]: false }));
     }
   };
   
@@ -248,12 +321,13 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     }
   };
 
-  const labStatusOptions = [
-    { value: 'pending', label: 'En attente' },
-    { value: 'in_progress', label: 'En cours' },
-    { value: 'completed', label: 'Terminé' },
-    { value: 'cancelled', label: 'Annulé' }
-  ];
+  // Handle the "Enter" key for form inputs
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, saveFunction: () => void) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveFunction();
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -279,7 +353,8 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
               <TableHead className="text-xs font-medium text-gray-400 text-center">Stock</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center">Seuil</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center">Quantité sélectionnée</TableHead>
-              <TableHead className="text-xs font-medium text-gray-400 text-center">Dernière commande</TableHead>
+              <TableHead className="text-xs font-medium text-gray-400 text-center">Qt dernière commande</TableHead>
+              <TableHead className="text-xs font-medium text-gray-400 text-center">Date de dernière commande</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center">Étiquette labo</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center">Date livraison est.</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center w-[10%]">Actions</TableHead>
@@ -289,14 +364,14 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
             {isLoading ? (
               Array.from({ length: 3 }).map((_, index) => (
                 <TableRow key={`loading-${index}`}>
-                  <TableCell colSpan={8} className="h-16">
+                  <TableCell colSpan={9} className="h-16">
                     <div className="w-full h-full animate-pulse bg-[#161616]/50" />
                   </TableCell>
                 </TableRow>
               ))
             ) : analysisProducts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-32 text-center">
+                <TableCell colSpan={9} className="h-32 text-center">
                   <div className="flex flex-col items-center justify-center">
                     <AlertCircle className="h-8 w-8 text-gray-400 mb-2" />
                     <p className="text-gray-400">Aucun produit en analyse</p>
@@ -333,13 +408,10 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                       <Input
                         type="number"
                         className="w-32 bg-[#121212] border-[#272727] text-center"
-                        value={item.quantity_selected || ''}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value);
-                          if (!isNaN(value)) {
-                            updateQuantity(item.id, value);
-                          }
-                        }}
+                        value={editableValues[`quantity_${item.id}`] || ''}
+                        onChange={(e) => handleInputChange(`quantity_${item.id}`, e.target.value)}
+                        onBlur={() => updateQuantity(item.id)}
+                        onKeyDown={(e) => handleKeyDown(e, () => updateQuantity(item.id))}
                         step="1000"
                         min="0"
                         disabled={isUpdating[item.id]}
@@ -353,9 +425,11 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                     <div className="flex items-center justify-center space-x-2">
                       <Input
                         className="w-32 bg-[#121212] border-[#272727] text-center"
-                        value={item.last_order_info || ''}
-                        onChange={(e) => updateLastOrderInfo(item.id, e.target.value)}
-                        placeholder="Info dernière commande"
+                        value={editableValues[`last_order_${item.id}`] || ''}
+                        onChange={(e) => handleInputChange(`last_order_${item.id}`, e.target.value)}
+                        onBlur={() => updateLastOrderInfo(item.id)}
+                        onKeyDown={(e) => handleKeyDown(e, () => updateLastOrderInfo(item.id))}
+                        placeholder="Qt dernière commande"
                         disabled={isUpdating[`last_order_${item.id}`]}
                       />
                       {isUpdating[`last_order_${item.id}`] && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
@@ -365,10 +439,43 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                   
                   <TableCell className="text-center">
                     <div className="flex items-center justify-center space-x-2">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full max-w-[120px] mx-auto bg-[#121212] border-[#272727] h-10 justify-between"
+                            disabled={isUpdating[`last_order_date_${item.id}`]}
+                          >
+                            {editableValues[`last_order_date_${item.id}`] ? (
+                              format(new Date(editableValues[`last_order_date_${item.id}`]), 'P', { locale: fr })
+                            ) : (
+                              <span className="text-gray-500">Date</span>
+                            )}
+                            <CalendarIcon className="ml-2 h-4 w-4" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="bg-[#161616] border-[#272727] p-0">
+                          <Calendar
+                            mode="single"
+                            selected={editableValues[`last_order_date_${item.id}`] ? new Date(editableValues[`last_order_date_${item.id}`]) : undefined}
+                            onSelect={(date) => updateLastOrderDate(item.id, date)}
+                            className="bg-[#161616] pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      {isUpdating[`last_order_date_${item.id}`] && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
+                      {saveSuccess[`last_order_date_${item.id}`] && <Check className="w-4 h-4 text-green-500" />}
+                    </div>
+                  </TableCell>
+                  
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center space-x-2">
                       <Input
                         className="w-32 bg-[#121212] border-[#272727] text-center"
-                        value={item.lab_status_text || ''}
-                        onChange={(e) => updateLabStatusText(item.id, e.target.value)}
+                        value={editableValues[`lab_status_${item.id}`] || ''}
+                        onChange={(e) => handleInputChange(`lab_status_${item.id}`, e.target.value)}
+                        onBlur={() => updateLabStatusText(item.id)}
+                        onKeyDown={(e) => handleKeyDown(e, () => updateLabStatusText(item.id))}
                         placeholder="Étiquette labo"
                         disabled={isUpdating[`lab_status_${item.id}`]}
                       />
