@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Calendar as CalendarIcon, AlertCircle, RefreshCw, Trash2, Check, Loader2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
+import { format, differenceInWeeks } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -31,6 +31,17 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
   const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
   const [saveSuccess, setSaveSuccess] = useState<Record<string, boolean>>({});
   const [editableValues, setEditableValues] = useState<Record<string, any>>({});
+  
+  // Calculate weeks since a date
+  const getWeeksSince = (dateString: string | null): string => {
+    if (!dateString) return "-";
+    
+    const date = new Date(dateString);
+    const now = new Date();
+    const weeks = differenceInWeeks(now, date);
+    
+    return `${weeks} semaine${weeks !== 1 ? 's' : ''}`;
+  };
   
   // Initialize editable values from the analysis products
   useEffect(() => {
@@ -413,7 +424,7 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                   </TableCell>
                   
                   <TableCell className="text-center">
-                    <div className="flex items-center justify-center space-x-2">
+                    <div className="flex flex-col items-center justify-center space-y-1">
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
@@ -438,6 +449,14 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                           />
                         </PopoverContent>
                       </Popover>
+                      
+                      {/* Display weeks since last order date */}
+                      {item.last_order_date && (
+                        <span className="text-xs text-gray-400">
+                          {getWeeksSince(item.last_order_date)}
+                        </span>
+                      )}
+                      
                       {isUpdating[`last_order_date_${item.id}`] && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
                       {saveSuccess[`last_order_date_${item.id}`] && <Check className="w-4 h-4 text-green-500" />}
                     </div>
