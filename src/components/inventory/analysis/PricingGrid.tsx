@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Table, 
@@ -46,6 +45,20 @@ const PricingGrid: React.FC = () => {
     
     setSimulationTotal(total);
   }, [calculatedPrices]);
+
+  // Get product SKUs that exist in analysisItems
+  const getAnalysisProductSKUs = () => {
+    // Filter products that have a corresponding analysis item
+    return products.filter(product => 
+      analysisItems.some(item => item.product_id === product.id)
+    ).map(product => ({
+      id: product.id,
+      SKU: product.SKU
+    }));
+  };
+
+  // Use the filtered SKUs
+  const analysisProductSKUs = getAnalysisProductSKUs();
 
   const formatPrice = (price: number | null): React.ReactNode => {
     if (price === null || price === 0) {
@@ -313,7 +326,7 @@ const PricingGrid: React.FC = () => {
                             {selectedSKUs[product.id] || "Sélectionner SKU"}
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="max-h-[200px] overflow-y-auto bg-[#161616] border-[#272727]">
-                            {productSKUs.map((skuItem) => (
+                            {analysisProductSKUs.map((skuItem) => (
                               <DropdownMenuItem 
                                 key={skuItem.SKU}
                                 onClick={() => handleSKUSelect(product.id, skuItem.SKU)}
