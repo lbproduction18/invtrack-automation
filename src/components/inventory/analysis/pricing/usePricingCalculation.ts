@@ -1,11 +1,14 @@
 
 import { useState, useEffect } from 'react';
 import { ProductPrice } from '@/hooks/useProductPrices';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 /**
  * Hook to handle pricing calculations for the pricing grid
  */
 export function usePricingCalculation(productPrices: ProductPrice[]) {
+  const { toast } = useToast();
   // Change from Record<string, string> to Record<string, string[]>
   const [selectedSKUs, setSelectedSKUs] = useState<Record<string, string[]>>({});
   // Change to store quantities per SKU
@@ -93,8 +96,38 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     });
   };
 
+  // Update the analysis_items table in Supabase with the quantity
+  const updateAnalysisItemQuantity = async (productId: string, quantity: number) => {
+    try {
+      const { error } = await supabase
+        .from('analysis_items')
+        .update({ quantity_selected: quantity })
+        .eq('product_id', productId);
+
+      if (error) {
+        console.error('Error updating quantity in Supabase:', error);
+        toast({
+          title: "Erreur de mise à jour",
+          description: "La quantité n'a pas pu être sauvegardée. Veuillez réessayer.",
+          variant: "destructive"
+        });
+        return false;
+      }
+      
+      return true;
+    } catch (err) {
+      console.error('Exception when updating quantity:', err);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour de la quantité.",
+        variant: "destructive"
+      });
+      return false;
+    }
+  };
+
   // Update quantity for a specific SKU of a product
-  const handleQuantityChange = (productId: string, sku: string, quantityValue: string) => {
+  const handleQuantityChange = async (productId: string, sku: string, quantityValue: string) => {
     setQuantities(prev => {
       const productQuantities = prev[productId] || {};
       
@@ -108,6 +141,12 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     });
     
     calculateTotalPrice(productId, sku, quantityValue);
+    
+    // Update quantity in Supabase
+    const quantity = parseInt(quantityValue, 10);
+    if (!isNaN(quantity) && quantity > 0) {
+      await updateAnalysisItemQuantity(productId, quantity);
+    }
   };
 
   // Calculate the total price for a specific SKU based on the selected quantity

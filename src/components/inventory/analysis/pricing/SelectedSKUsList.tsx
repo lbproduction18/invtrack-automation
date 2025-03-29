@@ -24,7 +24,7 @@ const SelectedSKUsList: React.FC<SelectedSKUsListProps> = ({
   onRemoveSKU = () => {},
   hasOnlyPrice8000 = false
 }) => {
-  if (skus.length === 0) return null;
+  if (!skus || skus.length === 0) return null;
 
   return (
     <div className="mt-2 space-y-2 pl-4">

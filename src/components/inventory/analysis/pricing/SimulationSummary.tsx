@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -12,6 +12,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AnalysisItem } from '@/hooks/useAnalysisItems';
 import { formatTotalPrice } from './PriceFormatter';
 import { Product } from '@/types/product';
+import { supabase } from '@/integrations/supabase/client';
+import { Loader2 } from 'lucide-react';
 
 interface SimulationSummaryProps {
   analysisItems: AnalysisItem[];
@@ -24,9 +26,38 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
   products,
   simulationTotal
 }) => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [refreshedAnalysisItems, setRefreshedAnalysisItems] = useState<AnalysisItem[]>(analysisItems);
+
+  // Fetch the latest data from the analysis_items table to ensure we have the most up-to-date quantities
+  const refreshAnalysisItems = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('analysis_items')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (error) {
+        console.error('Error fetching updated analysis items:', error);
+      } else if (data) {
+        setRefreshedAnalysisItems(data);
+      }
+    } catch (err) {
+      console.error('Exception when fetching analysis items:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Refresh data when the component mounts or when switching to this tab
+  useEffect(() => {
+    refreshAnalysisItems();
+  }, []);
+
   // Helper function to find corresponding analysis item for a product
   const findAnalysisItem = (productId: string): AnalysisItem | undefined => {
-    return analysisItems.find(item => item.product_id === productId);
+    return refreshedAnalysisItems.find(item => item.product_id === productId);
   };
 
   // Get the quantity for a specific SKU/product from the analysis_items table
@@ -74,8 +105,9 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
 
   return (
     <div className="mt-4 rounded-md border border-[#272727] overflow-hidden">
-      <div className="p-4 bg-[#161616]">
+      <div className="p-4 bg-[#161616] flex justify-between items-center">
         <h3 className="text-lg font-medium">Résumé de la simulation</h3>
+        {loading && <Loader2 className="h-4 w-4 animate-spin ml-2" />}
       </div>
       
       <ScrollArea className="h-[250px]">
@@ -89,7 +121,7 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
           </TableHeader>
           
           <TableBody>
-            {analysisItems.length === 0 ? (
+            {refreshedAnalysisItems.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={3} className="h-24 text-center text-gray-500">
                   Aucun produit trouvé dans la base de données
@@ -100,7 +132,7 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
               products
                 .filter(product => {
                   // Filter products that have corresponding analysis items
-                  return analysisItems.some(item => item.product_id === product.id);
+                  return refreshedAnalysisItems.some(item => item.product_id === product.id);
                 })
                 .map(product => {
                   const quantity = getQuantityFromDatabase(product.id);

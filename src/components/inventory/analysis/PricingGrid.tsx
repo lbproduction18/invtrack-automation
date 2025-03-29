@@ -20,7 +20,7 @@ import { formatTotalPrice } from './pricing/PriceFormatter';
 
 const PricingGrid: React.FC = () => {
   const { productPrices, isLoading: isPricesLoading } = useProductPrices();
-  const { analysisItems, isLoading: isAnalysisLoading } = useAnalysisItems();
+  const { analysisItems, isLoading: isAnalysisLoading, refetch: refetchAnalysisItems } = useAnalysisItems();
   const { products, isLoading: isProductsLoading } = useProducts('analysis');
   const [activeTab, setActiveTab] = useState<string>('pricing');
   
@@ -43,6 +43,13 @@ const PricingGrid: React.FC = () => {
   } = usePricingCalculation(productPrices);
   
   const isLoading = isPricesLoading || isAnalysisLoading || isProductsLoading;
+
+  // Refetch analysis items when switching to the simulation tab to ensure latest data
+  useEffect(() => {
+    if (activeTab === 'simulation') {
+      refetchAnalysisItems();
+    }
+  }, [activeTab, refetchAnalysisItems]);
 
   return (
     <Card className="border border-[#272727] bg-[#131313]">
