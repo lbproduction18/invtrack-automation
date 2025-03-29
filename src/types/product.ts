@@ -1,4 +1,3 @@
-
 // This is the type used in the frontend UI
 export type PriorityLevel = 'standard' | 'moyen' | 'prioritaire' | 'important';
 
@@ -29,7 +28,7 @@ export interface Product {
   // weeks_delivery a été supprimé d'ici car il est maintenant dans la table analysis_items
 }
 
-// Define type for SKU selection
+// Add the SelectedSKU type for the simulation
 export interface SelectedSKU {
   productId: string;
   SKU: string;

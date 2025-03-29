@@ -2,227 +2,81 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+  TableBody 
 } from "@/components/ui/table";
 import { useProductPrices } from '@/hooks/useProductPrices';
-import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { useProducts } from '@/hooks/useProducts';
+import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+import SimulationTable from './simulation/SimulationTable';
+import { useSimulationState } from '@/hooks/useSimulationState';
+import { useSimulationSKUs } from '@/hooks/useSimulationSKUs';
+import TotalSummary from './simulation/TotalSummary';
+import { type QuantityOption } from '../AnalysisContent';
 
 const PricingGrid: React.FC = () => {
   const { productPrices, isLoading } = useProductPrices();
   const { analysisItems } = useAnalysisItems();
   const { products } = useProducts('all');
-  const [selectedSKUs, setSelectedSKUs] = useState<Record<string, string>>({});
-  const [quantities, setQuantities] = useState<Record<string, string>>({});
-  const [calculatedPrices, setCalculatedPrices] = useState<Record<string, number | string>>({});
-  const [simulationTotal, setSimulationTotal] = useState<number>(0);
+  
+  // Group analysis products by product name
+  const [groupedAnalysisProducts, setGroupedAnalysisProducts] = useState<Record<string, Array<{ id: string, SKU: string, productName: string | null }>>>({});
+  
+  // Use the simulation state and SKU management hooks
+  const {
+    simulationTotal,
+    selectedSKUs,
+    setSelectedSKUs,
+    calculateSKUTotal,
+    calculateOrderTotal
+  } = useSimulationState();
+  
+  const {
+    quantityOptions,
+    handleAddSKU,
+    handleRemoveSKU,
+    handleQuantityChange
+  } = useSimulationSKUs(
+    selectedSKUs,
+    setSelectedSKUs,
+    productPrices
+  );
 
-  // Standard quantities that match price columns
-  const standardQuantities = [1000, 2000, 3000, 4000, 5000, 8000];
-
-  // Calculate the total simulation amount whenever calculatedPrices change
+  // Prepare product data on component mount
   useEffect(() => {
-    let total = 0;
+    // Get all products in analysis
+    const analysisProductIds = analysisItems.map(item => item.product_id);
     
-    // Sum up all the numeric values in calculatedPrices
-    Object.values(calculatedPrices).forEach(price => {
-      if (typeof price === 'number') {
-        total += price;
+    // Get the corresponding product details
+    const analysisProducts = products.filter(product => analysisProductIds.includes(product.id));
+    
+    console.log('Analysis products:', analysisProducts);
+    
+    // Group products by category (extract from SKU)
+    const grouped: Record<string, Array<{ id: string, SKU: string, productName: string | null }>> = {};
+    
+    analysisProducts.forEach(product => {
+      // Extract product category from SKU
+      const skuParts = product.SKU.split('-');
+      const productCategory = skuParts[0];
+      
+      if (!grouped[productCategory]) {
+        grouped[productCategory] = [];
       }
+      
+      grouped[productCategory].push({
+        id: product.id,
+        SKU: product.SKU,
+        productName: product.product_name
+      });
     });
     
-    setSimulationTotal(total);
-  }, [calculatedPrices]);
+    console.log('Grouped analysis products:', grouped);
+    setGroupedAnalysisProducts(grouped);
+  }, [analysisItems, products]);
 
-  const formatPrice = (price: number | null): React.ReactNode => {
-    if (price === null || price === 0) {
-      return <span className="text-gray-500">–</span>;
-    }
-    return `$${price.toFixed(2)}`;
-  };
-
-  const formatTotalPrice = (price: number): string => {
-    return `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
-  const handleSKUSelect = (productId: string, sku: string) => {
-    setSelectedSKUs(prev => ({
-      ...prev,
-      [productId]: sku
-    }));
-    
-    // Recalculate price if quantity already exists
-    if (quantities[productId]) {
-      calculateTotalPrice(productId, quantities[productId]);
-    }
-  };
-
-  const handleQuantityChange = (productId: string, quantityValue: string) => {
-    setQuantities(prev => ({
-      ...prev,
-      [productId]: quantityValue
-    }));
-    
-    calculateTotalPrice(productId, quantityValue);
-  };
-
-  const calculateTotalPrice = (productId: string, quantityValue: string) => {
-    const quantity = parseInt(quantityValue, 10);
-    const product = productPrices.find(p => p.id === productId);
-    
-    if (!product || isNaN(quantity) || quantity <= 0) {
-      setCalculatedPrices(prev => ({
-        ...prev,
-        [productId]: ""
-      }));
-      return;
-    }
-    
-    // Check if this product only has price_8000 defined (all other price tiers are NULL or 0)
-    const onlyHas8000 = 
-      (!product.price_1000 || product.price_1000 === 0) && 
-      (!product.price_2000 || product.price_2000 === 0) && 
-      (!product.price_3000 || product.price_3000 === 0) && 
-      (!product.price_4000 || product.price_4000 === 0) && 
-      (!product.price_5000 || product.price_5000 === 0) && 
-      (product.price_8000 && product.price_8000 > 0);
-    
-    // Special case: If product only has price_8000 defined and quantity is not 8000
-    if (onlyHas8000 && quantity !== 8000) {
-      setCalculatedPrices(prev => ({
-        ...prev,
-        [productId]: "Ce produit doit être commandé en quantité exacte de 8000 unités."
-      }));
-      return;
-    }
-    
-    // Determine the appropriate price tier based on the quantity
-    let tierPrice = 0;
-    let tierQuantity = 0;
-    
-    // Check if quantity exactly matches a tier
-    if (quantity === 1000 && product.price_1000) {
-      tierPrice = product.price_1000;
-      tierQuantity = 1000;
-    } else if (quantity === 2000 && product.price_2000) {
-      tierPrice = product.price_2000;
-      tierQuantity = 2000;
-    } else if (quantity === 3000 && product.price_3000) {
-      tierPrice = product.price_3000;
-      tierQuantity = 3000;
-    } else if (quantity === 4000 && product.price_4000) {
-      tierPrice = product.price_4000;
-      tierQuantity = 4000;
-    } else if (quantity === 5000 && product.price_5000) {
-      tierPrice = product.price_5000;
-      tierQuantity = 5000;
-    } else if (quantity === 8000 && product.price_8000) {
-      tierPrice = product.price_8000;
-      tierQuantity = 8000;
-    } else {
-      // Quantity doesn't match an exact tier, find the closest lower tier
-      
-      // Create an array of available tiers for this product
-      const availableTiers = [
-        { quantity: 1000, price: product.price_1000 || 0 },
-        { quantity: 2000, price: product.price_2000 || 0 },
-        { quantity: 3000, price: product.price_3000 || 0 },
-        { quantity: 4000, price: product.price_4000 || 0 },
-        { quantity: 5000, price: product.price_5000 || 0 },
-        { quantity: 8000, price: product.price_8000 || 0 }
-      ].filter(tier => tier.price > 0);
-      
-      // Sort tiers by quantity (ascending)
-      availableTiers.sort((a, b) => a.quantity - b.quantity);
-      
-      if (availableTiers.length === 0) {
-        // No price tiers defined for this product
-        setCalculatedPrices(prev => ({
-          ...prev,
-          [productId]: "Aucun prix défini pour ce produit"
-        }));
-        return;
-      }
-      
-      // Case: quantity is lower than the lowest tier
-      if (quantity < availableTiers[0].quantity) {
-        setCalculatedPrices(prev => ({
-          ...prev,
-          [productId]: `Quantité minimum: ${availableTiers[0].quantity} unités`
-        }));
-        return;
-      }
-      
-      // Case: quantity is higher than all available tiers
-      if (quantity > availableTiers[availableTiers.length - 1].quantity) {
-        // Use the highest tier
-        const highestTier = availableTiers[availableTiers.length - 1];
-        tierPrice = highestTier.price;
-        tierQuantity = highestTier.quantity;
-      } else {
-        // Find the closest lower tier
-        for (let i = availableTiers.length - 1; i >= 0; i--) {
-          if (availableTiers[i].quantity <= quantity) {
-            tierPrice = availableTiers[i].price;
-            tierQuantity = availableTiers[i].quantity;
-            break;
-          }
-        }
-      }
-    }
-    
-    // Calculate the total price based on the tier price and the requested quantity
-    if (tierPrice > 0) {
-      const totalPrice = quantity * tierPrice;
-      setCalculatedPrices(prev => ({
-        ...prev,
-        [productId]: totalPrice
-      }));
-    } else {
-      setCalculatedPrices(prev => ({
-        ...prev,
-        [productId]: "Prix non disponible pour cette quantité"
-      }));
-    }
-  };
-
-  // Get the quantity for a specific SKU
-  const getQuantityForSKU = (sku: string): string => {
-    // Find the product ID that has this SKU selected
-    const productId = Object.entries(selectedSKUs).find(([_, selectedSKU]) => selectedSKU === sku)?.[0];
-    
-    if (productId && quantities[productId]) {
-      return quantities[productId];
-    }
-    
-    return '';
-  };
-  
-  // Get the calculated price for a specific SKU
-  const getPriceForSKU = (sku: string): number | string => {
-    // Find the product ID that has this SKU selected
-    const productId = Object.entries(selectedSKUs).find(([_, selectedSKU]) => selectedSKU === sku)?.[0];
-    
-    if (productId && typeof calculatedPrices[productId] === 'number') {
-      return calculatedPrices[productId] as number;
-    }
-    
-    return '';
-  };
-
+  // If loading, show loading state
   if (isLoading) {
     return (
       <div className="flex justify-center items-center p-8">
@@ -232,200 +86,27 @@ const PricingGrid: React.FC = () => {
     );
   }
 
-  const sortedProducts = [...productPrices].sort((a, b) => {
-    const aOnlyHas8000 = 
-      (!a.price_1000 || a.price_1000 === 0) && 
-      (!a.price_2000 || a.price_2000 === 0) && 
-      (!a.price_3000 || a.price_3000 === 0) && 
-      (!a.price_4000 || a.price_4000 === 0) && 
-      (!a.price_5000 || a.price_5000 === 0) && 
-      (a.price_8000 && a.price_8000 > 0);
-      
-    const bOnlyHas8000 = 
-      (!b.price_1000 || b.price_1000 === 0) && 
-      (!b.price_2000 || b.price_2000 === 0) && 
-      (!b.price_3000 || b.price_3000 === 0) && 
-      (!b.price_4000 || b.price_4000 === 0) && 
-      (!b.price_5000 || b.price_5000 === 0) && 
-      (b.price_8000 && b.price_8000 > 0);
-    
-    if (aOnlyHas8000 && !bOnlyHas8000) return 1;
-    if (!aOnlyHas8000 && bOnlyHas8000) return -1;
-    return a.product_name.localeCompare(b.product_name);
-  });
-
-  // Get all product SKUs
-  const productSKUs = products.map(product => ({
-    id: product.id,
-    SKU: product.SKU
-  }));
-
   return (
     <div className="space-y-4">
       <div className="rounded-md border border-[#272727] overflow-hidden">
-        <ScrollArea className="h-[400px]">
-          <Table>
-            <TableHeader className="bg-[#161616] sticky top-0 z-10">
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="text-left w-[20%]">Produit</TableHead>
-                <TableHead className="text-center">Prix 1000</TableHead>
-                <TableHead className="text-center">Prix 2000</TableHead>
-                <TableHead className="text-center">Prix 3000</TableHead>
-                <TableHead className="text-center">Prix 4000</TableHead>
-                <TableHead className="text-center">Prix 5000</TableHead>
-                <TableHead className="text-center">Prix 8000</TableHead>
-                <TableHead className="text-center">SKU</TableHead>
-                <TableHead className="text-center">Quantité</TableHead>
-                <TableHead className="text-center">Total (CAD)</TableHead>
-              </TableRow>
-            </TableHeader>
-            
-            <TableBody>
-              {sortedProducts.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={10} className="h-24 text-center text-gray-500">
-                    Aucun produit trouvé dans la base de données
-                  </TableCell>
-                </TableRow>
-              ) : (
-                sortedProducts.map(product => {
-                  // Check if this product only has price_8000 defined
-                  const onlyHas8000 = 
-                    (!product.price_1000 || product.price_1000 === 0) && 
-                    (!product.price_2000 || product.price_2000 === 0) && 
-                    (!product.price_3000 || product.price_3000 === 0) && 
-                    (!product.price_4000 || product.price_4000 === 0) && 
-                    (!product.price_5000 || product.price_5000 === 0) && 
-                    (product.price_8000 && product.price_8000 > 0);
-                  
-                  return (
-                    <TableRow key={product.id} className="hover:bg-[#161616] border-t border-[#272727]">
-                      <TableCell className="font-medium">{product.product_name}</TableCell>
-                      <TableCell className="text-center">{formatPrice(product.price_1000)}</TableCell>
-                      <TableCell className="text-center">{formatPrice(product.price_2000)}</TableCell>
-                      <TableCell className="text-center">{formatPrice(product.price_3000)}</TableCell>
-                      <TableCell className="text-center">{formatPrice(product.price_4000)}</TableCell>
-                      <TableCell className="text-center">{formatPrice(product.price_5000)}</TableCell>
-                      <TableCell className="text-center">{formatPrice(product.price_8000)}</TableCell>
-                      <TableCell className="text-center">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger className="w-full px-3 py-1 text-sm border border-input rounded-md bg-[#161616] hover:bg-[#272727]">
-                            {selectedSKUs[product.id] || "Sélectionner SKU"}
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent className="max-h-[200px] overflow-y-auto bg-[#161616] border-[#272727]">
-                            {productSKUs.map((skuItem) => (
-                              <DropdownMenuItem 
-                                key={skuItem.SKU}
-                                onClick={() => handleSKUSelect(product.id, skuItem.SKU)}
-                                className="cursor-pointer hover:bg-[#272727]"
-                              >
-                                {skuItem.SKU}
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Input
-                          type="number"
-                          placeholder="Quantité"
-                          value={quantities[product.id] || ''}
-                          onChange={(e) => handleQuantityChange(product.id, e.target.value)}
-                          className="w-24 h-8 mx-auto bg-[#161616] border-[#272727] text-center"
-                          min="1"
-                          // If product only has price_8000, restrict to exactly 8000
-                          {...(onlyHas8000 ? { 
-                            value: '8000', 
-                            readOnly: true,
-                            className: "w-24 h-8 mx-auto bg-[#232323] border-[#272727] text-center" 
-                          } : {})}
-                        />
-                      </TableCell>
-                      <TableCell className="text-center font-medium">
-                        {typeof calculatedPrices[product.id] === 'number' ? 
-                          formatTotalPrice(calculatedPrices[product.id] as number) : 
-                          calculatedPrices[product.id] ? 
-                            <span className="text-yellow-500 text-xs">{calculatedPrices[product.id]}</span> : 
-                            <span className="text-gray-500">–</span>}
-                      </TableCell>
-                    </TableRow>
-                  )
-                })
-              )}
-            </TableBody>
-          </Table>
+        <ScrollArea className="h-[600px]">
+          <SimulationTable
+            productPrices={productPrices}
+            isLoading={isLoading}
+            quantityOptions={quantityOptions}
+            selectedSKUs={selectedSKUs}
+            groupedAnalysisProducts={groupedAnalysisProducts}
+            simulationTotal={simulationTotal}
+            onAddSKU={handleAddSKU}
+            onQuantityChange={handleQuantityChange}
+            onRemoveSKU={handleRemoveSKU}
+            calculateSKUTotal={calculateSKUTotal}
+          />
         </ScrollArea>
       </div>
       
-      {/* Persistent Summary Section */}
-      <div className="mt-4 p-4 rounded-md border border-[#272727] bg-[#161616] flex justify-between items-center">
-        <h3 className="text-lg font-medium">Total de la simulation</h3>
-        <div className="text-xl font-bold text-primary">
-          {formatTotalPrice(simulationTotal)}
-        </div>
-      </div>
-      
-      {/* New Resume Section */}
-      <div className="mt-4 rounded-md border border-[#272727] overflow-hidden">
-        <div className="p-4 bg-[#161616]">
-          <h3 className="text-lg font-medium">Résumé de la simulation</h3>
-        </div>
-        
-        <ScrollArea className="h-[250px]">
-          <Table>
-            <TableHeader className="bg-[#161616] sticky top-0 z-10">
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="text-left">SKU</TableHead>
-                <TableHead className="text-center">Quantité choisie</TableHead>
-                <TableHead className="text-right">Total (CAD)</TableHead>
-              </TableRow>
-            </TableHeader>
-            
-            <TableBody>
-              {analysisItems.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={3} className="h-24 text-center text-gray-500">
-                    Aucun produit trouvé dans la base de données
-                  </TableCell>
-                </TableRow>
-              ) : (
-                // Map all analysis items to show their associated product details
-                products
-                  .filter(product => {
-                    // Filter products that have corresponding analysis items
-                    return analysisItems.some(item => item.product_id === product.id);
-                  })
-                  .map(product => {
-                    const quantity = getQuantityForSKU(product.SKU);
-                    const price = getPriceForSKU(product.SKU);
-                    
-                    return (
-                      <TableRow key={product.id} className="hover:bg-[#161616] border-t border-[#272727]">
-                        <TableCell className="font-medium">{product.SKU}</TableCell>
-                        <TableCell className="text-center">
-                          {quantity ? quantity : <span className="text-gray-500">–</span>}
-                        </TableCell>
-                        <TableCell className="text-right font-medium">
-                          {typeof price === 'number' ? 
-                            formatTotalPrice(price) : 
-                            <span className="text-gray-500">–</span>}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-              )}
-            </TableBody>
-          </Table>
-        </ScrollArea>
-        
-        {/* Total at the bottom of the resume section */}
-        <div className="p-4 border-t border-[#272727] bg-[#161616] flex justify-between items-center">
-          <h4 className="font-medium">Total de la simulation</h4>
-          <div className="font-bold text-primary">
-            {formatTotalPrice(simulationTotal)}
-          </div>
-        </div>
-      </div>
+      {/* Total Summary Section */}
+      <TotalSummary simulationTotal={simulationTotal} />
     </div>
   );
 };
