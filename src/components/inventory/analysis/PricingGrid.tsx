@@ -26,13 +26,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 
 const PricingGrid: React.FC = () => {
   const { productPrices, isLoading } = useProductPrices();
   const { analysisItems } = useAnalysisItems();
   const { products } = useProducts('all');
   const [selectedSKUs, setSelectedSKUs] = useState<Record<string, string>>({});
-  const [calculatedPrices, setCalculatedPrices] = useState<Record<string, number>>({});
+  const [quantities, setQuantities] = useState<Record<string, string>>({});
+  const [calculatedPrices, setCalculatedPrices] = useState<Record<string, number | string>>({});
+
+  // List of standard quantities that match price columns
+  const standardQuantities = [1000, 2000, 3000, 4000, 5000, 8000];
 
   const formatPrice = (price: number | null): React.ReactNode => {
     if (price === null || price === 0) {
@@ -50,14 +55,76 @@ const PricingGrid: React.FC = () => {
       ...prev,
       [productId]: sku
     }));
+    
+    // Recalculate price if quantity already exists
+    if (quantities[productId]) {
+      calculateTotalPrice(productId, quantities[productId]);
+    }
+  };
 
-    // Find the product price for calculation
+  const handleQuantityChange = (productId: string, quantityValue: string) => {
+    setQuantities(prev => ({
+      ...prev,
+      [productId]: quantityValue
+    }));
+    
+    calculateTotalPrice(productId, quantityValue);
+  };
+
+  const calculateTotalPrice = (productId: string, quantityValue: string) => {
+    const quantity = parseInt(quantityValue, 10);
     const product = productPrices.find(p => p.id === productId);
-    if (product && product.price_1000) {
-      const totalPrice = 1000 * product.price_1000;
+    
+    if (!product || isNaN(quantity) || quantity <= 0) {
+      setCalculatedPrices(prev => ({
+        ...prev,
+        [productId]: ""
+      }));
+      return;
+    }
+    
+    // Check if the quantity matches one of our standard price brackets
+    if (quantity === 1000 && product.price_1000) {
+      const totalPrice = quantity * product.price_1000;
       setCalculatedPrices(prev => ({
         ...prev,
         [productId]: totalPrice
+      }));
+    } else if (quantity === 2000 && product.price_2000) {
+      const totalPrice = quantity * product.price_2000;
+      setCalculatedPrices(prev => ({
+        ...prev,
+        [productId]: totalPrice
+      }));
+    } else if (quantity === 3000 && product.price_3000) {
+      const totalPrice = quantity * product.price_3000;
+      setCalculatedPrices(prev => ({
+        ...prev,
+        [productId]: totalPrice
+      }));
+    } else if (quantity === 4000 && product.price_4000) {
+      const totalPrice = quantity * product.price_4000;
+      setCalculatedPrices(prev => ({
+        ...prev,
+        [productId]: totalPrice
+      }));
+    } else if (quantity === 5000 && product.price_5000) {
+      const totalPrice = quantity * product.price_5000;
+      setCalculatedPrices(prev => ({
+        ...prev,
+        [productId]: totalPrice
+      }));
+    } else if (quantity === 8000 && product.price_8000) {
+      const totalPrice = quantity * product.price_8000;
+      setCalculatedPrices(prev => ({
+        ...prev,
+        [productId]: totalPrice
+      }));
+    } else {
+      // If quantity does not match any standard price bracket
+      setCalculatedPrices(prev => ({
+        ...prev,
+        [productId]: "Sélectionne une quantité standard (1000, 2000, 3000, etc.)"
       }));
     }
   };
@@ -113,14 +180,15 @@ const PricingGrid: React.FC = () => {
               <TableHead className="text-center">Prix 5000</TableHead>
               <TableHead className="text-center">Prix 8000</TableHead>
               <TableHead className="text-center">SKU</TableHead>
-              <TableHead className="text-center">Total (1000 unités)</TableHead>
+              <TableHead className="text-center">Quantité</TableHead>
+              <TableHead className="text-center">Total (CAD)</TableHead>
             </TableRow>
           </TableHeader>
           
           <TableBody>
             {sortedProducts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="h-24 text-center text-gray-500">
+                <TableCell colSpan={10} className="h-24 text-center text-gray-500">
                   Aucun produit trouvé dans la base de données
                 </TableCell>
               </TableRow>
@@ -152,10 +220,22 @@ const PricingGrid: React.FC = () => {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
+                  <TableCell className="text-center">
+                    <Input
+                      type="number"
+                      placeholder="Quantité"
+                      value={quantities[product.id] || ''}
+                      onChange={(e) => handleQuantityChange(product.id, e.target.value)}
+                      className="w-24 h-8 mx-auto bg-[#161616] border-[#272727] text-center"
+                      min="1"
+                    />
+                  </TableCell>
                   <TableCell className="text-center font-medium">
-                    {calculatedPrices[product.id] ? 
-                      formatTotalPrice(calculatedPrices[product.id]) : 
-                      <span className="text-gray-500">–</span>}
+                    {typeof calculatedPrices[product.id] === 'number' ? 
+                      formatTotalPrice(calculatedPrices[product.id] as number) : 
+                      calculatedPrices[product.id] ? 
+                        <span className="text-yellow-500 text-xs">{calculatedPrices[product.id]}</span> : 
+                        <span className="text-gray-500">–</span>}
                   </TableCell>
                 </TableRow>
               ))
