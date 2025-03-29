@@ -5,6 +5,7 @@ import { useProducts } from '@/hooks/useProducts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AnalysisProductsGrid from './analysis/AnalysisProductsGrid';
 import BudgetSimulation from './analysis/BudgetSimulation';
+import PricingGrid from './analysis/PricingGrid';
 
 // Define QuantityOption type consistently in this file
 export type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000 | 8000;
@@ -67,12 +68,17 @@ export const AnalysisContent: React.FC = () => {
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="products" className="mt-0">
+        <TabsContent value="products" className="mt-0 space-y-8">
           <AnalysisProductsGrid 
             analysisProducts={analysisProducts} 
             isLoading={isLoading}
             refetchAnalysis={refetchAnalysis}
           />
+          
+          <div>
+            <h2 className="text-lg font-medium mb-4">Grille tarifaire</h2>
+            <PricingGrid />
+          </div>
         </TabsContent>
         
         <TabsContent value="simulation" className="mt-0">
