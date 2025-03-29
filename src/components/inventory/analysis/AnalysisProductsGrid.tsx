@@ -47,7 +47,6 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
   useEffect(() => {
     const initialValues: Record<string, any> = {};
     analysisProducts.forEach(item => {
-      initialValues[`quantity_${item.id}`] = item.quantity_selected || '';
       initialValues[`last_order_${item.id}`] = item.last_order_info || '';
       initialValues[`lab_status_${item.id}`] = item.lab_status_text || '';
       initialValues[`last_order_date_${item.id}`] = item.last_order_date || null;
@@ -61,49 +60,6 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
       ...prev,
       [key]: value
     }));
-  };
-  
-  const updateQuantity = async (analysisItemId: string) => {
-    const quantityKey = `quantity_${analysisItemId}`;
-    const quantityValue = editableValues[quantityKey];
-    
-    if (quantityValue === '') return;
-    
-    setIsUpdating(prev => ({ ...prev, [analysisItemId]: true }));
-    setSaveSuccess(prev => ({ ...prev, [analysisItemId]: false }));
-    
-    try {
-      const { error } = await supabase
-        .from('analysis_items')
-        .update({ quantity_selected: parseInt(quantityValue) })
-        .eq('id', analysisItemId);
-      
-      if (error) {
-        throw error;
-      }
-      
-      toast({
-        title: "Quantité mise à jour",
-        description: "La quantité sélectionnée a été mise à jour avec succès."
-      });
-      
-      setSaveSuccess(prev => ({ ...prev, [analysisItemId]: true }));
-      
-      setTimeout(() => {
-        setSaveSuccess(prev => ({ ...prev, [analysisItemId]: false }));
-      }, 3000);
-      
-      refetchAnalysis();
-    } catch (error) {
-      console.error('Error updating quantity:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de mettre à jour la quantité sélectionnée.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsUpdating(prev => ({ ...prev, [analysisItemId]: false }));
-    }
   };
   
   const updateLastOrderInfo = async (analysisItemId: string) => {
@@ -338,7 +294,6 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
               <TableHead className="text-xs font-medium text-gray-400 w-[20%] text-left pl-4">SKU / Produit</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center">Stock</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center">Seuil</TableHead>
-              <TableHead className="text-xs font-medium text-gray-400 text-center">Quantité sélectionnée</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center">Qt dernière commande</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center">Date de dernière commande</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center">Étiquette labo</TableHead>
@@ -350,14 +305,14 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
             {isLoading ? (
               Array.from({ length: 3 }).map((_, index) => (
                 <TableRow key={`loading-${index}`}>
-                  <TableCell colSpan={9} className="h-16">
+                  <TableCell colSpan={8} className="h-16">
                     <div className="w-full h-full animate-pulse bg-[#161616]/50" />
                   </TableCell>
                 </TableRow>
               ))
             ) : analysisProducts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="h-32 text-center">
+                <TableCell colSpan={8} className="h-32 text-center">
                   <div className="flex flex-col items-center justify-center">
                     <AlertCircle className="h-8 w-8 text-gray-400 mb-2" />
                     <p className="text-gray-400">Aucun produit en analyse</p>
@@ -387,24 +342,6 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                   
                   <TableCell className="text-center text-gray-400">
                     {item.productDetails?.threshold}
-                  </TableCell>
-                  
-                  <TableCell className="text-center">
-                    <div className="flex items-center justify-center space-x-2">
-                      <Input
-                        type="number"
-                        className="w-32 bg-[#121212] border-[#272727] text-center"
-                        value={editableValues[`quantity_${item.id}`] || ''}
-                        onChange={(e) => handleInputChange(`quantity_${item.id}`, e.target.value)}
-                        onBlur={() => updateQuantity(item.id)}
-                        onKeyDown={(e) => handleKeyDown(e, () => updateQuantity(item.id))}
-                        step="1000"
-                        min="0"
-                        disabled={isUpdating[item.id]}
-                      />
-                      {isUpdating[item.id] && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
-                      {saveSuccess[item.id] && <Check className="w-4 h-4 text-green-500" />}
-                    </div>
                   </TableCell>
                   
                   <TableCell className="text-center">

@@ -17,17 +17,61 @@ interface SimulationSummaryProps {
   analysisItems: AnalysisItem[];
   products: Product[];
   simulationTotal: number;
-  getQuantityForSKU: (sku: string) => string;
-  getPriceForSKU: (sku: string) => number | string;
 }
 
 const SimulationSummary: React.FC<SimulationSummaryProps> = ({
   analysisItems,
   products,
-  simulationTotal,
-  getQuantityForSKU,
-  getPriceForSKU
+  simulationTotal
 }) => {
+  // Helper function to find corresponding analysis item for a product
+  const findAnalysisItem = (productId: string): AnalysisItem | undefined => {
+    return analysisItems.find(item => item.product_id === productId);
+  };
+
+  // Get the quantity for a specific SKU/product from the analysis_items table
+  const getQuantityFromDatabase = (productId: string): string => {
+    const analysisItem = findAnalysisItem(productId);
+    return analysisItem && analysisItem.quantity_selected 
+      ? analysisItem.quantity_selected.toString() 
+      : '';
+  };
+
+  // Calculate price based on quantity if available
+  const calculatePrice = (productId: string): number | string => {
+    const analysisItem = findAnalysisItem(productId);
+    if (!analysisItem || !analysisItem.quantity_selected) {
+      return '–';
+    }
+    
+    // Simple price calculation (would need proper calculation logic based on your pricing tiers)
+    // This is a placeholder - the actual calculation would depend on your price structure
+    const quantity = analysisItem.quantity_selected;
+    
+    // Find the product to get its price - assuming you have price info in the product data
+    const product = products.find(p => p.id === productId);
+    if (!product) return '–';
+    
+    // Use the relevant price tier based on quantity
+    let price = 0;
+    if (quantity <= 1000 && product.price_1000) {
+      price = product.price_1000 * quantity;
+    } else if (quantity <= 2000 && product.price_2000) {
+      price = product.price_2000 * quantity;
+    } else if (quantity <= 3000 && product.price_3000) {
+      price = product.price_3000 * quantity;
+    } else if (quantity <= 4000 && product.price_4000) {
+      price = product.price_4000 * quantity;
+    } else if (quantity <= 5000 && product.price_5000) {
+      price = product.price_5000 * quantity;
+    } else {
+      // Use price_1000 as fallback if no appropriate tier is found
+      price = (product.price_1000 || 0) * quantity;
+    }
+    
+    return price;
+  };
+
   return (
     <div className="mt-4 rounded-md border border-[#272727] overflow-hidden">
       <div className="p-4 bg-[#161616]">
@@ -59,8 +103,8 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
                   return analysisItems.some(item => item.product_id === product.id);
                 })
                 .map(product => {
-                  const quantity = getQuantityForSKU(product.SKU);
-                  const price = getPriceForSKU(product.SKU);
+                  const quantity = getQuantityFromDatabase(product.id);
+                  const price = calculatePrice(product.id);
                   
                   return (
                     <TableRow key={product.id} className="hover:bg-[#161616] border-t border-[#272727]">
