@@ -16,12 +16,14 @@ import { Loader2 } from 'lucide-react';
 interface PriceTableProps {
   productPrices: ProductPrice[];
   isLoading: boolean;
-  selectedSKUs: Record<string, string>;
-  quantities: Record<string, string>;
-  calculatedPrices: Record<string, number | string>;
+  selectedSKUs: Record<string, string[]>;
+  quantities: Record<string, Record<string, string>>;
+  calculatedPrices: Record<string, Record<string, number | string>>;
   analysisProductSKUs: Array<{ id: string, SKU: string }>;
   handleSKUSelect: (productId: string, sku: string) => void;
-  handleQuantityChange: (productId: string, quantityValue: string) => void;
+  handleSKURemove: (productId: string, sku: string) => void;
+  handleQuantityChange: (productId: string, sku: string, quantityValue: string) => void;
+  getTotalForProduct: (productId: string) => number;
   formatTotalPrice: (price: number) => string;
 }
 
@@ -33,7 +35,9 @@ const PriceTable: React.FC<PriceTableProps> = ({
   calculatedPrices,
   analysisProductSKUs,
   handleSKUSelect,
+  handleSKURemove,
   handleQuantityChange,
+  getTotalForProduct,
   formatTotalPrice
 }) => {
   if (isLoading) {
@@ -69,7 +73,7 @@ const PriceTable: React.FC<PriceTableProps> = ({
 
   return (
     <Table>
-      <TableHeader className="bg-[#161616]">
+      <TableHeader className="bg-[#161616] sticky top-0 z-10">
         <TableRow className="hover:bg-transparent">
           <TableHead className="text-left w-[20%] pl-4">Produit</TableHead>
           <TableHead className="text-center">Prix 1000</TableHead>
@@ -101,7 +105,9 @@ const PriceTable: React.FC<PriceTableProps> = ({
               calculatedPrices={calculatedPrices}
               analysisProductSKUs={analysisProductSKUs}
               handleSKUSelect={handleSKUSelect}
+              handleSKURemove={handleSKURemove}
               handleQuantityChange={handleQuantityChange}
+              getTotalForProduct={getTotalForProduct}
               formatPrice={formatPrice}
               formatTotalPrice={formatTotalPrice}
             />

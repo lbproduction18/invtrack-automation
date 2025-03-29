@@ -6,9 +6,12 @@ import { ProductPrice } from '@/hooks/useProductPrices';
  * Hook to handle pricing calculations for the pricing grid
  */
 export function usePricingCalculation(productPrices: ProductPrice[]) {
-  const [selectedSKUs, setSelectedSKUs] = useState<Record<string, string>>({});
-  const [quantities, setQuantities] = useState<Record<string, string>>({});
-  const [calculatedPrices, setCalculatedPrices] = useState<Record<string, number | string>>({});
+  // Change from Record<string, string> to Record<string, string[]>
+  const [selectedSKUs, setSelectedSKUs] = useState<Record<string, string[]>>({});
+  // Change to store quantities per SKU
+  const [quantities, setQuantities] = useState<Record<string, Record<string, string>>>({});
+  // Change to store calculated prices per SKU
+  const [calculatedPrices, setCalculatedPrices] = useState<Record<string, Record<string, number | string>>>({});
   const [simulationTotal, setSimulationTotal] = useState<number>(0);
 
   // Standard quantities that match price columns
@@ -19,45 +22,110 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     let total = 0;
     
     // Sum up all the numeric values in calculatedPrices
-    Object.values(calculatedPrices).forEach(price => {
-      if (typeof price === 'number') {
-        total += price;
-      }
+    Object.keys(calculatedPrices).forEach(productId => {
+      Object.values(calculatedPrices[productId] || {}).forEach(price => {
+        if (typeof price === 'number') {
+          total += price;
+        }
+      });
     });
     
     setSimulationTotal(total);
   }, [calculatedPrices]);
 
+  // Add a SKU to a product's selection
   const handleSKUSelect = (productId: string, sku: string) => {
-    setSelectedSKUs(prev => ({
-      ...prev,
-      [productId]: sku
-    }));
-    
-    // Recalculate price if quantity already exists
-    if (quantities[productId]) {
-      calculateTotalPrice(productId, quantities[productId]);
-    }
+    setSelectedSKUs(prev => {
+      // Get the current SKUs for this product or initialize an empty array
+      const currentSKUs = prev[productId] || [];
+      
+      // Check if this SKU is already in the list
+      if (currentSKUs.includes(sku)) {
+        return prev;
+      }
+      
+      // Add the new SKU to the list
+      return {
+        ...prev,
+        [productId]: [...currentSKUs, sku]
+      };
+    });
   };
 
-  const handleQuantityChange = (productId: string, quantityValue: string) => {
-    setQuantities(prev => ({
-      ...prev,
-      [productId]: quantityValue
-    }));
+  // Remove a SKU from a product's selection
+  const handleSKURemove = (productId: string, sku: string) => {
+    setSelectedSKUs(prev => {
+      const currentSKUs = prev[productId] || [];
+      const updatedSKUs = currentSKUs.filter(s => s !== sku);
+      
+      // If there are no SKUs left, remove the product from the map
+      if (updatedSKUs.length === 0) {
+        const newSelectedSKUs = { ...prev };
+        delete newSelectedSKUs[productId];
+        return newSelectedSKUs;
+      }
+      
+      return {
+        ...prev,
+        [productId]: updatedSKUs
+      };
+    });
     
-    calculateTotalPrice(productId, quantityValue);
+    // Also remove quantity and price for this SKU
+    setQuantities(prev => {
+      const newQuantities = { ...prev };
+      if (newQuantities[productId]) {
+        const productQuantities = { ...newQuantities[productId] };
+        delete productQuantities[sku];
+        newQuantities[productId] = productQuantities;
+      }
+      return newQuantities;
+    });
+    
+    setCalculatedPrices(prev => {
+      const newPrices = { ...prev };
+      if (newPrices[productId]) {
+        const productPrices = { ...newPrices[productId] };
+        delete productPrices[sku];
+        newPrices[productId] = productPrices;
+      }
+      return newPrices;
+    });
   };
 
-  const calculateTotalPrice = (productId: string, quantityValue: string) => {
+  // Update quantity for a specific SKU of a product
+  const handleQuantityChange = (productId: string, sku: string, quantityValue: string) => {
+    setQuantities(prev => {
+      const productQuantities = prev[productId] || {};
+      
+      return {
+        ...prev,
+        [productId]: {
+          ...productQuantities,
+          [sku]: quantityValue
+        }
+      };
+    });
+    
+    calculateTotalPrice(productId, sku, quantityValue);
+  };
+
+  // Calculate the total price for a specific SKU based on the selected quantity
+  const calculateTotalPrice = (productId: string, sku: string, quantityValue: string) => {
     const quantity = parseInt(quantityValue, 10);
     const product = productPrices.find(p => p.id === productId);
     
     if (!product || isNaN(quantity) || quantity <= 0) {
-      setCalculatedPrices(prev => ({
-        ...prev,
-        [productId]: ""
-      }));
+      setCalculatedPrices(prev => {
+        const productPrices = prev[productId] || {};
+        return {
+          ...prev,
+          [productId]: {
+            ...productPrices,
+            [sku]: ""
+          }
+        };
+      });
       return;
     }
     
@@ -72,10 +140,16 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     
     // Special case: If product only has price_8000 defined and quantity is not 8000
     if (onlyHas8000 && quantity !== 8000) {
-      setCalculatedPrices(prev => ({
-        ...prev,
-        [productId]: "Ce produit doit être commandé en quantité exacte de 8000 unités."
-      }));
+      setCalculatedPrices(prev => {
+        const productPrices = prev[productId] || {};
+        return {
+          ...prev,
+          [productId]: {
+            ...productPrices,
+            [sku]: "Ce produit doit être commandé en quantité exacte de 8000 unités."
+          }
+        };
+      });
       return;
     }
     
@@ -120,19 +194,31 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
       
       if (availableTiers.length === 0) {
         // No price tiers defined for this product
-        setCalculatedPrices(prev => ({
-          ...prev,
-          [productId]: "Aucun prix défini pour ce produit"
-        }));
+        setCalculatedPrices(prev => {
+          const productPrices = prev[productId] || {};
+          return {
+            ...prev,
+            [productId]: {
+              ...productPrices,
+              [sku]: "Aucun prix défini pour ce produit"
+            }
+          };
+        });
         return;
       }
       
       // Case: quantity is lower than the lowest tier
       if (quantity < availableTiers[0].quantity) {
-        setCalculatedPrices(prev => ({
-          ...prev,
-          [productId]: `Quantité minimum: ${availableTiers[0].quantity} unités`
-        }));
+        setCalculatedPrices(prev => {
+          const productPrices = prev[productId] || {};
+          return {
+            ...prev,
+            [productId]: {
+              ...productPrices,
+              [sku]: `Quantité minimum: ${availableTiers[0].quantity} unités`
+            }
+          };
+        });
         return;
       }
       
@@ -157,40 +243,67 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     // Calculate the total price based on the tier price and the requested quantity
     if (tierPrice > 0) {
       const totalPrice = quantity * tierPrice;
-      setCalculatedPrices(prev => ({
-        ...prev,
-        [productId]: totalPrice
-      }));
+      setCalculatedPrices(prev => {
+        const productPrices = prev[productId] || {};
+        return {
+          ...prev,
+          [productId]: {
+            ...productPrices,
+            [sku]: totalPrice
+          }
+        };
+      });
     } else {
-      setCalculatedPrices(prev => ({
-        ...prev,
-        [productId]: "Prix non disponible pour cette quantité"
-      }));
+      setCalculatedPrices(prev => {
+        const productPrices = prev[productId] || {};
+        return {
+          ...prev,
+          [productId]: {
+            ...productPrices,
+            [sku]: "Prix non disponible pour cette quantité"
+          }
+        };
+      });
     }
   };
 
   // Get the quantity for a specific SKU
   const getQuantityForSKU = (sku: string): string => {
     // Find the product ID that has this SKU selected
-    const productId = Object.entries(selectedSKUs).find(([_, selectedSKU]) => selectedSKU === sku)?.[0];
-    
-    if (productId && quantities[productId]) {
-      return quantities[productId];
+    for (const [productId, skus] of Object.entries(selectedSKUs)) {
+      if (skus.includes(sku) && quantities[productId] && quantities[productId][sku]) {
+        return quantities[productId][sku];
+      }
     }
-    
     return '';
   };
   
   // Get the calculated price for a specific SKU
   const getPriceForSKU = (sku: string): number | string => {
     // Find the product ID that has this SKU selected
-    const productId = Object.entries(selectedSKUs).find(([_, selectedSKU]) => selectedSKU === sku)?.[0];
-    
-    if (productId && typeof calculatedPrices[productId] === 'number') {
-      return calculatedPrices[productId] as number;
+    for (const [productId, skus] of Object.entries(selectedSKUs)) {
+      if (skus.includes(sku) && calculatedPrices[productId] && typeof calculatedPrices[productId][sku] === 'number') {
+        return calculatedPrices[productId][sku] as number;
+      }
+    }
+    return '';
+  };
+
+  // Calculate the total price for a specific product (sum of all SKUs in that product row)
+  const getTotalForProduct = (productId: string): number => {
+    if (!calculatedPrices[productId]) {
+      return 0;
     }
     
-    return '';
+    let total = 0;
+    
+    Object.values(calculatedPrices[productId]).forEach(price => {
+      if (typeof price === 'number') {
+        total += price;
+      }
+    });
+    
+    return total;
   };
 
   return {
@@ -201,7 +314,9 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     standardQuantities,
     getQuantityForSKU,
     getPriceForSKU,
+    getTotalForProduct,
     handleSKUSelect,
+    handleSKURemove,
     handleQuantityChange
   };
 }

@@ -23,7 +23,9 @@ const PricingGrid: React.FC = () => {
     simulationTotal,
     getQuantityForSKU,
     getPriceForSKU,
+    getTotalForProduct,
     handleSKUSelect,
+    handleSKURemove,
     handleQuantityChange
   } = usePricingCalculation(productPrices);
 
@@ -60,7 +62,9 @@ const PricingGrid: React.FC = () => {
               calculatedPrices={calculatedPrices}
               analysisProductSKUs={analysisProductSKUs}
               handleSKUSelect={handleSKUSelect}
+              handleSKURemove={handleSKURemove}
               handleQuantityChange={handleQuantityChange}
+              getTotalForProduct={getTotalForProduct}
               formatTotalPrice={formatTotalPrice}
             />
           </div>
