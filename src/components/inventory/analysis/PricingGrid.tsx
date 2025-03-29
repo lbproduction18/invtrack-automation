@@ -51,6 +51,11 @@ const PricingGrid: React.FC = () => {
     }
   }, [activeTab, refetchAnalysisItems]);
 
+  // Safely get all SKUs from selectedSKUs
+  const getAllSelectedSKUs = () => {
+    return Object.values(selectedSKUs).flat();
+  };
+
   return (
     <Card className="border border-[#272727] bg-[#131313]">
       <CardHeader className="px-4 py-3 border-b border-[#272727]">
@@ -94,7 +99,7 @@ const PricingGrid: React.FC = () => {
               <div className="md:col-span-2">
                 <SelectedSKUsList
                   productId=""
-                  skus={Object.values(selectedSKUs).flat()}
+                  skus={getAllSelectedSKUs()}
                   quantities={{}}
                   calculatedPrices={{}}
                   onQuantityChange={() => {}}
