@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useProductPrices } from '@/hooks/useProductPrices';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
@@ -49,7 +50,7 @@ const PricingGrid: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="rounded-md border border-[#272727] overflow-hidden">
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="h-[400px]" type="always">
           <PriceTable
             productPrices={productPrices}
             isLoading={isLoading}

@@ -71,7 +71,7 @@ const PriceTable: React.FC<PriceTableProps> = ({
     <Table>
       <TableHeader className="bg-[#161616]">
         <TableRow className="hover:bg-transparent">
-          <TableHead className="text-left w-[20%]">Produit</TableHead>
+          <TableHead className="text-left w-[20%] pl-4">Produit</TableHead>
           <TableHead className="text-center">Prix 1000</TableHead>
           <TableHead className="text-center">Prix 2000</TableHead>
           <TableHead className="text-center">Prix 3000</TableHead>
@@ -80,7 +80,7 @@ const PriceTable: React.FC<PriceTableProps> = ({
           <TableHead className="text-center">Prix 8000</TableHead>
           <TableHead className="text-center">SKU</TableHead>
           <TableHead className="text-center">Quantité</TableHead>
-          <TableHead className="text-center">Total (CAD)</TableHead>
+          <TableHead className="text-right pr-4">Total (CAD)</TableHead>
         </TableRow>
       </TableHeader>
             
