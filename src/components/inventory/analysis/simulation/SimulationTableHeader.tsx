@@ -19,7 +19,7 @@ const SimulationTableHeader: React.FC<SimulationTableHeaderProps> = ({
   showSkuColumn = false
 }) => {
   return (
-    <TableHeader className="bg-[#161616]">
+    <TableHeader className="bg-[#161616] sticky top-0 z-[100]">
       <TableRow className="hover:bg-transparent">
         <TableHead className="w-[280px] pl-4">Produit</TableHead>
         

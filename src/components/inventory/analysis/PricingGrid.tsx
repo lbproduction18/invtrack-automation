@@ -51,17 +51,19 @@ const PricingGrid: React.FC = () => {
     <div className="space-y-4">
       <div className="rounded-md border border-[#272727] overflow-hidden">
         <ScrollArea className="h-[400px]" type="always">
-          <PriceTable
-            productPrices={productPrices}
-            isLoading={isLoading}
-            selectedSKUs={selectedSKUs}
-            quantities={quantities}
-            calculatedPrices={calculatedPrices}
-            analysisProductSKUs={analysisProductSKUs}
-            handleSKUSelect={handleSKUSelect}
-            handleQuantityChange={handleQuantityChange}
-            formatTotalPrice={formatTotalPrice}
-          />
+          <div className="min-w-full">
+            <PriceTable
+              productPrices={productPrices}
+              isLoading={isLoading}
+              selectedSKUs={selectedSKUs}
+              quantities={quantities}
+              calculatedPrices={calculatedPrices}
+              analysisProductSKUs={analysisProductSKUs}
+              handleSKUSelect={handleSKUSelect}
+              handleQuantityChange={handleQuantityChange}
+              formatTotalPrice={formatTotalPrice}
+            />
+          </div>
         </ScrollArea>
       </div>
       
