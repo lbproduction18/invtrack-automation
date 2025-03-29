@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAnalysisItems, type AnalysisItem } from '@/hooks/useAnalysisItems';
 import { useProducts } from '@/hooks/useProducts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AnalysisProductsGrid from './analysis/AnalysisProductsGrid';
-import BudgetSimulation from './analysis/BudgetSimulation';
 import PricingGrid from './analysis/PricingGrid';
 
 // Define QuantityOption type consistently in this file
@@ -54,18 +53,6 @@ export const AnalysisContent: React.FC = () => {
           >
             Produits en analyse
           </TabsTrigger>
-          <TabsTrigger 
-            value="simulation" 
-            className="data-[state=active]:bg-[#272727] data-[state=active]:text-white"
-          >
-            Simulation tarifaire
-          </TabsTrigger>
-          <TabsTrigger 
-            value="budget" 
-            className="data-[state=active]:bg-[#272727] data-[state=active]:text-white"
-          >
-            Budget & financement
-          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="products" className="mt-0 space-y-8">
@@ -78,18 +65,6 @@ export const AnalysisContent: React.FC = () => {
           <div>
             <h2 className="text-lg font-medium mb-4">Grille tarifaire</h2>
             <PricingGrid />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="simulation" className="mt-0">
-          <BudgetSimulation
-            onCreateOrder={() => {}}
-          />
-        </TabsContent>
-        
-        <TabsContent value="budget" className="mt-0">
-          <div className="rounded-md border border-[#272727] p-8 flex items-center justify-center">
-            <p className="text-gray-400">Module de budget & financement</p>
           </div>
         </TabsContent>
       </Tabs>
