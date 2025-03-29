@@ -12,16 +12,18 @@ import { ProductPrice } from '@/hooks/useProductPrices';
 import { formatPrice } from './PriceFormatter';
 import PriceTableRow from './PriceTableRow';
 import { Loader2 } from 'lucide-react';
+import { type SelectedSKU } from '@/types/product';
 
 interface PriceTableProps {
   productPrices: ProductPrice[];
   isLoading: boolean;
-  selectedSKUs: Record<string, string>;
+  selectedSKUs: Record<string, SelectedSKU[]>;
   quantities: Record<string, string>;
   calculatedPrices: Record<string, number | string>;
   analysisProductSKUs: Array<{ id: string, SKU: string }>;
-  handleSKUSelect: (productId: string, sku: string) => void;
+  handleSKUSelect: (productId: string, sku: string, skuProductId: string) => void;
   handleQuantityChange: (productId: string, quantityValue: string) => void;
+  removeSKU: (productId: string, sku: string) => void;
   formatTotalPrice: (price: number) => string;
 }
 
@@ -34,6 +36,7 @@ const PriceTable: React.FC<PriceTableProps> = ({
   analysisProductSKUs,
   handleSKUSelect,
   handleQuantityChange,
+  removeSKU,
   formatTotalPrice
 }) => {
   if (isLoading) {
@@ -102,6 +105,7 @@ const PriceTable: React.FC<PriceTableProps> = ({
               analysisProductSKUs={analysisProductSKUs}
               handleSKUSelect={handleSKUSelect}
               handleQuantityChange={handleQuantityChange}
+              removeSKU={removeSKU}
               formatPrice={formatPrice}
               formatTotalPrice={formatTotalPrice}
             />
