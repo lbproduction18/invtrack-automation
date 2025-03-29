@@ -69,7 +69,7 @@ const PriceTable: React.FC<PriceTableProps> = ({
 
   return (
     <Table>
-      <TableHeader className="bg-[#161616] sticky top-0 z-10">
+      <TableHeader className="bg-[#161616]">
         <TableRow className="hover:bg-transparent">
           <TableHead className="text-left w-[20%]">Produit</TableHead>
           <TableHead className="text-center">Prix 1000</TableHead>

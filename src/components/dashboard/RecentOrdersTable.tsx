@@ -93,7 +93,7 @@ export const RecentOrdersTable: React.FC = () => {
   return (
     <div className="rounded-md border">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-[#161616]">
           <TableRow>
             <TableHead>Order ID</TableHead>
             <TableHead>Date</TableHead>

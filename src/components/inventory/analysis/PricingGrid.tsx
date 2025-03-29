@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useProductPrices } from '@/hooks/useProductPrices';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
@@ -16,7 +15,6 @@ const PricingGrid: React.FC = () => {
   const { analysisItems } = useAnalysisItems();
   const { products } = useProducts('all');
   
-  // Use the pricing calculation hook
   const {
     selectedSKUs,
     quantities,
@@ -28,9 +26,7 @@ const PricingGrid: React.FC = () => {
     handleQuantityChange
   } = usePricingCalculation(productPrices);
 
-  // Get product SKUs that exist in analysisItems
   const getAnalysisProductSKUs = () => {
-    // Filter products that have a corresponding analysis item
     return products.filter(product => 
       analysisItems.some(item => item.product_id === product.id)
     ).map(product => ({
@@ -39,7 +35,6 @@ const PricingGrid: React.FC = () => {
     }));
   };
 
-  // Use the filtered SKUs
   const analysisProductSKUs = getAnalysisProductSKUs();
 
   if (isLoading) {
@@ -69,10 +64,8 @@ const PricingGrid: React.FC = () => {
         </ScrollArea>
       </div>
       
-      {/* Persistent Summary Section */}
       <TotalSummary simulationTotal={simulationTotal} />
       
-      {/* Résumé de la simulation Section */}
       <SimulationSummary
         analysisItems={analysisItems}
         products={products}

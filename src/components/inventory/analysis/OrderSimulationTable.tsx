@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { 
   Table, TableBody, TableCell, TableHead, 
@@ -108,7 +107,7 @@ const OrderSimulationTable: React.FC<OrderSimulationTableProps> = ({
     <div className="space-y-4">
       <div className="rounded-md border border-[#272727] overflow-hidden">
         <Table>
-          <TableHeader className="bg-[#161616] sticky top-0 z-10">
+          <TableHeader className="bg-[#161616]">
             <TableRow className="hover:bg-transparent">
               <TableHead className="text-xs text-left text-gray-400 w-1/4">Produit</TableHead>
               {quantityOptions.map(qty => (

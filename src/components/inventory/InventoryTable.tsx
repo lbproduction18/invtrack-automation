@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AlertTriangle, Trash2, ChevronRight } from 'lucide-react';
 import { 
