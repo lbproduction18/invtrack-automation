@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Loader2 } from "lucide-react";
@@ -43,15 +44,6 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
   quantityOptions.forEach(qty => {
     const priceKey = `price_${qty}` as keyof typeof productPrice;
     prices[qty.toString()] = productPrice ? productPrice[priceKey] as number | null : null;
-  });
-  
-  // Filter out already selected SKUs from the dropdown
-  const availableSKUs = groupedSKUs.filter(sku => {
-    // If we don't have any selected SKUs for this product yet, show all
-    if (!selectedSKUs[productName]) return true;
-    
-    // Otherwise filter out the ones that are already selected
-    return !selectedSKUs[productName].some(selectedSku => selectedSku.SKU === sku.SKU);
   });
   
   // Handle adding a SKU with a specific quantity
@@ -106,7 +98,7 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
         <TableCell>
           <SKUSelector
             productName={productName}
-            availableSKUs={availableSKUs}
+            availableSKUs={groupedSKUs}
             quantityOptions={quantityOptions}
             prices={prices}
             onAdd={handleAddSKUWithQuantity}

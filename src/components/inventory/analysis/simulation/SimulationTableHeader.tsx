@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+  TableHeader,
+  TableRow,
+  TableHead
 } from "@/components/ui/table";
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 
@@ -19,21 +19,21 @@ const SimulationTableHeader: React.FC<SimulationTableHeaderProps> = ({
   showSkuColumn = false
 }) => {
   return (
-    <TableHeader className="bg-[#161616] sticky top-0 z-10">
-      <TableRow className="hover:bg-transparent border-b border-[#272727]">
-        <TableHead className="text-left">Produit</TableHead>
+    <TableHeader>
+      <TableRow>
+        <TableHead className="w-[280px] pl-4">Produit</TableHead>
         
+        {/* Price column headers for each quantity option */}
         {quantityOptions.map(qty => (
           <TableHead key={qty} className="text-center">
-            Prix {qty.toLocaleString()}
+            {qty.toLocaleString()}
           </TableHead>
         ))}
         
-        {showSkuColumn && (
-          <TableHead className="text-center">
-            SKU
-          </TableHead>
-        )}
+        {/* SKU selection column */}
+        <TableHead className="text-right pr-4 min-w-[300px]">
+          {showSkuColumn ? "Sélectionner un SKU" : ""}
+        </TableHead>
       </TableRow>
     </TableHeader>
   );

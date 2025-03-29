@@ -1,63 +1,101 @@
 
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import AnalysisProductsGrid from '@/components/inventory/analysis/AnalysisProductsGrid';
-import BudgetSimulation from '@/components/inventory/analysis/BudgetSimulation';
-import { useAnalysisItems } from '@/hooks/useAnalysisItems';
+import React, { useState, useEffect } from 'react';
+import { useAnalysisItems, type AnalysisItem } from '@/hooks/useAnalysisItems';
 import { useProducts } from '@/hooks/useProducts';
-import { type Product } from '@/types/product';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AnalysisProductsGrid from './analysis/AnalysisProductsGrid';
+import BudgetSimulation from './analysis/BudgetSimulation';
+import PricingGrid from './analysis/PricingGrid';
 
-// Export types needed by other components
+// Define QuantityOption type consistently in this file
 export type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000 | 8000;
 
-export interface AnalysisProduct {
-  id: string;
-  product_id: string;
-  quantity_selected: number | null;
-  created_at: string;
-  updated_at: string;
-  status: string;
-  last_order_info: string | null;
-  lab_status_text: string | null;
-  last_order_date: string | null;
-  weeks_delivery: string | null;
-  productDetails?: Product;
+// Define the interface for combined analysis items and product details
+export interface AnalysisProduct extends AnalysisItem {
+  productDetails: {
+    id: string;
+    SKU: string;
+    product_name: string | null;
+    current_stock: number;
+    threshold: number;
+    lab_status: string | null;
+    estimated_delivery_date: string | null;
+    last_order_date: string | null;
+    last_order_quantity: number | null;
+  } | null;
 }
 
-const AnalysisContent: React.FC = () => {
-  const { analysisItems, isLoading: isAnalysisLoading, refetch: refetchAnalysis } = useAnalysisItems();
-  const { products } = useProducts('analysis');
+// Named export to match import in Index.tsx
+export const AnalysisContent: React.FC = () => {
+  const [activeTab, setActiveTab] = useState('products');
+  
+  // Fetch analysis items and products
+  const { analysisItems, isLoading: isLoadingAnalysis, refetch: refetchAnalysis } = useAnalysisItems();
+  const { products, isLoading: isLoadingProducts } = useProducts('all');
   
   // Combine analysis items with product details
-  const analysisProducts: AnalysisProduct[] = analysisItems.map(item => {
-    const productDetails = products.find(p => p.id === item.product_id);
+  const analysisProducts = analysisItems.map(item => {
+    const product = products.find(p => p.id === item.product_id);
     return {
       ...item,
-      productDetails
-    };
-  });
-
-  // Handle order creation
-  const handleCreateOrder = () => {
-    console.log('Creating order...');
-    // Order creation logic would go here
-  };
+      productDetails: product || null
+    } as AnalysisProduct;
+  }).filter(item => item.productDetails !== null);
+  
+  const isLoading = isLoadingAnalysis || isLoadingProducts;
 
   return (
-    <CardContent className="p-4">
-      <div className="space-y-6">
-        <AnalysisProductsGrid 
-          analysisProducts={analysisProducts}
-          isLoading={isAnalysisLoading}
-          refetchAnalysis={refetchAnalysis}
-        />
+    <div className="p-4 space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="mb-4 bg-[#161616] border border-[#272727]">
+          <TabsTrigger 
+            value="products" 
+            className="data-[state=active]:bg-[#272727] data-[state=active]:text-white"
+          >
+            Produits en analyse
+          </TabsTrigger>
+          <TabsTrigger 
+            value="simulation" 
+            className="data-[state=active]:bg-[#272727] data-[state=active]:text-white"
+          >
+            Simulation tarifaire
+          </TabsTrigger>
+          <TabsTrigger 
+            value="budget" 
+            className="data-[state=active]:bg-[#272727] data-[state=active]:text-white"
+          >
+            Budget & financement
+          </TabsTrigger>
+        </TabsList>
         
-        <div className="mt-8">
-          <BudgetSimulation onCreateOrder={handleCreateOrder} />
-        </div>
-      </div>
-    </CardContent>
+        <TabsContent value="products" className="mt-0 space-y-8">
+          <AnalysisProductsGrid 
+            analysisProducts={analysisProducts} 
+            isLoading={isLoading}
+            refetchAnalysis={refetchAnalysis}
+          />
+          
+          <div>
+            <h2 className="text-lg font-medium mb-4">Grille tarifaire</h2>
+            <PricingGrid />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="simulation" className="mt-0">
+          <BudgetSimulation
+            onCreateOrder={() => {}}
+          />
+        </TabsContent>
+        
+        <TabsContent value="budget" className="mt-0">
+          <div className="rounded-md border border-[#272727] p-8 flex items-center justify-center">
+            <p className="text-gray-400">Module de budget & financement</p>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 
+// Also add default export to maintain compatibility
 export default AnalysisContent;
