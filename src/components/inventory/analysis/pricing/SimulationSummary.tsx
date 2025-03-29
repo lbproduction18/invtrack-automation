@@ -17,7 +17,6 @@ interface SimulationSummaryProps {
   analysisItems: AnalysisItem[];
   products: Product[];
   simulationTotal: number;
-  getQuantityForSKU: (sku: string) => string;
   getPriceForSKU: (sku: string) => number | string;
 }
 
@@ -25,9 +24,13 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
   analysisItems,
   products,
   simulationTotal,
-  getQuantityForSKU,
   getPriceForSKU
 }) => {
+  // Find the associated analysis item for a product
+  const getAnalysisItemForProduct = (productId: string): AnalysisItem | undefined => {
+    return analysisItems.find(item => item.product_id === productId);
+  };
+
   return (
     <div className="mt-4 rounded-md border border-[#272727] overflow-hidden">
       <div className="p-4 bg-[#161616]">
@@ -59,14 +62,16 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
                   return analysisItems.some(item => item.product_id === product.id);
                 })
                 .map(product => {
-                  const quantity = getQuantityForSKU(product.SKU);
+                  const analysisItem = getAnalysisItemForProduct(product.id);
                   const price = getPriceForSKU(product.SKU);
                   
                   return (
                     <TableRow key={product.id} className="hover:bg-[#161616] border-t border-[#272727]">
                       <TableCell className="font-medium">{product.SKU}</TableCell>
                       <TableCell className="text-center">
-                        {quantity ? quantity : <span className="text-gray-500">–</span>}
+                        {analysisItem?.quantity_selected ? 
+                          analysisItem.quantity_selected.toLocaleString() : 
+                          <span className="text-gray-500">–</span>}
                       </TableCell>
                       <TableCell className="text-right font-medium">
                         {typeof price === 'number' ? 
