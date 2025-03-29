@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Table, TableBody, TableCell, TableHead, 
@@ -13,8 +12,7 @@ import { format, differenceInWeeks } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { type QuantityOption } from '@/components/inventory/AnalysisContent';
-import { type AnalysisProduct } from '@/components/inventory/AnalysisContent';
+import { type QuantityOption, type AnalysisProduct } from '@/components/inventory/AnalysisContent';
 
 interface AnalysisProductsGridProps {
   analysisProducts: AnalysisProduct[];
@@ -32,7 +30,6 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
   const [saveSuccess, setSaveSuccess] = useState<Record<string, boolean>>({});
   const [editableValues, setEditableValues] = useState<Record<string, any>>({});
   
-  // Calculate weeks since a date
   const getWeeksSince = (dateString: string | null): string => {
     if (!dateString) return "-";
     
@@ -43,7 +40,6 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     return `${weeks} semaine${weeks !== 1 ? 's' : ''}`;
   };
   
-  // Initialize editable values from the analysis products
   useEffect(() => {
     const initialValues: Record<string, any> = {};
     analysisProducts.forEach(item => {
@@ -307,7 +303,6 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     }
   };
 
-  // Handle the "Enter" key for form inputs
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, saveFunction: () => void) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -450,7 +445,6 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                         </PopoverContent>
                       </Popover>
                       
-                      {/* Display weeks since last order date */}
                       {item.last_order_date && (
                         <span className="text-xs text-gray-400">
                           {getWeeksSince(item.last_order_date)}
