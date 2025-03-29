@@ -199,6 +199,30 @@ const PricingGrid: React.FC = () => {
     }
   };
 
+  // Get the quantity for a specific SKU
+  const getQuantityForSKU = (sku: string): string => {
+    // Find the product ID that has this SKU selected
+    const productId = Object.entries(selectedSKUs).find(([_, selectedSKU]) => selectedSKU === sku)?.[0];
+    
+    if (productId && quantities[productId]) {
+      return quantities[productId];
+    }
+    
+    return '';
+  };
+  
+  // Get the calculated price for a specific SKU
+  const getPriceForSKU = (sku: string): number | string => {
+    // Find the product ID that has this SKU selected
+    const productId = Object.entries(selectedSKUs).find(([_, selectedSKU]) => selectedSKU === sku)?.[0];
+    
+    if (productId && typeof calculatedPrices[productId] === 'number') {
+      return calculatedPrices[productId] as number;
+    }
+    
+    return '';
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center p-8">
@@ -338,6 +362,68 @@ const PricingGrid: React.FC = () => {
         <h3 className="text-lg font-medium">Total de la simulation</h3>
         <div className="text-xl font-bold text-primary">
           {formatTotalPrice(simulationTotal)}
+        </div>
+      </div>
+      
+      {/* New Resume Section */}
+      <div className="mt-4 rounded-md border border-[#272727] overflow-hidden">
+        <div className="p-4 bg-[#161616]">
+          <h3 className="text-lg font-medium">Résumé de la simulation</h3>
+        </div>
+        
+        <ScrollArea className="h-[250px]">
+          <Table>
+            <TableHeader className="bg-[#161616] sticky top-0 z-10">
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="text-left">SKU</TableHead>
+                <TableHead className="text-center">Quantité choisie</TableHead>
+                <TableHead className="text-right">Total (CAD)</TableHead>
+              </TableRow>
+            </TableHeader>
+            
+            <TableBody>
+              {analysisItems.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="h-24 text-center text-gray-500">
+                    Aucun produit trouvé dans la base de données
+                  </TableCell>
+                </TableRow>
+              ) : (
+                // Map all analysis items to show their associated product details
+                products
+                  .filter(product => {
+                    // Filter products that have corresponding analysis items
+                    return analysisItems.some(item => item.product_id === product.id);
+                  })
+                  .map(product => {
+                    const quantity = getQuantityForSKU(product.SKU);
+                    const price = getPriceForSKU(product.SKU);
+                    
+                    return (
+                      <TableRow key={product.id} className="hover:bg-[#161616] border-t border-[#272727]">
+                        <TableCell className="font-medium">{product.SKU}</TableCell>
+                        <TableCell className="text-center">
+                          {quantity ? quantity : <span className="text-gray-500">–</span>}
+                        </TableCell>
+                        <TableCell className="text-right font-medium">
+                          {typeof price === 'number' ? 
+                            formatTotalPrice(price) : 
+                            <span className="text-gray-500">–</span>}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+              )}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+        
+        {/* Total at the bottom of the resume section */}
+        <div className="p-4 border-t border-[#272727] bg-[#161616] flex justify-between items-center">
+          <h4 className="font-medium">Total de la simulation</h4>
+          <div className="font-bold text-primary">
+            {formatTotalPrice(simulationTotal)}
+          </div>
         </div>
       </div>
     </div>
