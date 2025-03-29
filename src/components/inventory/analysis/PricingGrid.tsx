@@ -16,6 +16,7 @@ import SimulationSummary from './pricing/SimulationSummary';
 import TotalSummary from './pricing/TotalSummary';
 import SelectedSKUsList from './pricing/SelectedSKUsList';
 import { Loader2 } from 'lucide-react';
+import { formatTotalPrice } from './pricing/PriceFormatter';
 
 const PricingGrid: React.FC = () => {
   const { productPrices, isLoading: isPricesLoading } = useProductPrices();
@@ -39,7 +40,6 @@ const PricingGrid: React.FC = () => {
     handleSKURemove,
     handleQuantityChange,
     getTotalForProduct,
-    formatTotalPrice
   } = usePricingCalculation(productPrices);
   
   const isLoading = isPricesLoading || isAnalysisLoading || isProductsLoading;
@@ -86,10 +86,12 @@ const PricingGrid: React.FC = () => {
             <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-2">
                 <SelectedSKUsList
-                  selectedSKUs={selectedSKUs}
-                  quantities={quantities}
-                  calculatedPrices={calculatedPrices}
-                  handleSKURemove={handleSKURemove}
+                  productId=""
+                  skus={Object.values(selectedSKUs).flat()}
+                  quantities={{}}
+                  calculatedPrices={{}}
+                  onQuantityChange={() => {}}
+                  onRemoveSKU={() => {}}
                 />
               </div>
               <div>

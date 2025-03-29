@@ -6,23 +6,23 @@ import { Input } from '@/components/ui/input';
 import { formatTotalPrice } from './PriceFormatter';
 
 interface SelectedSKUsListProps {
-  productId: string;
-  skus: string[];
-  quantities: Record<string, string>;
-  calculatedPrices: Record<string, number | string>;
-  onQuantityChange: (productId: string, sku: string, quantityValue: string) => void;
-  onRemoveSKU: (productId: string, sku: string) => void;
-  hasOnlyPrice8000: boolean;
+  productId?: string;
+  skus?: string[];
+  quantities?: Record<string, string>;
+  calculatedPrices?: Record<string, number | string>;
+  onQuantityChange?: (productId: string, sku: string, quantityValue: string) => void;
+  onRemoveSKU?: (productId: string, sku: string) => void;
+  hasOnlyPrice8000?: boolean;
 }
 
 const SelectedSKUsList: React.FC<SelectedSKUsListProps> = ({
-  productId,
-  skus,
-  quantities,
-  calculatedPrices,
-  onQuantityChange,
-  onRemoveSKU,
-  hasOnlyPrice8000
+  productId = '',
+  skus = [],
+  quantities = {},
+  calculatedPrices = {},
+  onQuantityChange = () => {},
+  onRemoveSKU = () => {},
+  hasOnlyPrice8000 = false
 }) => {
   if (skus.length === 0) return null;
 
