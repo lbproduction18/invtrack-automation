@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Table, 
@@ -31,6 +30,28 @@ const PricingGrid: React.FC = () => {
     );
   }
 
+  const sortedProducts = [...productPrices].sort((a, b) => {
+    const aOnlyHas8000 = 
+      (!a.price_1000 || a.price_1000 === 0) && 
+      (!a.price_2000 || a.price_2000 === 0) && 
+      (!a.price_3000 || a.price_3000 === 0) && 
+      (!a.price_4000 || a.price_4000 === 0) && 
+      (!a.price_5000 || a.price_5000 === 0) && 
+      (a.price_8000 && a.price_8000 > 0);
+      
+    const bOnlyHas8000 = 
+      (!b.price_1000 || b.price_1000 === 0) && 
+      (!b.price_2000 || b.price_2000 === 0) && 
+      (!b.price_3000 || b.price_3000 === 0) && 
+      (!b.price_4000 || b.price_4000 === 0) && 
+      (!b.price_5000 || b.price_5000 === 0) && 
+      (b.price_8000 && b.price_8000 > 0);
+    
+    if (aOnlyHas8000 && !bOnlyHas8000) return 1;
+    if (!aOnlyHas8000 && bOnlyHas8000) return -1;
+    return a.product_name.localeCompare(b.product_name);
+  });
+
   return (
     <div className="rounded-md border border-[#272727] overflow-hidden">
       <ScrollArea className="h-[400px]">
@@ -48,14 +69,14 @@ const PricingGrid: React.FC = () => {
           </TableHeader>
           
           <TableBody>
-            {productPrices.length === 0 ? (
+            {sortedProducts.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center text-gray-500">
                   Aucun produit trouvé dans la base de données
                 </TableCell>
               </TableRow>
             ) : (
-              productPrices.map(product => (
+              sortedProducts.map(product => (
                 <TableRow key={product.id} className="hover:bg-[#161616] border-t border-[#272727]">
                   <TableCell className="font-medium">{product.product_name}</TableCell>
                   <TableCell className="text-center">{formatPrice(product.price_1000)}</TableCell>
