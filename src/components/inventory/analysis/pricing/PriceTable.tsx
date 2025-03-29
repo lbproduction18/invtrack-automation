@@ -73,18 +73,18 @@ const PriceTable: React.FC<PriceTableProps> = ({
 
   return (
     <Table>
-      <TableHeader className="bg-[#161616] sticky top-0 z-10">
+      <TableHeader className="bg-[#161616] sticky top-0 z-50">
         <TableRow className="hover:bg-transparent">
-          <TableHead className="text-left w-[20%] pl-4">Produit</TableHead>
-          <TableHead className="text-center">Prix 1000</TableHead>
-          <TableHead className="text-center">Prix 2000</TableHead>
-          <TableHead className="text-center">Prix 3000</TableHead>
-          <TableHead className="text-center">Prix 4000</TableHead>
-          <TableHead className="text-center">Prix 5000</TableHead>
-          <TableHead className="text-center">Prix 8000</TableHead>
-          <TableHead className="text-center">SKU</TableHead>
-          <TableHead className="text-center">Quantité</TableHead>
-          <TableHead className="text-right pr-4">Total (CAD)</TableHead>
+          <TableHead className="text-left w-[20%] pl-4 bg-[#161616]">Produit</TableHead>
+          <TableHead className="text-center bg-[#161616]">Prix 1000</TableHead>
+          <TableHead className="text-center bg-[#161616]">Prix 2000</TableHead>
+          <TableHead className="text-center bg-[#161616]">Prix 3000</TableHead>
+          <TableHead className="text-center bg-[#161616]">Prix 4000</TableHead>
+          <TableHead className="text-center bg-[#161616]">Prix 5000</TableHead>
+          <TableHead className="text-center bg-[#161616]">Prix 8000</TableHead>
+          <TableHead className="text-center bg-[#161616]">SKU</TableHead>
+          <TableHead className="text-center bg-[#161616]">Quantité</TableHead>
+          <TableHead className="text-right pr-4 bg-[#161616]">Total (CAD)</TableHead>
         </TableRow>
       </TableHeader>
             

@@ -51,9 +51,12 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
   // Get the SKUs that have already been selected for this product
   const productSelectedSKUs = selectedSKUs[product.id] || [];
   
-  // Filter out already selected SKUs from the dropdown options
+  // Get all selected SKUs across the entire table
+  const allSelectedSKUs = Object.values(selectedSKUs).flat();
+  
+  // Filter out already selected SKUs from the dropdown options (globally across the entire table)
   const availableSKUs = analysisProductSKUs.filter(
-    skuItem => !productSelectedSKUs.includes(skuItem.SKU)
+    skuItem => !allSelectedSKUs.includes(skuItem.SKU)
   );
 
   // Get the total price for all SKUs in this product row
@@ -75,7 +78,7 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
               <DropdownMenuTrigger className="w-full px-3 py-1 text-sm border border-input rounded-md bg-[#161616] hover:bg-[#272727]">
                 Ajouter SKU
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="max-h-[200px] overflow-y-auto bg-[#161616] border-[#272727]">
+              <DropdownMenuContent className="max-h-[200px] overflow-y-auto bg-[#161616] border-[#272727] z-[100]">
                 {availableSKUs.map((skuItem) => (
                   <DropdownMenuItem 
                     key={skuItem.SKU}
