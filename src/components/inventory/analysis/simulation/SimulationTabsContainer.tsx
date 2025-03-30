@@ -14,7 +14,7 @@ interface SimulationTabsContainerProps {
   activeTab: string;
   onTabChange: (value: string) => void;
   isPricesLoading: boolean;
-  onRefresh: () => void;
+  onRefresh: () => void | Promise<void>; // Update type to accept both void and Promise<void>
   productPrices: ProductPrice[];
   quantityOptions: QuantityOption[];
   selectedSKUs: Record<string, SelectedSKU[]>;

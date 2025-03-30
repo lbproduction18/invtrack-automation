@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useProductPrices } from '@/hooks/useProductPrices';
 import { useBudgetSettings } from '@/hooks/useBudgetSettings';
@@ -74,9 +73,9 @@ export function useBudgetSimulation(onCreateOrder: () => void) {
     }
   }, [analysisItems, products, productPrices]);
 
-  // Handle refresh button click
+  // Handle refresh button click - ensure this returns a Promise<void>
   const handleRefresh = async () => {
-    await refetch();
+    return await refetch();
   };
 
   return {

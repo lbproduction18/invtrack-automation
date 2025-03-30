@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useBudgetSimulation } from './simulation/useBudgetSimulation';
 import BudgetSimulationLayout from './simulation/BudgetSimulationLayout';
@@ -49,7 +48,7 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
       activeTab={activeTab}
       onTabChange={setActiveTab}
       isPricesLoading={isPricesLoading}
-      onRefresh={handleRefresh}
+      onRefresh={handleRefresh} // This should now be properly typed
       productPrices={productPrices}
       quantityOptions={quantityOptions}
       selectedSKUs={selectedSKUs}

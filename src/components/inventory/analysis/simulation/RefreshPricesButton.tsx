@@ -4,19 +4,30 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 
 export interface RefreshPricesButtonProps {
-  onRefresh: () => Promise<void>;
-  isLoading?: boolean; // Make isLoading optional to fix the build error
+  onRefresh: () => void | Promise<void>; // Update type to accept both void and Promise<void>
+  isLoading?: boolean;
 }
 
 const RefreshPricesButton: React.FC<RefreshPricesButtonProps> = ({ 
   onRefresh,
-  isLoading = false // Default to false if not provided
+  isLoading = false
 }) => {
+  const handleRefresh = () => {
+    // Handle both Promise and non-Promise returns
+    const result = onRefresh();
+    if (result instanceof Promise) {
+      // If it returns a Promise, we let it resolve naturally
+      return result;
+    }
+    // If not a Promise, we return a resolved Promise to satisfy the type
+    return Promise.resolve();
+  };
+
   return (
     <Button 
       variant="outline" 
       size="sm" 
-      onClick={onRefresh}
+      onClick={handleRefresh}
       disabled={isLoading}
       className="border-[#272727] bg-[#161616] hover:bg-[#222] flex items-center"
     >
