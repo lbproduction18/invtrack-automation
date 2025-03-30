@@ -1,12 +1,12 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, Database, Check } from 'lucide-react';
+import { Loader2, Database, Check, Tag } from 'lucide-react';
 import { useBackfillAnalysisItems } from '@/hooks/useBackfillAnalysisItems';
 import { useToast } from '@/hooks/use-toast';
 
 const BackfillSKUData: React.FC = () => {
-  const { backfillSKUData, isLoading, isComplete } = useBackfillAnalysisItems();
+  const { backfillSKUData, associatePrices, isLoading, isComplete, isPriceAssociationLoading, isPriceAssociationComplete } = useBackfillAnalysisItems();
   const { toast } = useToast();
 
   const handleBackfill = () => {
@@ -14,6 +14,14 @@ const BackfillSKUData: React.FC = () => {
     toast({
       title: "Synchronisation démarrée",
       description: "La mise à jour des données SKU est en cours...",
+    });
+  };
+
+  const handleAssociatePrices = () => {
+    associatePrices();
+    toast({
+      title: "Association des prix démarrée",
+      description: "L'association des prix aux SKUs est en cours...",
     });
   };
 
@@ -44,9 +52,34 @@ const BackfillSKUData: React.FC = () => {
         )}
       </Button>
       
-      {!isLoading && !isComplete && (
+      <Button 
+        variant="outline" 
+        size="sm"
+        disabled={isPriceAssociationLoading || isPriceAssociationComplete}
+        onClick={handleAssociatePrices}
+        className="text-xs h-8"
+      >
+        {isPriceAssociationLoading ? (
+          <>
+            <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+            Association en cours...
+          </>
+        ) : isPriceAssociationComplete ? (
+          <>
+            <Check className="mr-2 h-3 w-3 text-green-500" />
+            Association terminée
+          </>
+        ) : (
+          <>
+            <Tag className="mr-2 h-3 w-3" />
+            Associer les prix
+          </>
+        )}
+      </Button>
+      
+      {!isLoading && !isComplete && !isPriceAssociationLoading && !isPriceAssociationComplete && (
         <p className="text-xs text-muted-foreground">
-          Cliquez pour mettre à jour les SKUs manquants dans la base de données (sans les prix)
+          Cliquez pour mettre à jour les SKUs ou associer les prix dans la base de données
         </p>
       )}
     </div>
