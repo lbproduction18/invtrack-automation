@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useProducts } from '@/hooks/useProducts';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
+import { useProductPrices } from '@/hooks/useProductPrices';
 
 export function useBackfillAnalysisItems() {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,6 +12,7 @@ export function useBackfillAnalysisItems() {
   const { toast } = useToast();
   const { products } = useProducts('all');
   const { analysisItems, refetch } = useAnalysisItems();
+  const { productPrices } = useProductPrices();
 
   // Function to backfill SKU data for existing analysis items
   const backfillSKUData = async () => {
@@ -30,13 +32,40 @@ export function useBackfillAnalysisItems() {
         const product = products.find(p => p.id === item.product_id);
         
         if (product) {
-          // Update the analysis item with the product's SKU data
+          // Find the corresponding product price by matching product category from SKU
+          let matchedProductPrice = null;
+          
+          if (product.SKU) {
+            const skuParts = product.SKU.split('-');
+            const productCategory = skuParts[0];
+            
+            matchedProductPrice = productPrices.find(p => {
+              const normalizedProductName = p.product_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+              const normalizedCategory = productCategory.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+              return normalizedProductName.includes(normalizedCategory) || normalizedCategory.includes(normalizedProductName);
+            });
+          }
+          
+          // Prepare the update object with SKU data
+          const updateObject: any = {
+            sku_code: product.SKU,
+            sku_label: product.product_name
+          };
+          
+          // Add pricing data if available
+          if (matchedProductPrice) {
+            updateObject.price_1000 = matchedProductPrice.price_1000;
+            updateObject.price_2000 = matchedProductPrice.price_2000;
+            updateObject.price_3000 = matchedProductPrice.price_3000;
+            updateObject.price_4000 = matchedProductPrice.price_4000;
+            updateObject.price_5000 = matchedProductPrice.price_5000;
+            updateObject.price_8000 = matchedProductPrice.price_8000;
+          }
+          
+          // Update the analysis item with the product's SKU and pricing data
           const { error } = await supabase
             .from('analysis_items')
-            .update({
-              sku_code: product.SKU,
-              sku_label: product.product_name
-            })
+            .update(updateObject)
             .eq('id', item.id);
             
           if (error) {
@@ -55,7 +84,7 @@ export function useBackfillAnalysisItems() {
       
       toast({
         title: "Mise à jour réussie",
-        description: `${updatedCount} produits en analyse ont été mis à jour avec leurs informations SKU.`,
+        description: `${updatedCount} produits en analyse ont été mis à jour avec leurs informations SKU et de prix.`,
       });
     } catch (error) {
       console.error('Error during backfill operation:', error);

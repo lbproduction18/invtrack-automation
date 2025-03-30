@@ -86,8 +86,8 @@ export function useSimulationSKUs(
       
       console.log(`Adding SKU with default quantity ${defaultQuantity} and price ${defaultPrice}`);
       
-      // Now update the analysis_item with SKU information
-      updateAnalysisItemSKU(skuInfo.id, skuInfo.SKU, skuInfo.productName || '');
+      // Now update the analysis_item with SKU information and pricing data
+      updateAnalysisItemSKU(skuInfo.id, skuInfo.SKU, skuInfo.productName || '', productPrice);
       
       return {
         ...prev,
@@ -105,31 +105,50 @@ export function useSimulationSKUs(
     });
   };
   
-  // Update the analysis_items record with SKU information
-  const updateAnalysisItemSKU = async (productId: string, skuCode: string, skuLabel: string) => {
+  // Update the analysis_items record with SKU information and pricing data
+  const updateAnalysisItemSKU = async (
+    productId: string, 
+    skuCode: string, 
+    skuLabel: string, 
+    productPrice: ProductPrice | undefined
+  ) => {
     try {
       // First, check if an analysis item exists for this product
       const existingItem = analysisItems.find(item => item.product_id === productId);
+      
+      // Prepare the update/insert object with SKU information
+      const dataObject: any = {
+        sku_code: skuCode,
+        sku_label: skuLabel
+      };
+      
+      // Add pricing data if available
+      if (productPrice) {
+        dataObject.price_1000 = productPrice.price_1000;
+        dataObject.price_2000 = productPrice.price_2000;
+        dataObject.price_3000 = productPrice.price_3000;
+        dataObject.price_4000 = productPrice.price_4000;
+        dataObject.price_5000 = productPrice.price_5000;
+        dataObject.price_8000 = productPrice.price_8000;
+      }
       
       if (existingItem) {
         // If the item exists, update it
         await updateAnalysisItem.mutateAsync({
           id: existingItem.id,
-          updates: {
-            sku_code: skuCode,
-            sku_label: skuLabel
-          }
+          updates: dataObject
         });
-        console.log(`Successfully updated SKU for product ${productId}`);
+        console.log(`Successfully updated SKU and pricing for product ${productId}`);
       } else {
         // If the item doesn't exist, create a new one
+        const insertObject = {
+          product_id: productId,
+          ...dataObject
+        };
+        
         const { data, error } = await supabase
           .from('analysis_items')
-          .insert([{
-            product_id: productId,
-            sku_code: skuCode,
-            sku_label: skuLabel
-          }])
+          .insert([insertObject])
           .select();
           
         if (error) {
@@ -230,7 +249,7 @@ export function useSimulationSKUs(
         
         // Update quantity in analysis_items
         if (sku.productId) {
-          updateAnalysisItemQuantity(sku.productId, quantity);
+          updateAnalysisItemQuantity(sku.productId, quantity, productPrice);
         }
       }
       
@@ -242,23 +261,56 @@ export function useSimulationSKUs(
   };
   
   // Update the quantity in the analysis_items table
-  const updateAnalysisItemQuantity = async (productId: string, quantity: number) => {
+  const updateAnalysisItemQuantity = async (
+    productId: string, 
+    quantity: number, 
+    productPrice: ProductPrice | undefined
+  ) => {
     try {
+      // Prepare the update object with quantity
+      const dataObject: any = { 
+        quantity_selected: quantity 
+      };
+      
       const analysisItem = analysisItems.find(item => item.product_id === productId);
       if (analysisItem) {
         await updateAnalysisItem.mutateAsync({
           id: analysisItem.id,
-          updates: { quantity_selected: quantity }
+          updates: dataObject
         });
         console.log(`Successfully updated quantity to ${quantity} for product ${productId}`);
       } else {
         // If no analysis item exists, create one
+        const insertObject = {
+          product_id: productId,
+          quantity_selected: quantity
+        };
+        
+        // Add SKU data if available
+        const product = await supabase
+          .from('Low stock product')
+          .select('SKU, product_name')
+          .eq('id', productId)
+          .single();
+          
+        if (product.data) {
+          insertObject['sku_code'] = product.data.SKU;
+          insertObject['sku_label'] = product.data.product_name;
+          
+          // Add pricing data if available
+          if (productPrice) {
+            insertObject['price_1000'] = productPrice.price_1000;
+            insertObject['price_2000'] = productPrice.price_2000;
+            insertObject['price_3000'] = productPrice.price_3000;
+            insertObject['price_4000'] = productPrice.price_4000;
+            insertObject['price_5000'] = productPrice.price_5000;
+            insertObject['price_8000'] = productPrice.price_8000;
+          }
+        }
+        
         const { error } = await supabase
           .from('analysis_items')
-          .insert([{
-            product_id: productId,
-            quantity_selected: quantity
-          }]);
+          .insert([insertObject]);
           
         if (error) {
           console.error('Error creating analysis item:', error);

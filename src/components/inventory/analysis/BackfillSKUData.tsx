@@ -3,9 +3,19 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, Database, Check } from 'lucide-react';
 import { useBackfillAnalysisItems } from '@/hooks/useBackfillAnalysisItems';
+import { useToast } from '@/hooks/use-toast';
 
 const BackfillSKUData: React.FC = () => {
   const { backfillSKUData, isLoading, isComplete } = useBackfillAnalysisItems();
+  const { toast } = useToast();
+
+  const handleBackfill = () => {
+    backfillSKUData();
+    toast({
+      title: "Synchronisation démarrée",
+      description: "La mise à jour des données SKU est en cours...",
+    });
+  };
 
   return (
     <div className="flex items-center space-x-2 mb-4">
@@ -13,7 +23,7 @@ const BackfillSKUData: React.FC = () => {
         variant="outline" 
         size="sm"
         disabled={isLoading || isComplete}
-        onClick={backfillSKUData}
+        onClick={handleBackfill}
         className="text-xs h-8"
       >
         {isLoading ? (

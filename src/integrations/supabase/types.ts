@@ -16,6 +16,12 @@ export type Database = {
           lab_status_text: string | null
           last_order_date: string | null
           last_order_info: string | null
+          price_1000: number | null
+          price_2000: number | null
+          price_3000: number | null
+          price_4000: number | null
+          price_5000: number | null
+          price_8000: number | null
           product_id: string | null
           quantity_selected: number | null
           sku_code: string | null
@@ -30,6 +36,12 @@ export type Database = {
           lab_status_text?: string | null
           last_order_date?: string | null
           last_order_info?: string | null
+          price_1000?: number | null
+          price_2000?: number | null
+          price_3000?: number | null
+          price_4000?: number | null
+          price_5000?: number | null
+          price_8000?: number | null
           product_id?: string | null
           quantity_selected?: number | null
           sku_code?: string | null
@@ -44,6 +56,12 @@ export type Database = {
           lab_status_text?: string | null
           last_order_date?: string | null
           last_order_info?: string | null
+          price_1000?: number | null
+          price_2000?: number | null
+          price_3000?: number | null
+          price_4000?: number | null
+          price_5000?: number | null
+          price_8000?: number | null
           product_id?: string | null
           quantity_selected?: number | null
           sku_code?: string | null

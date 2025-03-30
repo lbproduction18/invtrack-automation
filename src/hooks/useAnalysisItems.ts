@@ -18,6 +18,12 @@ export interface AnalysisItem {
   weeks_delivery: string | null; 
   sku_code: string | null;
   sku_label: string | null;
+  price_1000: number | null;
+  price_2000: number | null;
+  price_3000: number | null;
+  price_4000: number | null;
+  price_5000: number | null;
+  price_8000: number | null;
 }
 
 export function useAnalysisItems() {
@@ -70,14 +76,14 @@ export function useAnalysisItems() {
       // Get product details to include SKU information
       const { data: productDetails, error: detailsError } = await supabase
         .from('Low stock product')
-        .select('id, SKU, product_name')
+        .select('id, SKU, product_name, price_1000, price_2000, price_3000, price_4000, price_5000, price_8000')
         .in('id', productIds);
         
       if (detailsError) {
         throw detailsError;
       }
       
-      // Then create analysis items with SKU information
+      // Then create analysis items with SKU information and pricing
       const analysisItems = productIds.map(id => {
         const product = productDetails.find(p => p.id === id);
         return {
@@ -88,7 +94,13 @@ export function useAnalysisItems() {
           last_order_date: null,
           sku_code: product?.SKU || null,
           sku_label: product?.product_name || null,
-          weeks_delivery: null
+          weeks_delivery: null,
+          price_1000: product?.price_1000 || null,
+          price_2000: product?.price_2000 || null,
+          price_3000: product?.price_3000 || null,
+          price_4000: product?.price_4000 || null,
+          price_5000: product?.price_5000 || null,
+          price_8000: product?.price_8000 || null
         };
       });
       
