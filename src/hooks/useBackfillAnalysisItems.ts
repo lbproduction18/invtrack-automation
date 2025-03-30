@@ -13,7 +13,7 @@ export function useBackfillAnalysisItems() {
   const [isPriceAssociationComplete, setIsPriceAssociationComplete] = useState(false);
   const { toast } = useToast();
   const { products } = useProducts('all');
-  const { analysisItems, refetch } = useAnalysisItems();
+  const { analysisItems, refetch, updateSKUPrices } = useAnalysisItems();
   const { productPrices } = useProductPrices();
 
   // Function to backfill SKU data for existing analysis items (without price data)
@@ -78,69 +78,110 @@ export function useBackfillAnalysisItems() {
     }
   };
 
-  // Function to associate prices with existing SKUs based on SKU code matching
+  // Function to associate prices with existing SKUs based on exact SKU mapping per product row
   const associatePrices = async () => {
     setIsPriceAssociationLoading(true);
     let updatedCount = 0;
     
     try {
-      // Get all analysis items that have SKU data but no price data
-      const itemsNeedingPrices = analysisItems.filter(
-        item => item.sku_code && (!item.price_1000 && !item.price_2000 && !item.price_3000 && 
-               !item.price_4000 && !item.price_5000 && !item.price_8000)
+      // Build a mapping of SKUs to product_id for all analysis items with SKU data
+      const skuToProductMapping: Record<string, string> = {};
+      analysisItems.forEach(item => {
+        if (item.sku_code && item.product_id) {
+          skuToProductMapping[item.sku_code] = item.product_id;
+        }
+      });
+      
+      console.log('SKU to product mapping:', skuToProductMapping);
+      
+      // Create a mapping of product_id to product_price
+      const productIdToPriceMapping: Record<string, any> = {};
+      products.forEach(product => {
+        // For each product, find the corresponding product price where names are similar
+        const skuParts = product.SKU.split('-');
+        const productCategory = skuParts[0];
+        
+        const matchingProductPrice = productPrices.find(p => {
+          const normalizedProductName = p.product_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+          const normalizedCategory = productCategory.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+          return normalizedProductName.includes(normalizedCategory) || normalizedCategory.includes(normalizedProductName);
+        });
+        
+        if (matchingProductPrice) {
+          productIdToPriceMapping[product.id] = matchingProductPrice;
+        }
+      });
+      
+      console.log('Product ID to price mapping:', productIdToPriceMapping);
+      
+      // Loop through all items with SKUs
+      const itemsToUpdate = analysisItems.filter(item => 
+        item.sku_code && 
+        (!item.price_1000 && !item.price_2000 && !item.price_3000 && 
+        !item.price_4000 && !item.price_5000 && !item.price_8000)
       );
       
-      console.log(`Found ${itemsNeedingPrices.length} analysis items that need price data associated`);
+      console.log(`Found ${itemsToUpdate.length} analysis items that need price data associated`);
       
-      for (const item of itemsNeedingPrices) {
-        if (item.sku_code) {
-          // Extract product category from SKU for pricing lookup
-          const skuParts = item.sku_code.split('-');
-          const productCategory = skuParts[0];
-          
-          // Find the corresponding product price by matching product category
-          const matchedProductPrice = productPrices.find(p => {
-            const normalizedProductName = p.product_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-            const normalizedCategory = productCategory.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-            return normalizedProductName.includes(normalizedCategory) || normalizedCategory.includes(normalizedProductName);
-          });
-          
-          if (matchedProductPrice) {
-            // Prepare the update object with price data
-            const updateObject = {
-              price_1000: matchedProductPrice.price_1000,
-              price_2000: matchedProductPrice.price_2000,
-              price_3000: matchedProductPrice.price_3000,
-              price_4000: matchedProductPrice.price_4000,
-              price_5000: matchedProductPrice.price_5000,
-              price_8000: matchedProductPrice.price_8000
-            };
-            
-            // Update the analysis item with price data
-            const { error } = await supabase
-              .from('analysis_items')
-              .update(updateObject)
-              .eq('id', item.id);
-              
-            if (error) {
-              console.error(`Error updating price data for item ${item.id}:`, error);
-            } else {
-              updatedCount++;
-            }
-          } else {
-            console.warn(`No matching product price found for SKU ${item.sku_code}`);
-          }
+      // Prepare the updates list
+      const updateList = itemsToUpdate.map(item => {
+        if (!item.sku_code || !item.id) return null;
+        
+        const productId = item.product_id;
+        if (!productId) {
+          console.warn(`No product ID found for SKU ${item.sku_code}`);
+          return null;
         }
+        
+        const priceInfo = productIdToPriceMapping[productId];
+        if (!priceInfo) {
+          console.warn(`No price information found for product ID ${productId} (SKU ${item.sku_code})`);
+          return null;
+        }
+        
+        console.log(`Updating SKU ${item.sku_code} with prices from product ${priceInfo.product_name}:`, {
+          price_1000: priceInfo.price_1000,
+          price_2000: priceInfo.price_2000,
+          price_3000: priceInfo.price_3000,
+          price_4000: priceInfo.price_4000,
+          price_5000: priceInfo.price_5000,
+          price_8000: priceInfo.price_8000
+        });
+        
+        return {
+          id: item.id,
+          price_1000: priceInfo.price_1000,
+          price_2000: priceInfo.price_2000,
+          price_3000: priceInfo.price_3000,
+          price_4000: priceInfo.price_4000,
+          price_5000: priceInfo.price_5000,
+          price_8000: priceInfo.price_8000
+        };
+      }).filter(Boolean);
+      
+      console.log('Price updates to be applied:', updateList);
+      
+      // Update all the prices at once using the updateSKUPrices mutation
+      if (updateList.length > 0) {
+        // @ts-ignore - TypeScript may complain about the filter
+        await updateSKUPrices.mutateAsync(updateList);
+        updatedCount = updateList.length;
+        
+        // Refresh the data
+        await refetch();
+        setIsPriceAssociationComplete(true);
+        
+        toast({
+          title: "Association des prix réussie",
+          description: `${updatedCount} SKUs ont été associés avec leurs prix correspondants.`,
+        });
+      } else {
+        toast({
+          title: "Aucune mise à jour effectuée",
+          description: "Aucun SKU nécessitant une mise à jour de prix n'a été trouvé.",
+          variant: "warning"
+        });
       }
-      
-      // Refresh the data
-      await refetch();
-      setIsPriceAssociationComplete(true);
-      
-      toast({
-        title: "Association des prix réussie",
-        description: `${updatedCount} SKUs ont été associés avec leurs prix correspondants.`,
-      });
     } catch (error) {
       console.error('Error during price association:', error);
       toast({
