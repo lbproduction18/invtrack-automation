@@ -1,11 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { type SelectedSKU } from '@/types/product';
 import { type ProductPrice } from '@/hooks/useProductPrices';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
-import { supabase } from '@/integrations/supabase/client';
 
 export function useSimulationSKUs(
   selectedSKUs: Record<string, SelectedSKU[]>,
@@ -13,7 +11,7 @@ export function useSimulationSKUs(
   productPrices: ProductPrice[]
 ) {
   const { toast } = useToast();
-  const { analysisItems } = useAnalysisItems();
+  const { analysisItems, updateAnalysisItem } = useAnalysisItems();
   const quantityOptions: QuantityOption[] = [1000, 2000, 3000, 4000, 5000, 8000];
 
   useEffect(() => {
@@ -108,19 +106,14 @@ export function useSimulationSKUs(
   // Update the analysis_items record with SKU information
   const updateAnalysisItemSKU = async (productId: string, skuCode: string, skuLabel: string) => {
     try {
-      const { error } = await supabase
-        .from('analysis_items')
-        .update({
+      await updateAnalysisItem.mutateAsync({
+        id: analysisItems.find(item => item.product_id === productId)?.id || '',
+        updates: {
           sku_code: skuCode,
           sku_label: skuLabel
-        })
-        .eq('product_id', productId);
-      
-      if (error) {
-        console.error('Error updating SKU in analysis_items:', error);
-      } else {
-        console.log(`Successfully updated SKU for product ${productId}`);
-      }
+        }
+      });
+      console.log(`Successfully updated SKU for product ${productId}`);
     } catch (err) {
       console.error('Exception updating SKU in analysis_items:', err);
     }
@@ -159,19 +152,14 @@ export function useSimulationSKUs(
   // Clear SKU information from an analysis_item
   const clearAnalysisItemSKU = async (productId: string) => {
     try {
-      const { error } = await supabase
-        .from('analysis_items')
-        .update({
+      await updateAnalysisItem.mutateAsync({
+        id: analysisItems.find(item => item.product_id === productId)?.id || '',
+        updates: {
           sku_code: null,
           sku_label: null
-        })
-        .eq('product_id', productId);
-      
-      if (error) {
-        console.error('Error clearing SKU in analysis_items:', error);
-      } else {
-        console.log(`Successfully cleared SKU for product ${productId}`);
-      }
+        }
+      });
+      console.log(`Successfully cleared SKU for product ${productId}`);
     } catch (err) {
       console.error('Exception clearing SKU in analysis_items:', err);
     }
@@ -226,16 +214,11 @@ export function useSimulationSKUs(
   // Update the quantity in the analysis_items table
   const updateAnalysisItemQuantity = async (productId: string, quantity: number) => {
     try {
-      const { error } = await supabase
-        .from('analysis_items')
-        .update({ quantity_selected: quantity })
-        .eq('product_id', productId);
-      
-      if (error) {
-        console.error('Error updating quantity in analysis_items:', error);
-      } else {
-        console.log(`Successfully updated quantity to ${quantity} for product ${productId}`);
-      }
+      await updateAnalysisItem.mutateAsync({
+        id: analysisItems.find(item => item.product_id === productId)?.id || '',
+        updates: { quantity_selected: quantity }
+      });
+      console.log(`Successfully updated quantity to ${quantity} for product ${productId}`);
     } catch (err) {
       console.error('Exception updating quantity in analysis_items:', err);
     }

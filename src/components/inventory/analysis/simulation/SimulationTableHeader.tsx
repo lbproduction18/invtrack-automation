@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { 
-  TableHeader,
-  TableRow,
-  TableHead
+  TableHead, 
+  TableHeader, 
+  TableRow 
 } from "@/components/ui/table";
+import { formatTotalPrice } from '../pricing/PriceFormatter';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 
 interface SimulationTableHeaderProps {
@@ -19,20 +20,32 @@ const SimulationTableHeader: React.FC<SimulationTableHeaderProps> = ({
   showSkuColumn = false
 }) => {
   return (
-    <TableHeader className="bg-[#161616] sticky top-0 z-[100]">
+    <TableHeader className="bg-[#161616] sticky top-0 z-10">
       <TableRow className="hover:bg-transparent">
-        <TableHead className="w-[280px] pl-4">Produit</TableHead>
+        {/* Product column */}
+        <TableHead className="text-left w-[25%] bg-[#161616] pl-4">Produit</TableHead>
         
-        {/* Price column headers for each quantity option */}
+        {/* SKU Column (optional) */}
+        {showSkuColumn && (
+          <TableHead className="text-left w-[20%] bg-[#161616]">SKU</TableHead>
+        )}
+        
+        {/* Quantity columns */}
         {quantityOptions.map(qty => (
-          <TableHead key={qty} className="text-center">
+          <TableHead 
+            key={`qty-${qty}`} 
+            className="text-center bg-[#161616] whitespace-nowrap"
+          >
             {qty.toLocaleString()}
           </TableHead>
         ))}
         
-        {/* SKU selection column */}
-        <TableHead className="text-right pr-4 min-w-[300px]">
-          {showSkuColumn ? "Sélectionner un SKU" : ""}
+        {/* Total column */}
+        <TableHead className="text-right pr-4 bg-[#161616]">
+          <div className="flex flex-col items-end">
+            <span>Total</span>
+            <span className="text-xs text-primary">{formatTotalPrice(simulationTotal)}</span>
+          </div>
         </TableHead>
       </TableRow>
     </TableHeader>

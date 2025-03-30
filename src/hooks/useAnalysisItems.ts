@@ -75,7 +75,8 @@ export function useAnalysisItems() {
         lab_status_text: null,
         last_order_date: null,
         sku_code: null,
-        sku_label: null
+        sku_label: null,
+        weeks_delivery: null
       }));
       
       const { data, error } = await supabase
@@ -109,11 +110,44 @@ export function useAnalysisItems() {
     }
   });
 
+  // Update analysis item
+  const updateAnalysisItem = useMutation({
+    mutationFn: async ({ id, updates }: { id: string, updates: Partial<AnalysisItem> }) => {
+      console.log(`Updating analysis item ${id} with:`, updates);
+      
+      const { data, error } = await supabase
+        .from('analysis_items')
+        .update(updates)
+        .eq('id', id)
+        .select();
+        
+      if (error) {
+        console.error('Error updating analysis item:', error);
+        throw error;
+      }
+      
+      return data[0];
+    },
+    onSuccess: () => {
+      // Invalidate the query to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['analysisItems'] });
+    },
+    onError: (error) => {
+      console.error('Error updating analysis item:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour l'analyse. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    }
+  });
+
   return { 
     analysisItems, 
     isLoading, 
     error, 
     refetch,
-    addToAnalysis
+    addToAnalysis,
+    updateAnalysisItem
   };
 }

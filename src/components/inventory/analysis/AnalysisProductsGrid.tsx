@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Table, TableBody, TableCell, TableHead, 
@@ -15,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { type AnalysisProduct } from '@/components/inventory/AnalysisContent';
+import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 
 interface AnalysisProductsGridProps {
   analysisProducts: AnalysisProduct[];
@@ -28,6 +28,7 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
   refetchAnalysis
 }) => {
   const { toast } = useToast();
+  const { updateAnalysisItem } = useAnalysisItems();
   const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
   const [saveSuccess, setSaveSuccess] = useState<Record<string, boolean>>({});
   const [editableValues, setEditableValues] = useState<Record<string, any>>({});
@@ -70,14 +71,10 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     setSaveSuccess(prev => ({ ...prev, [infoKey]: false }));
     
     try {
-      const { error } = await supabase
-        .from('analysis_items')
-        .update({ last_order_info: infoValue })
-        .eq('id', analysisItemId);
-      
-      if (error) {
-        throw error;
-      }
+      await updateAnalysisItem.mutateAsync({
+        id: analysisItemId,
+        updates: { last_order_info: infoValue }
+      });
       
       toast({
         title: "Dernière commande mise à jour",
@@ -110,14 +107,10 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     setSaveSuccess(prev => ({ ...prev, [dateKey]: false }));
     
     try {
-      const { error } = await supabase
-        .from('analysis_items')
-        .update({ last_order_date: date ? date.toISOString() : null })
-        .eq('id', analysisItemId);
-      
-      if (error) {
-        throw error;
-      }
+      await updateAnalysisItem.mutateAsync({
+        id: analysisItemId,
+        updates: { last_order_date: date ? date.toISOString() : null }
+      });
       
       handleInputChange(dateKey, date);
       
@@ -153,14 +146,10 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     setSaveSuccess(prev => ({ ...prev, [statusKey]: false }));
     
     try {
-      const { error } = await supabase
-        .from('analysis_items')
-        .update({ lab_status_text: statusValue })
-        .eq('id', analysisItemId);
-      
-      if (error) {
-        throw error;
-      }
+      await updateAnalysisItem.mutateAsync({
+        id: analysisItemId,
+        updates: { lab_status_text: statusValue }
+      });
       
       toast({
         title: "Étiquette labo mise à jour",
@@ -194,14 +183,10 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     setSaveSuccess(prev => ({ ...prev, [weeksKey]: false }));
     
     try {
-      const { error } = await supabase
-        .from('analysis_items')
-        .update({ weeks_delivery: weeksValue })
-        .eq('id', analysisItemId);
-      
-      if (error) {
-        throw error;
-      }
+      await updateAnalysisItem.mutateAsync({
+        id: analysisItemId,
+        updates: { weeks_delivery: weeksValue }
+      });
       
       toast({
         title: "Délai de livraison mis à jour",
@@ -387,7 +372,6 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                         </PopoverContent>
                       </Popover>
                       
-                      {/* Display weeks since last order date */}
                       {item.last_order_date && (
                         <span className="text-xs text-gray-400">
                           {getWeeksSince(item.last_order_date)}

@@ -55,6 +55,11 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
     refreshAnalysisItems();
   }, []);
 
+  // When the analysisItems prop changes (due to updates elsewhere), refresh our local state
+  useEffect(() => {
+    setRefreshedAnalysisItems(analysisItems);
+  }, [analysisItems]);
+
   // Helper function to find corresponding analysis item for a product
   const findAnalysisItem = (productId: string): AnalysisItem | undefined => {
     return refreshedAnalysisItems.find(item => item.product_id === productId);
