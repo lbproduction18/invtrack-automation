@@ -46,41 +46,47 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
       // For each selected SKU, find the corresponding analysis item and update its prices
       const updateList: Partial<AnalysisItem>[] = [];
       
-      for (const sku of allSelectedSKUs) {
-        // Find the analysis item for this SKU - using exact SKU code match only
-        const analysisItem = analysisItems.find(item => item.sku_code === sku);
+      // Loop through each product ID in the selectedSKUs record
+      for (const productId of Object.keys(selectedSKUs)) {
+        // Find the product price data for this specific row
+        const productPrice = productPrices.find(p => p.id === productId);
         
-        if (analysisItem) {
-          // Find the product ID in selectedSKUs that contains this SKU
-          const productId = Object.keys(selectedSKUs).find(id => 
-            selectedSKUs[id].includes(sku)
-          );
+        if (!productPrice) {
+          console.warn(`No price information found for product ID ${productId}`);
+          continue;
+        }
+        
+        // Get the SKUs selected in this row
+        const skusForThisProduct = selectedSKUs[productId];
+        
+        // For each selected SKU in this row
+        for (const sku of skusForThisProduct) {
+          // Find the analysis item for this SKU
+          const analysisItem = analysisItems.find(item => item.sku_code === sku);
           
-          if (productId) {
-            // Find the matching product price using the product ID
-            const productPrice = productPrices.find(p => p.id === productId);
+          if (analysisItem) {
+            console.log(`Updating SKU ${sku} with prices from product ${productPrice.product_name}:`, {
+              price_1000: productPrice.price_1000,
+              price_2000: productPrice.price_2000,
+              price_3000: productPrice.price_3000,
+              price_4000: productPrice.price_4000,
+              price_5000: productPrice.price_5000,
+              price_8000: productPrice.price_8000
+            });
             
-            if (productPrice) {
-              console.log(`Found price for SKU ${sku} using product ID ${productId}:`, productPrice);
-              
-              // Add to update list with the exact matching prices
-              updateList.push({
-                id: analysisItem.id,
-                price_1000: productPrice.price_1000,
-                price_2000: productPrice.price_2000,
-                price_3000: productPrice.price_3000,
-                price_4000: productPrice.price_4000,
-                price_5000: productPrice.price_5000,
-                price_8000: productPrice.price_8000
-              });
-            } else {
-              console.warn(`No price information found for product ID ${productId} (SKU ${sku})`);
-            }
+            // Add to update list with prices from this specific row
+            updateList.push({
+              id: analysisItem.id,
+              price_1000: productPrice.price_1000,
+              price_2000: productPrice.price_2000,
+              price_3000: productPrice.price_3000,
+              price_4000: productPrice.price_4000,
+              price_5000: productPrice.price_5000,
+              price_8000: productPrice.price_8000
+            });
           } else {
-            console.warn(`Could not find product ID for SKU ${sku} in selectedSKUs`);
+            console.warn(`No analysis item found for SKU ${sku}`);
           }
-        } else {
-          console.warn(`No analysis item found for SKU ${sku}`);
         }
       }
       
