@@ -5,6 +5,7 @@ import { useProducts } from '@/hooks/useProducts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AnalysisProductsGrid from './analysis/AnalysisProductsGrid';
 import PricingGrid from './analysis/PricingGrid';
+import BackfillSKUData from './analysis/BackfillSKUData';
 
 // Define QuantityOption type consistently in this file
 export type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000 | 8000;
@@ -56,6 +57,11 @@ export const AnalysisContent: React.FC = () => {
         </TabsList>
         
         <TabsContent value="products" className="mt-0 space-y-8">
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg font-medium">Produits en analyse</h2>
+            <BackfillSKUData />
+          </div>
+          
           <AnalysisProductsGrid 
             analysisProducts={analysisProducts} 
             isLoading={isLoading}

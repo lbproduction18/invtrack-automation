@@ -89,6 +89,29 @@ const BudgetSimulation: React.FC = () => {
     await refetchAnalysis();
   };
 
+  // Ensure we sync any missing SKU data with Supabase
+  useEffect(() => {
+    // Find SKUs in the UI that might not be synced with the database
+    for (const [productName, skus] of Object.entries(selectedSKUs)) {
+      for (const sku of skus) {
+        const analysisItem = analysisItems.find(item => item.product_id === sku.productId);
+        
+        if (analysisItem && (!analysisItem.sku_code || !analysisItem.sku_label)) {
+          console.log(`Syncing missing SKU data for product ${sku.productId}`);
+          // Update the analysis item with the SKU data
+          const { updateAnalysisItem } = useAnalysisItems();
+          updateAnalysisItem.mutate({
+            id: analysisItem.id,
+            updates: {
+              sku_code: sku.SKU,
+              sku_label: sku.productName || ''
+            }
+          });
+        }
+      }
+    }
+  }, [selectedSKUs, analysisItems]);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
       <div className="lg:col-span-3 space-y-6">

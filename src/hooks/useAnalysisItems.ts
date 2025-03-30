@@ -67,17 +67,30 @@ export function useAnalysisItems() {
         throw productError;
       }
       
-      // Then create analysis items
-      const analysisItems = productIds.map(id => ({
-        product_id: id,
-        quantity_selected: null,
-        last_order_info: null,
-        lab_status_text: null,
-        last_order_date: null,
-        sku_code: null,
-        sku_label: null,
-        weeks_delivery: null
-      }));
+      // Get product details to include SKU information
+      const { data: productDetails, error: detailsError } = await supabase
+        .from('Low stock product')
+        .select('id, SKU, product_name')
+        .in('id', productIds);
+        
+      if (detailsError) {
+        throw detailsError;
+      }
+      
+      // Then create analysis items with SKU information
+      const analysisItems = productIds.map(id => {
+        const product = productDetails.find(p => p.id === id);
+        return {
+          product_id: id,
+          quantity_selected: null,
+          last_order_info: null,
+          lab_status_text: null,
+          last_order_date: null,
+          sku_code: product?.SKU || null,
+          sku_label: product?.product_name || null,
+          weeks_delivery: null
+        };
+      });
       
       const { data, error } = await supabase
         .from('analysis_items')
@@ -128,9 +141,16 @@ export function useAnalysisItems() {
       
       return data[0];
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       // Invalidate the query to refresh the data
       queryClient.invalidateQueries({ queryKey: ['analysisItems'] });
+      console.log('Analysis item updated successfully:', data);
+      
+      // Show success toast for user feedback
+      toast({
+        title: "Mise à jour réussie",
+        description: "Les données d'analyse ont été mises à jour avec succès.",
+      });
     },
     onError: (error) => {
       console.error('Error updating analysis item:', error);

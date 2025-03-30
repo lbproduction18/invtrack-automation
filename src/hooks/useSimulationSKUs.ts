@@ -1,9 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { type SelectedSKU } from '@/types/product';
 import { type ProductPrice } from '@/hooks/useProductPrices';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useSimulationSKUs(
   selectedSKUs: Record<string, SelectedSKU[]>,
@@ -106,14 +108,37 @@ export function useSimulationSKUs(
   // Update the analysis_items record with SKU information
   const updateAnalysisItemSKU = async (productId: string, skuCode: string, skuLabel: string) => {
     try {
-      await updateAnalysisItem.mutateAsync({
-        id: analysisItems.find(item => item.product_id === productId)?.id || '',
-        updates: {
-          sku_code: skuCode,
-          sku_label: skuLabel
+      // First, check if an analysis item exists for this product
+      const existingItem = analysisItems.find(item => item.product_id === productId);
+      
+      if (existingItem) {
+        // If the item exists, update it
+        await updateAnalysisItem.mutateAsync({
+          id: existingItem.id,
+          updates: {
+            sku_code: skuCode,
+            sku_label: skuLabel
+          }
+        });
+        console.log(`Successfully updated SKU for product ${productId}`);
+      } else {
+        // If the item doesn't exist, create a new one
+        const { data, error } = await supabase
+          .from('analysis_items')
+          .insert([{
+            product_id: productId,
+            sku_code: skuCode,
+            sku_label: skuLabel
+          }])
+          .select();
+          
+        if (error) {
+          console.error('Error inserting new analysis item:', error);
+          throw error;
         }
-      });
-      console.log(`Successfully updated SKU for product ${productId}`);
+        
+        console.log(`Successfully created new analysis item for product ${productId}`, data);
+      }
     } catch (err) {
       console.error('Exception updating SKU in analysis_items:', err);
     }
@@ -152,14 +177,19 @@ export function useSimulationSKUs(
   // Clear SKU information from an analysis_item
   const clearAnalysisItemSKU = async (productId: string) => {
     try {
-      await updateAnalysisItem.mutateAsync({
-        id: analysisItems.find(item => item.product_id === productId)?.id || '',
-        updates: {
-          sku_code: null,
-          sku_label: null
-        }
-      });
-      console.log(`Successfully cleared SKU for product ${productId}`);
+      const analysisItem = analysisItems.find(item => item.product_id === productId);
+      if (analysisItem) {
+        await updateAnalysisItem.mutateAsync({
+          id: analysisItem.id,
+          updates: {
+            sku_code: null,
+            sku_label: null
+          }
+        });
+        console.log(`Successfully cleared SKU for product ${productId}`);
+      } else {
+        console.warn(`No analysis item found for product ${productId}`);
+      }
     } catch (err) {
       console.error('Exception clearing SKU in analysis_items:', err);
     }
@@ -214,11 +244,29 @@ export function useSimulationSKUs(
   // Update the quantity in the analysis_items table
   const updateAnalysisItemQuantity = async (productId: string, quantity: number) => {
     try {
-      await updateAnalysisItem.mutateAsync({
-        id: analysisItems.find(item => item.product_id === productId)?.id || '',
-        updates: { quantity_selected: quantity }
-      });
-      console.log(`Successfully updated quantity to ${quantity} for product ${productId}`);
+      const analysisItem = analysisItems.find(item => item.product_id === productId);
+      if (analysisItem) {
+        await updateAnalysisItem.mutateAsync({
+          id: analysisItem.id,
+          updates: { quantity_selected: quantity }
+        });
+        console.log(`Successfully updated quantity to ${quantity} for product ${productId}`);
+      } else {
+        // If no analysis item exists, create one
+        const { error } = await supabase
+          .from('analysis_items')
+          .insert([{
+            product_id: productId,
+            quantity_selected: quantity
+          }]);
+          
+        if (error) {
+          console.error('Error creating analysis item:', error);
+          throw error;
+        }
+        
+        console.log(`Successfully created new analysis item with quantity ${quantity} for product ${productId}`);
+      }
     } catch (err) {
       console.error('Exception updating quantity in analysis_items:', err);
     }
