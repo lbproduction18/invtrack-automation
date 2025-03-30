@@ -24,7 +24,7 @@ export function useProductPrices() {
     data: productPrices = [], 
     isLoading, 
     error,
-    refetch
+    refetch: reactQueryRefetch
   } = useQuery({
     queryKey: ['productPrices'],
     queryFn: async () => {
@@ -49,6 +49,17 @@ export function useProductPrices() {
     },
     refetchOnWindowFocus: false
   });
+
+  // Wrap the refetch function to return Promise<void> instead of Promise<QueryObserverResult>
+  const refetch = async (): Promise<void> => {
+    try {
+      await reactQueryRefetch();
+      return;
+    } catch (error) {
+      console.error('Error refetching product prices:', error);
+      return;
+    }
+  };
 
   // Organize products by name for easier lookup
   const productPricesByName = productPrices.reduce((acc, product) => {

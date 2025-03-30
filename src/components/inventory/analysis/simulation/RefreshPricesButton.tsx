@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 
 export interface RefreshPricesButtonProps {
-  onRefresh: () => void | Promise<void>; // Update type to accept both void and Promise<void>
+  onRefresh: () => void | Promise<void>; // Accept both void and Promise<void>
   isLoading?: boolean;
 }
 
@@ -12,15 +12,18 @@ const RefreshPricesButton: React.FC<RefreshPricesButtonProps> = ({
   onRefresh,
   isLoading = false
 }) => {
-  const handleRefresh = () => {
-    // Handle both Promise and non-Promise returns
-    const result = onRefresh();
-    if (result instanceof Promise) {
-      // If it returns a Promise, we let it resolve naturally
-      return result;
+  const handleRefresh = async () => {
+    try {
+      // Handle both void and Promise<void> returns
+      const result = onRefresh();
+      
+      // If it's a Promise, await it to properly handle any errors
+      if (result instanceof Promise) {
+        await result;
+      }
+    } catch (error) {
+      console.error("Error refreshing prices:", error);
     }
-    // If not a Promise, we return a resolved Promise to satisfy the type
-    return Promise.resolve();
   };
 
   return (

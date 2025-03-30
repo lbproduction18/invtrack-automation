@@ -48,7 +48,7 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ onCreateOrder }) =>
       activeTab={activeTab}
       onTabChange={setActiveTab}
       isPricesLoading={isPricesLoading}
-      onRefresh={handleRefresh} // This should now be properly typed
+      onRefresh={handleRefresh}
       productPrices={productPrices}
       quantityOptions={quantityOptions}
       selectedSKUs={selectedSKUs}
