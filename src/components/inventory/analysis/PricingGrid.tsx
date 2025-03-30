@@ -15,6 +15,7 @@ import PriceTable from './pricing/PriceTable';
 import SimulationSummary from './pricing/SimulationSummary';
 import TotalSummary from './pricing/TotalSummary';
 import SelectedSKUsList from './pricing/SelectedSKUsList';
+import UpdatePricesButton from './pricing/UpdatePricesButton';
 import { Loader2 } from 'lucide-react';
 import { formatTotalPrice } from './pricing/PriceFormatter';
 
@@ -59,7 +60,14 @@ const PricingGrid: React.FC = () => {
   return (
     <Card className="border border-[#272727] bg-[#131313]">
       <CardHeader className="px-4 py-3 border-b border-[#272727]">
-        <CardTitle className="text-sm font-medium">Grille Tarifaire et Simulation</CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-sm font-medium">Grille Tarifaire et Simulation</CardTitle>
+          <UpdatePricesButton 
+            productPrices={productPrices}
+            selectedSKUs={selectedSKUs}
+            analysisItems={analysisItems}
+          />
+        </div>
       </CardHeader>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

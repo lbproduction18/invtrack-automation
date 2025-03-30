@@ -52,17 +52,9 @@ export function useBackfillAnalysisItems() {
             sku_label: product.product_name
           };
           
-          // Add pricing data if available
-          if (matchedProductPrice) {
-            updateObject.price_1000 = matchedProductPrice.price_1000;
-            updateObject.price_2000 = matchedProductPrice.price_2000;
-            updateObject.price_3000 = matchedProductPrice.price_3000;
-            updateObject.price_4000 = matchedProductPrice.price_4000;
-            updateObject.price_5000 = matchedProductPrice.price_5000;
-            updateObject.price_8000 = matchedProductPrice.price_8000;
-          }
+          // Don't add pricing data during backfill - this should be done separately with the update prices button
           
-          // Update the analysis item with the product's SKU and pricing data
+          // Update the analysis item with the product's SKU data only
           const { error } = await supabase
             .from('analysis_items')
             .update(updateObject)
@@ -84,7 +76,7 @@ export function useBackfillAnalysisItems() {
       
       toast({
         title: "Mise à jour réussie",
-        description: `${updatedCount} produits en analyse ont été mis à jour avec leurs informations SKU et de prix.`,
+        description: `${updatedCount} produits en analyse ont été mis à jour avec leurs informations SKU.`,
       });
     } catch (error) {
       console.error('Error during backfill operation:', error);

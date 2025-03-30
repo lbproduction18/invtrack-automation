@@ -39,14 +39,14 @@ const BackfillSKUData: React.FC = () => {
         ) : (
           <>
             <Database className="mr-2 h-3 w-3" />
-            Synchroniser les données SKU
+            Synchroniser SKUs uniquement
           </>
         )}
       </Button>
       
       {!isLoading && !isComplete && (
         <p className="text-xs text-muted-foreground">
-          Cliquez pour mettre à jour les SKUs manquants dans la base de données
+          Cliquez pour mettre à jour les SKUs manquants dans la base de données (sans les prix)
         </p>
       )}
     </div>
