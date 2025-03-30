@@ -18,6 +18,8 @@ export type Database = {
           last_order_info: string | null
           product_id: string | null
           quantity_selected: number | null
+          sku_code: string | null
+          sku_label: string | null
           status: string | null
           updated_at: string | null
           weeks_delivery: string | null
@@ -30,6 +32,8 @@ export type Database = {
           last_order_info?: string | null
           product_id?: string | null
           quantity_selected?: number | null
+          sku_code?: string | null
+          sku_label?: string | null
           status?: string | null
           updated_at?: string | null
           weeks_delivery?: string | null
@@ -42,6 +46,8 @@ export type Database = {
           last_order_info?: string | null
           product_id?: string | null
           quantity_selected?: number | null
+          sku_code?: string | null
+          sku_label?: string | null
           status?: string | null
           updated_at?: string | null
           weeks_delivery?: string | null

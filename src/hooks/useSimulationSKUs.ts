@@ -5,6 +5,7 @@ import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { type SelectedSKU } from '@/types/product';
 import { type ProductPrice } from '@/hooks/useProductPrices';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useSimulationSKUs(
   selectedSKUs: Record<string, SelectedSKU[]>,
@@ -85,6 +86,9 @@ export function useSimulationSKUs(
       
       console.log(`Adding SKU with default quantity ${defaultQuantity} and price ${defaultPrice}`);
       
+      // Now update the analysis_item with SKU information
+      updateAnalysisItemSKU(skuInfo.id, skuInfo.SKU, skuInfo.productName || '');
+      
       return {
         ...prev,
         [productName]: [
@@ -101,12 +105,41 @@ export function useSimulationSKUs(
     });
   };
   
+  // Update the analysis_items record with SKU information
+  const updateAnalysisItemSKU = async (productId: string, skuCode: string, skuLabel: string) => {
+    try {
+      const { error } = await supabase
+        .from('analysis_items')
+        .update({
+          sku_code: skuCode,
+          sku_label: skuLabel
+        })
+        .eq('product_id', productId);
+      
+      if (error) {
+        console.error('Error updating SKU in analysis_items:', error);
+      } else {
+        console.log(`Successfully updated SKU for product ${productId}`);
+      }
+    } catch (err) {
+      console.error('Exception updating SKU in analysis_items:', err);
+    }
+  };
+  
   // Remove a SKU from a product row
   const handleRemoveSKU = (productName: string, skuIndex: number) => {
     console.log(`Removing SKU - Product: ${productName}, Index: ${skuIndex}`);
     
     setSelectedSKUs(prev => {
       const updatedSKUs = [...(prev[productName] || [])];
+      
+      // Get the productId before removing it
+      const skuToRemove = updatedSKUs[skuIndex];
+      if (skuToRemove && skuToRemove.productId) {
+        // Clear the SKU information in the analysis_items table
+        clearAnalysisItemSKU(skuToRemove.productId);
+      }
+      
       updatedSKUs.splice(skuIndex, 1);
       
       const updatedSelection = {
@@ -121,6 +154,27 @@ export function useSimulationSKUs(
       
       return updatedSelection;
     });
+  };
+  
+  // Clear SKU information from an analysis_item
+  const clearAnalysisItemSKU = async (productId: string) => {
+    try {
+      const { error } = await supabase
+        .from('analysis_items')
+        .update({
+          sku_code: null,
+          sku_label: null
+        })
+        .eq('product_id', productId);
+      
+      if (error) {
+        console.error('Error clearing SKU in analysis_items:', error);
+      } else {
+        console.log(`Successfully cleared SKU for product ${productId}`);
+      }
+    } catch (err) {
+      console.error('Exception clearing SKU in analysis_items:', err);
+    }
   };
   
   // Handle quantity change for a SKU
@@ -155,6 +209,11 @@ export function useSimulationSKUs(
           quantity,
           price
         };
+        
+        // Update quantity in analysis_items
+        if (sku.productId) {
+          updateAnalysisItemQuantity(sku.productId, quantity);
+        }
       }
       
       return {
@@ -162,6 +221,24 @@ export function useSimulationSKUs(
         [productName]: updatedSKUs
       };
     });
+  };
+  
+  // Update the quantity in the analysis_items table
+  const updateAnalysisItemQuantity = async (productId: string, quantity: number) => {
+    try {
+      const { error } = await supabase
+        .from('analysis_items')
+        .update({ quantity_selected: quantity })
+        .eq('product_id', productId);
+      
+      if (error) {
+        console.error('Error updating quantity in analysis_items:', error);
+      } else {
+        console.log(`Successfully updated quantity to ${quantity} for product ${productId}`);
+      }
+    } catch (err) {
+      console.error('Exception updating quantity in analysis_items:', err);
+    }
   };
 
   return {

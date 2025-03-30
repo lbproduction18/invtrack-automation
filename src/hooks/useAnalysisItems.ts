@@ -15,7 +15,9 @@ export interface AnalysisItem {
   last_order_info: string | null;
   lab_status_text: string | null;
   last_order_date: string | null;
-  weeks_delivery: string | null; // Ajouté en tant que champ texte
+  weeks_delivery: string | null; 
+  sku_code: string | null;
+  sku_label: string | null;
 }
 
 export function useAnalysisItems() {
@@ -71,7 +73,9 @@ export function useAnalysisItems() {
         quantity_selected: null,
         last_order_info: null,
         lab_status_text: null,
-        last_order_date: null // Initialize the new field
+        last_order_date: null,
+        sku_code: null,
+        sku_label: null
       }));
       
       const { data, error } = await supabase

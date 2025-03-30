@@ -103,6 +103,18 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
     return price;
   };
 
+  // Get SKU information to display
+  const getDisplaySKU = (productId: string): string => {
+    const analysisItem = findAnalysisItem(productId);
+    if (analysisItem?.sku_code) {
+      return analysisItem.sku_code;
+    }
+    
+    // Fallback to product SKU if no specific SKU is set in analysis_item
+    const product = products.find(p => p.id === productId);
+    return product ? product.SKU : '–';
+  };
+
   return (
     <div className="mt-4 rounded-md border border-[#272727] overflow-hidden">
       <div className="p-4 bg-[#161616] flex justify-between items-center">
@@ -137,10 +149,11 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
                 .map(product => {
                   const quantity = getQuantityFromDatabase(product.id);
                   const price = calculatePrice(product.id);
+                  const displaySKU = getDisplaySKU(product.id);
                   
                   return (
                     <TableRow key={product.id} className="hover:bg-[#161616] border-t border-[#272727]">
-                      <TableCell className="font-medium">{product.SKU}</TableCell>
+                      <TableCell className="font-medium">{displaySKU}</TableCell>
                       <TableCell className="text-center">
                         {quantity ? quantity : <span className="text-gray-500">–</span>}
                       </TableCell>
