@@ -78,7 +78,7 @@ export function useBackfillAnalysisItems() {
     }
   };
 
-  // Function to associate prices with existing SKUs
+  // Function to associate prices with existing SKUs based on SKU code matching
   const associatePrices = async () => {
     setIsPriceAssociationLoading(true);
     let updatedCount = 0;

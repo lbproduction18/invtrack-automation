@@ -37,57 +37,71 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
           description: "Veuillez sélectionner au moins un SKU avant de mettre à jour les prix.",
           variant: "destructive"
         });
+        setIsLoading(false);
         return;
       }
+      
+      console.log('Selected SKUs for price update:', allSelectedSKUs);
       
       // For each selected SKU, find the corresponding analysis item and update its prices
       const updateList: Partial<AnalysisItem>[] = [];
       
       for (const sku of allSelectedSKUs) {
-        // Find the analysis item for this SKU
+        // Find the analysis item for this SKU - using exact SKU code match only
         const analysisItem = analysisItems.find(item => item.sku_code === sku);
         
         if (analysisItem) {
-          // Extract product category from SKU for pricing lookup
-          const skuParts = sku.split('-');
-          const productCategory = skuParts[0];
+          // Find the product ID in selectedSKUs that contains this SKU
+          const productId = Object.keys(selectedSKUs).find(id => 
+            selectedSKUs[id].includes(sku)
+          );
           
-          // Find the matching product price for this category
-          const productPrice = productPrices.find(p => {
-            const normalizedProductName = p.product_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-            const normalizedCategory = productCategory.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-            return normalizedProductName.includes(normalizedCategory) || normalizedCategory.includes(normalizedProductName);
-          });
-          
-          if (productPrice) {
-            updateList.push({
-              id: analysisItem.id,
-              price_1000: productPrice.price_1000,
-              price_2000: productPrice.price_2000,
-              price_3000: productPrice.price_3000,
-              price_4000: productPrice.price_4000,
-              price_5000: productPrice.price_5000,
-              price_8000: productPrice.price_8000
-            });
+          if (productId) {
+            // Find the matching product price using the product ID
+            const productPrice = productPrices.find(p => p.id === productId);
+            
+            if (productPrice) {
+              console.log(`Found price for SKU ${sku} using product ID ${productId}:`, productPrice);
+              
+              // Add to update list with the exact matching prices
+              updateList.push({
+                id: analysisItem.id,
+                price_1000: productPrice.price_1000,
+                price_2000: productPrice.price_2000,
+                price_3000: productPrice.price_3000,
+                price_4000: productPrice.price_4000,
+                price_5000: productPrice.price_5000,
+                price_8000: productPrice.price_8000
+              });
+            } else {
+              console.warn(`No price information found for product ID ${productId} (SKU ${sku})`);
+            }
           } else {
-            console.warn(`No price information found for SKU ${sku}`);
+            console.warn(`Could not find product ID for SKU ${sku} in selectedSKUs`);
           }
         } else {
           console.warn(`No analysis item found for SKU ${sku}`);
         }
       }
       
+      console.log('Price updates to be applied:', updateList);
+      
       // Update all the prices at once
       if (updateList.length > 0) {
         await updateSKUPrices.mutateAsync(updateList);
         setIsComplete(true);
+        
+        toast({
+          title: "Prix mis à jour",
+          description: `Les prix de ${updateList.length} SKU(s) ont été mis à jour avec succès.`,
+        });
         
         // Reset the complete state after a few seconds
         setTimeout(() => setIsComplete(false), 3000);
       } else {
         toast({
           title: "Aucune mise à jour effectuée",
-          description: "Aucun SKU correspondant n'a été trouvé dans la base de données.",
+          description: "Aucune correspondance trouvée entre les SKUs sélectionnés et les prix disponibles.",
           variant: "destructive"
         });
       }
