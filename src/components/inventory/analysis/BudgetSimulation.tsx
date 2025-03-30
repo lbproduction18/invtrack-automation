@@ -13,7 +13,7 @@ import SimulationSummary from './pricing/SimulationSummary';
 import SimulationTabsContainer from './simulation/SimulationTabsContainer';
 import BudgetSidePanel from './budget/BudgetSidePanel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { type QuantityOption } from './AnalysisContent';
+import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 
 const BudgetSimulation: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('simulation');
@@ -68,6 +68,21 @@ const BudgetSimulation: React.FC = () => {
   
   const groupedAnalysisProducts = groupAnalysisProductsBySKU();
   
+  // Create placeholders for order simulation tab functionality
+  const [selectedQuantities, setSelectedQuantities] = useState<Record<string, QuantityOption>>({});
+  
+  const handleOrderQuantityChange = (productId: string, quantity: QuantityOption) => {
+    setSelectedQuantities(prev => ({
+      ...prev,
+      [productId]: quantity
+    }));
+  };
+  
+  const handleSimulationTotalChange = (total: number) => {
+    // This function would be used when calculating totals from the order tab
+    console.log("Order simulation total changed:", total);
+  };
+  
   // Refresh data when needed
   const handleRefresh = async () => {
     await refetchPrices();
@@ -79,18 +94,21 @@ const BudgetSimulation: React.FC = () => {
       <div className="lg:col-span-3 space-y-6">
         <SimulationTabsContainer
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          onTabChange={setActiveTab}
+          isPricesLoading={isLoadingPrices}
+          onRefresh={handleRefresh}
           productPrices={productPrices}
-          isLoadingPrices={isLoadingPrices}
-          groupedAnalysisProducts={groupedAnalysisProducts}
           quantityOptions={quantityOptions}
           selectedSKUs={selectedSKUs}
-          handleAddSKU={handleAddSKU}
-          handleQuantityChange={handleQuantityChange}
-          handleRemoveSKU={handleRemoveSKU}
-          onRefresh={handleRefresh}
+          groupedAnalysisProducts={groupedAnalysisProducts}
           simulationTotal={simulationTotal}
+          onAddSKU={handleAddSKU}
+          onQuantityChange={handleQuantityChange}
+          onRemoveSKU={handleRemoveSKU}
           calculateSKUTotal={calculateSKUTotal}
+          selectedQuantities={selectedQuantities}
+          onOrderQuantityChange={handleOrderQuantityChange}
+          onSimulationTotalChange={handleSimulationTotalChange}
         />
         
         <Card className="bg-[#161616] border-[#272727]">
@@ -119,7 +137,17 @@ const BudgetSimulation: React.FC = () => {
       
       <div className="lg:col-span-1">
         <BudgetSidePanel
-          totalOrderAmount={simulationTotal}
+          productCount={Object.keys(selectedSKUs).length}
+          totalBudget={300000} // Default budget, this could be fetched from settings
+          configuredProductCount={Object.values(selectedSKUs).flat().length}
+          totalProductCount={products.length}
+          onCreateOrder={() => console.log("Create order")}
+          isLoading={isLoadingPrices}
+          simulationTotal={simulationTotal}
+          depositAmount={simulationTotal * 0.5} // 50% deposit by default
+          depositPercentage={50}
+          budgetPercentage={simulationTotal / 300000 * 100}
+          remainingBudget={300000 - simulationTotal}
         />
       </div>
     </div>
