@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Menu, X, Home, Package, ClipboardList } from 'lucide-react';
+import { Menu, X, Home, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -82,23 +82,6 @@ const Sidebar: React.FC = () => {
               <>
                 <Package size={20} className={cn("mr-3", collapsed && "mx-auto")} />
                 {!collapsed && <span>Inventaire</span>}
-              </>
-            )}
-          </NavLink>
-          
-          <NavLink 
-            to="/logs" 
-            className={({ isActive }) => cn(
-              "flex items-center px-2 py-2 text-sm font-medium rounded-md",
-              isActive 
-                ? "bg-[#1A1A1A] text-[#3ECF8E]" 
-                : "text-gray-300 hover:bg-[#1A1A1A] hover:text-white"
-            )}
-          >
-            {({ isActive }) => (
-              <>
-                <ClipboardList size={20} className={cn("mr-3", collapsed && "mx-auto")} />
-                {!collapsed && <span>Logs</span>}
               </>
             )}
           </NavLink>
