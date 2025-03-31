@@ -16,12 +16,14 @@ import {
   FileText,
   Flag,
   Tag,
-  X
+  X,
+  AlertTriangle
 } from "lucide-react";
 import { format, parseISO, formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { type AnalysisProduct } from '../AnalysisContent';
 import { Badge } from "@/components/ui/badge";
+import { formatNoteText } from '@/components/product/utils/noteUtils';
 
 interface ProductDetailDrawerProps {
   isOpen: boolean;
@@ -73,6 +75,9 @@ const ProductDetailDrawer: React.FC<ProductDetailDrawerProps> = ({
     }
   };
 
+  // Format the note HTML
+  const formattedNoteHtml = product.note ? formatNoteText(product.note) : null;
+
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-md md:max-w-lg overflow-y-auto bg-[#141414] border-l border-[#272727]">
@@ -87,6 +92,26 @@ const ProductDetailDrawer: React.FC<ProductDetailDrawerProps> = ({
         </SheetHeader>
 
         <div className="space-y-6">
+          {/* Product Notes - Prominently displayed at the top with urgent styling */}
+          {product.note && (
+            <div className="mb-8 animate-pulse-once">
+              <div className="p-4 bg-amber-950/20 border-l-4 border-amber-500 rounded-md">
+                <div className="flex items-start space-x-3">
+                  <AlertTriangle className="h-6 w-6 flex-shrink-0 text-amber-500 mt-0.5" />
+                  <div className="space-y-2">
+                    <h3 className="text-base font-bold uppercase tracking-wider text-amber-500">
+                      Attention Requise
+                    </h3>
+                    <div className="text-base font-medium whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: formattedNoteHtml || '' }} />
+                    <div className="text-xs text-gray-400 pt-2 border-t border-amber-800/30">
+                      Note ajoutée le {formatDate(product.date_added)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Origin Information */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold border-b border-[#272727] pb-1">
@@ -146,22 +171,6 @@ const ProductDetailDrawer: React.FC<ProductDetailDrawerProps> = ({
               </div>
             </div>
           </div>
-
-          {/* Product Notes */}
-          {product.note && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold border-b border-[#272727] pb-1">
-                Notes
-              </h3>
-              
-              <div className="p-3 bg-[#1a1a1a] rounded-md border border-[#272727]">
-                <div className="flex items-start">
-                  <FileText className="w-4 h-4 mt-0.5 mr-2 text-gray-400" />
-                  <p className="text-sm whitespace-pre-wrap">{product.note}</p>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Current Analysis Information */}
           <div className="space-y-3">

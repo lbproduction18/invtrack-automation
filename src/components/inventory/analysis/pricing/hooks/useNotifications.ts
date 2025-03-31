@@ -29,8 +29,20 @@ export function useNotifications() {
     });
   };
 
+  /**
+   * Show a notification when a note is viewed
+   */
+  const notifyNoteViewed = (sku: string) => {
+    toast({
+      title: "Note importante",
+      description: `Attention requise pour ${sku}`,
+      variant: "destructive"
+    });
+  };
+
   return {
     notifyProductRemoved,
-    notifyQuantityUpdated
+    notifyQuantityUpdated,
+    notifyNoteViewed
   };
 }
