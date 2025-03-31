@@ -47,7 +47,7 @@ export const calculateProductTotal = (
   
   return Object.values(calculatedPrices[productId]).reduce((sum, price) => {
     // Ensure we're adding numbers by explicitly converting to number
-    const numericPrice = typeof price === 'number' ? price : parseFloat(String(price)) || 0;
+    const numericPrice = typeof price === 'number' ? price : parseFloat(price as string) || 0;
     return sum + numericPrice;
   }, 0);
 };
