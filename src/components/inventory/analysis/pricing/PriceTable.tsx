@@ -83,7 +83,6 @@ const PriceTable: React.FC<PriceTableProps> = ({
           <TableHead className="text-center bg-[#161616]">Prix 5000</TableHead>
           <TableHead className="text-center bg-[#161616]">Prix 8000</TableHead>
           <TableHead className="text-center bg-[#161616]">SKU</TableHead>
-          <TableHead className="text-center bg-[#161616]">Quantité</TableHead>
           <TableHead className="text-right pr-4 bg-[#161616]">Total (CAD)</TableHead>
         </TableRow>
       </TableHeader>
@@ -91,7 +90,7 @@ const PriceTable: React.FC<PriceTableProps> = ({
       <TableBody>
         {sortedProducts.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={10} className="h-24 text-center text-gray-500">
+            <TableCell colSpan={9} className="h-24 text-center text-gray-500">
               Aucun produit trouvé dans la base de données
             </TableCell>
           </TableRow>

@@ -2,7 +2,6 @@
 import React, { useMemo } from 'react';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { ProductPrice } from '@/hooks/useProductPrices';
-import { Input } from "@/components/ui/input";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -107,9 +106,6 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
             </DropdownMenuContent>
           </DropdownMenu>
         </TableCell>
-        <TableCell className="text-center">
-          {/* This cell is left empty as quantities are now handled for each SKU */}
-        </TableCell>
         <TableCell className="text-right font-medium pr-4">
           {rowTotal > 0 ? formatTotalPrice(rowTotal) : <span className="text-gray-500">–</span>}
         </TableCell>
@@ -118,7 +114,7 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
       {/* Show the list of selected SKUs */}
       {productSelectedSKUs.length > 0 && (
         <TableRow className="hover:bg-transparent border-none">
-          <TableCell colSpan={9} className="py-0 px-4">
+          <TableCell colSpan={8} className="py-0 px-4">
             <SelectedSKUsList
               productId={product.id}
               skus={productSelectedSKUs}
