@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -11,7 +12,6 @@ import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { usePricingCalculation } from '@/components/inventory/analysis/pricing/usePricingCalculation';
 import PriceTable from '@/components/inventory/analysis/pricing/PriceTable';
 import SimulationSummary from '@/components/inventory/analysis/pricing/SimulationSummary';
-import SelectedSKUsList from '@/components/inventory/analysis/pricing/SelectedSKUsList';
 import UpdatePricesButton from '@/components/inventory/analysis/pricing/UpdatePricesButton';
 import RefreshPriceGridButton from '@/components/inventory/analysis/pricing/RefreshPriceGridButton';
 import { Loader2 } from 'lucide-react';
@@ -51,38 +51,6 @@ const PricingGrid: React.FC = () => {
   useEffect(() => {
     handleRefresh();
   }, []);
-  
-  const prepareSelectedSKUDetails = () => {
-    const details: Array<{
-      sku: string;
-      quantity: string;
-      unitPrice: number;
-      totalPrice: number;
-      productName?: string;
-    }> = [];
-    
-    Object.entries(selectedSKUs).forEach(([productId, skus]) => {
-      skus.forEach(sku => {
-        const quantity = quantities[productId]?.[sku] || '0';
-        const totalPrice = typeof calculatedPrices[productId]?.[sku] === 'number' 
-          ? calculatedPrices[productId]?.[sku] as number 
-          : 0;
-        const unitPrice = getUnitPriceForSKU(productId, sku);
-        
-        const product = productPrices.find(p => p.id === productId);
-        
-        details.push({
-          sku,
-          quantity,
-          unitPrice,
-          totalPrice,
-          productName: product?.product_name || '-'
-        });
-      });
-    });
-    
-    return details;
-  };
 
   return (
     <Card className="border border-[#272727] bg-[#131313]">

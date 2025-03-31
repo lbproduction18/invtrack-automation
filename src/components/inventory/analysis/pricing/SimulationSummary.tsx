@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { formatTotalPrice, formatPrice } from './PriceFormatter';
 import { Loader2 } from 'lucide-react';
+import SimulationTotal from './components/SimulationTotal';
 
 interface SimulationSummaryProps {
   analysisItems: AnalysisItem[];
@@ -69,7 +70,7 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
 
   // Filter analysis items that have sku_code and quantity_selected
   const validAnalysisItems = analysisItems.filter(item => 
-    item.sku_code && item.quantity_selected
+    item.sku_code && item.quantity_selected && item.quantity_selected > 0
   );
 
   const isLoading = false; // We could add loading state later if needed
@@ -120,19 +121,12 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
             )}
           </TableBody>
           
-          {/* Add a footer section with the total row */}
-          <TableFooter className="bg-[#161616] border-t border-[#272727]">
-            <TableRow className="hover:bg-[#161616]">
-              <TableCell colSpan={4} className="text-right font-medium py-3">
-                Total de la simulation
-              </TableCell>
-              <TableCell className="text-right py-3">
-                <span className="font-bold text-green-500 text-lg">
-                  {formatTotalPrice(simulationTotal)}
-                </span>
-              </TableCell>
-            </TableRow>
-          </TableFooter>
+          {/* Only show the footer if we have items or a non-zero total */}
+          {(validAnalysisItems.length > 0 || simulationTotal > 0) && (
+            <TableFooter className="bg-[#161616] border-t border-[#272727]">
+              <SimulationTotal simulationTotal={simulationTotal} />
+            </TableFooter>
+          )}
         </Table>
       )}
     </div>
