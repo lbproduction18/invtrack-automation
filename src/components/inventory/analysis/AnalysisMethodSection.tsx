@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 type AnalysisMode = 'manual' | 'ai' | null;
 
 const AnalysisMethodSection: React.FC = () => {
-  const [selectedMode, setSelectedMode] = useState<AnalysisMode>(null);
+  const [selectedMode, setSelectedMode] = useState<AnalysisMode>('manual');
 
   const handleModeSelection = (mode: 'manual' | 'ai') => {
     setSelectedMode(prevMode => prevMode === mode ? null : mode);
