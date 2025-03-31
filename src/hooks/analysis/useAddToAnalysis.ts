@@ -71,26 +71,7 @@ export function useAddToAnalysis() {
         throw error;
       }
       
-      // Create log entries for tracking transitions
-      const logEntries = productIds.map(id => {
-        const product = productDetails.find(p => p.id === id);
-        return {
-          sku_code: product?.SKU || null,
-          stock: product?.current_stock || null,
-          threshold: product?.threshold || null,
-          last_order_date: product?.last_order_date || null
-        };
-      });
-      
-      // Insert into analysis_log
-      const { error: logError } = await supabase
-        .from('analysis_log')
-        .insert(logEntries);
-        
-      if (logError) {
-        console.error('Error creating log entries:', logError);
-        // Don't throw here - we'll still return the analysis items even if logging fails
-      }
+      // Note: We've removed the analysis_log code as that table does not exist anymore
       
       return data;
     },

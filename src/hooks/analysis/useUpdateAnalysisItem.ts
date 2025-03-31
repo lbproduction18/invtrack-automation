@@ -35,24 +35,7 @@ export function useUpdateAnalysisItem() {
         throw updateError;
       }
       
-      // Create a log entry if stock, threshold, or last_order_date are being updated
-      if (data.stock !== undefined || data.threshold !== undefined || data.last_order_date !== undefined) {
-        const logEntry = {
-          sku_code: updatedItem.sku_code,
-          stock: data.stock ?? currentItem.stock,
-          threshold: data.threshold ?? currentItem.threshold,
-          last_order_date: data.last_order_date ?? currentItem.last_order_date
-        };
-        
-        const { error: logError } = await supabase
-          .from('analysis_log')
-          .insert(logEntry);
-          
-        if (logError) {
-          console.error('Error creating log entry:', logError);
-          // Don't throw here - we'll still return the updated item even if logging fails
-        }
-      }
+      // Note: We've removed the analysis_log code as that table does not exist anymore
       
       return updatedItem;
     },

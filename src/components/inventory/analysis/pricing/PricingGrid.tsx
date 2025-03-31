@@ -9,14 +9,14 @@ import {
 import { useProductPrices } from '@/hooks/useProductPrices';
 import { useProducts } from '@/hooks/useProducts';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
-import { usePricingCalculation } from './pricing/usePricingCalculation';
-import PriceTable from './pricing/PriceTable';
-import TotalSummary from './pricing/TotalSummary';
-import SelectedSKUsList from './pricing/SelectedSKUsList';
-import UpdatePricesButton from './pricing/UpdatePricesButton';
-import RefreshPriceGridButton from './pricing/RefreshPriceGridButton';
+import { usePricingCalculation } from '@/components/inventory/analysis/pricing/usePricingCalculation';
+import PriceTable from '@/components/inventory/analysis/pricing/PriceTable';
+import TotalSummary from '@/components/inventory/analysis/pricing/TotalSummary';
+import SelectedSKUsList from '@/components/inventory/analysis/pricing/SelectedSKUsList';
+import UpdatePricesButton from '@/components/inventory/analysis/pricing/UpdatePricesButton';
+import RefreshPriceGridButton from '@/components/inventory/analysis/pricing/RefreshPriceGridButton';
 import { Loader2 } from 'lucide-react';
-import { formatTotalPrice } from './pricing/PriceFormatter';
+import { formatTotalPrice } from '@/components/inventory/analysis/pricing/PriceFormatter';
 
 const PricingGrid: React.FC = () => {
   const { productPrices, isLoading: isPricesLoading, refetch: refetchPrices } = useProductPrices();
