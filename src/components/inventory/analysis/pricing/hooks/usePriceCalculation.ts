@@ -1,82 +1,86 @@
 
-import { ProductPrice } from '@/hooks/useProductPrices';
-import { useQuantityState } from './useQuantityState';
-import { usePriceState } from './usePriceState';
-import { useNotifications } from './useNotifications';
+import { useState, useEffect } from 'react';
+import { calculateProductTotal } from './utils/priceUtils';
 
 /**
- * Hook to manage price calculations
+ * Hook to manage calculated prices state
  */
-export function usePriceCalculation(productPrices: ProductPrice[]) {
-  // Use our smaller, focused hooks
-  const { quantities, handleQuantityChange, getQuantityForSKU, clearQuantityForSKU, resetQuantityState } = useQuantityState();
-  const { 
-    calculatedPrices, 
-    simulationTotal,
-    calculateTotalPrice, 
-    getPriceForSKU, 
-    getUnitPriceForSKU, 
-    getTotalForProduct,
-    clearPriceForSKU,
-    resetPriceCalculations
-  } = usePriceState(productPrices);
-  const { notifyProductRemoved } = useNotifications();
+export function usePriceCalculation() {
+  const [calculatedPrices, setCalculatedPrices] = useState<Record<string, Record<string, number | string>>>({});
+  const [simulationTotal, setSimulationTotal] = useState<number>(0);
 
   /**
-   * Update quantity and calculate price
+   * Get price for a specific SKU
    */
-  const handleQuantityUpdate = async (productId: string, sku: string, quantityValue: string) => {
-    // Update quantity
-    await handleQuantityChange(productId, sku, quantityValue);
-    
-    // Calculate price based on the new quantity
-    calculateTotalPrice(productId, sku, quantityValue);
+  const getPriceForSKU = (productId: string, sku: string): number | string => {
+    return calculatedPrices[productId]?.[sku] || 0;
   };
 
   /**
-   * Clear price data for a specific SKU
+   * Set the calculated price for a specific SKU
    */
-  const clearPriceDataForSKU = (productId: string, sku: string) => {
-    // Clear quantity data
-    clearQuantityForSKU(productId, sku);
-    
-    // Clear calculated price data
-    clearPriceForSKU(productId, sku);
-    
-    // Notify the user
-    notifyProductRemoved(sku);
+  const setCalculatedPrice = (productId: string, sku: string, price: number | string) => {
+    setCalculatedPrices(prev => {
+      const updatedPrices = { ...prev };
+      if (!updatedPrices[productId]) {
+        updatedPrices[productId] = {};
+      }
+      updatedPrices[productId][sku] = price;
+      return updatedPrices;
+    });
   };
 
   /**
-   * Get the unit price for a specific SKU
+   * Clear price for a specific SKU
    */
-  const getUnitPrice = (productId: string, sku: string): number => {
-    const quantityValue = quantities[productId]?.[sku] || '0';
-    // Fix function call to match implementation in usePriceState
-    return getUnitPriceForSKU(sku, parseInt(quantityValue, 10) || 0);
+  const clearPriceForSKU = (productId: string, sku: string) => {
+    setCalculatedPrices(prev => {
+      const updatedPrices = { ...prev };
+      if (updatedPrices[productId]) {
+        delete updatedPrices[productId][sku];
+        if (Object.keys(updatedPrices[productId]).length === 0) {
+          delete updatedPrices[productId];
+        }
+      }
+      return updatedPrices;
+    });
+  };
+
+  /**
+   * Calculate and update total simulation price
+   */
+  const calculateSimulationTotal = () => {
+    let total = 0;
+    
+    Object.keys(calculatedPrices).forEach(productId => {
+      total += calculateProductTotal(productId, calculatedPrices);
+    });
+    
+    setSimulationTotal(total);
+    return total;
   };
 
   /**
    * Reset all price calculations
    */
-  const resetCalculations = () => {
-    // Reset price calculations
-    resetPriceCalculations();
-    
-    // Reset quantity state
-    resetQuantityState();
+  const resetPriceCalculations = () => {
+    setCalculatedPrices({});
+    setSimulationTotal(0);
   };
 
+  // Recalculate total whenever calculated prices change
+  useEffect(() => {
+    calculateSimulationTotal();
+  }, [calculatedPrices]);
+
   return {
-    quantities,
     calculatedPrices,
     simulationTotal,
-    getQuantityForSKU,
     getPriceForSKU,
-    getTotalForProduct,
-    handleQuantityChange: handleQuantityUpdate,
-    getUnitPriceForSKU: getUnitPrice,
-    clearPriceDataForSKU,
-    resetPriceCalculations: resetCalculations
+    setCalculatedPrice,
+    clearPriceForSKU,
+    calculateSimulationTotal,
+    resetPriceCalculations,
+    getTotalForProduct: (productId: string) => calculateProductTotal(productId, calculatedPrices)
   };
 }
