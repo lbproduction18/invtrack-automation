@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { useAnalysisItems, type AnalysisItem } from '@/hooks/useAnalysisItems';
 import { useProducts } from '@/hooks/useProducts';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AnalysisProductsGrid from './analysis/AnalysisProductsGrid';
 import PricingGrid from './analysis/PricingGrid';
 
@@ -29,8 +28,6 @@ export interface AnalysisProduct extends AnalysisItem {
 
 // Named export to match import in Index.tsx
 export const AnalysisContent: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('products');
-  
   // Fetch analysis items and products
   const { analysisItems, isLoading: isLoadingAnalysis, refetch: refetchAnalysis } = useAnalysisItems();
   const { products, isLoading: isLoadingProducts } = useProducts('all');
@@ -48,33 +45,16 @@ export const AnalysisContent: React.FC = () => {
 
   return (
     <div className="p-4 space-y-6">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-4 bg-[#161616] border border-[#272727]">
-          <TabsTrigger 
-            value="products" 
-            className="data-[state=active]:bg-[#272727] data-[state=active]:text-white"
-          >
-            Produits en analyse
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="products" className="mt-0 space-y-8">
-          <div>
-            <h2 className="text-lg font-medium">Produits en analyse</h2>
-          </div>
-          
-          <AnalysisProductsGrid 
-            analysisProducts={analysisProducts} 
-            isLoading={isLoading}
-            refetchAnalysis={refetchAnalysis}
-          />
-          
-          <div>
-            <h2 className="text-lg font-medium mb-4">Grille tarifaire</h2>
-            <PricingGrid />
-          </div>
-        </TabsContent>
-      </Tabs>
+      <AnalysisProductsGrid 
+        analysisProducts={analysisProducts} 
+        isLoading={isLoading}
+        refetchAnalysis={refetchAnalysis}
+      />
+      
+      <div>
+        <h2 className="text-lg font-medium mb-4">Grille tarifaire</h2>
+        <PricingGrid />
+      </div>
     </div>
   );
 };

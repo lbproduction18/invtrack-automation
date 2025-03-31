@@ -15,6 +15,15 @@ interface SimulationTabsContainerProps {
   selectedQuantities: Record<string, QuantityOption>;
   onOrderQuantityChange: (productId: string, quantity: QuantityOption) => void;
   onSimulationTotalChange: (total: number) => void;
+  onRefresh: () => Promise<void>;
+  quantityOptions: QuantityOption[];
+  selectedSKUs: Record<string, Array<{productId: string; SKU: string; productName: string | null; quantity: QuantityOption; price: number}>>;
+  groupedAnalysisProducts: Record<string, Array<{id: string, SKU: string, productName: string | null}>>;
+  simulationTotal: number;
+  onAddSKU: (productCategory: string, productId: string, SKU: string, productName: string | null) => void;
+  onQuantityChange: (productCategory: string, productId: string, quantity: QuantityOption) => void;
+  onRemoveSKU: (productCategory: string, productId: string) => void;
+  calculateSKUTotal: (productName: string, sku: {productId: string; SKU: string; productName: string | null; quantity: QuantityOption; price: number}) => number;
 }
 
 const SimulationTabsContainer: React.FC<SimulationTabsContainerProps> = ({
