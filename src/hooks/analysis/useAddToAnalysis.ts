@@ -50,7 +50,11 @@ export function useAddToAnalysis() {
           price_3000: null,
           price_4000: null,
           price_5000: null,
-          price_8000: null
+          price_8000: null,
+          // Add the note and priority_badge from Step 1
+          note: product?.note || null,
+          priority_badge: product?.priority_badge || null,
+          date_added: product?.created_at || null
         };
       });
       

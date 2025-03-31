@@ -12,16 +12,19 @@ export type Database = {
       analysis_items: {
         Row: {
           created_at: string | null
+          date_added: string | null
           id: string
           lab_status_text: string | null
           last_order_date: string | null
           last_order_info: string | null
+          note: string | null
           price_1000: number | null
           price_2000: number | null
           price_3000: number | null
           price_4000: number | null
           price_5000: number | null
           price_8000: number | null
+          priority_badge: string | null
           product_id: string | null
           quantity_selected: number | null
           sku_code: string | null
@@ -34,16 +37,19 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          date_added?: string | null
           id?: string
           lab_status_text?: string | null
           last_order_date?: string | null
           last_order_info?: string | null
+          note?: string | null
           price_1000?: number | null
           price_2000?: number | null
           price_3000?: number | null
           price_4000?: number | null
           price_5000?: number | null
           price_8000?: number | null
+          priority_badge?: string | null
           product_id?: string | null
           quantity_selected?: number | null
           sku_code?: string | null
@@ -56,16 +62,19 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          date_added?: string | null
           id?: string
           lab_status_text?: string | null
           last_order_date?: string | null
           last_order_info?: string | null
+          note?: string | null
           price_1000?: number | null
           price_2000?: number | null
           price_3000?: number | null
           price_4000?: number | null
           price_5000?: number | null
           price_8000?: number | null
+          priority_badge?: string | null
           product_id?: string | null
           quantity_selected?: number | null
           sku_code?: string | null
