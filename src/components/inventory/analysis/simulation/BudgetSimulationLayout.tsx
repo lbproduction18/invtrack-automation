@@ -1,8 +1,6 @@
 
 import React from 'react';
 import BudgetNotesActions from '../budget/BudgetNotesActions';
-import BudgetSidePanel from '../budget/BudgetSidePanel';
-import SimulationTabsContainer from './SimulationTabsContainer';
 
 interface BudgetSimulationLayoutProps {
   children?: React.ReactNode;

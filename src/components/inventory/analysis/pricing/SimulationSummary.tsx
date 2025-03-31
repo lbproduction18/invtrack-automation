@@ -23,7 +23,7 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
   return (
     <div className="mt-4 rounded-md border border-[#272727] overflow-hidden">
       <div className="p-4 bg-[#161616] flex justify-between items-center">
-        <h3 className="text-lg font-medium">Résumé de la simulation</h3>
+        <h3 className="text-lg font-medium">Résumé</h3>
         <LoadingIndicator loading={loading} />
       </div>
       
