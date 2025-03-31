@@ -14,6 +14,7 @@ import PriceTable from '@/components/inventory/analysis/pricing/PriceTable';
 import SimulationSummary from '@/components/inventory/analysis/pricing/SimulationSummary';
 import UpdatePricesButton from '@/components/inventory/analysis/pricing/UpdatePricesButton';
 import RefreshPriceGridButton from '@/components/inventory/analysis/pricing/RefreshPriceGridButton';
+import AnalysisModeSelector from '@/components/inventory/analysis/pricing/AnalysisModeSelector';
 import { Loader2 } from 'lucide-react';
 
 const PricingGrid: React.FC = () => {
@@ -47,6 +48,17 @@ const PricingGrid: React.FC = () => {
       refetchPrices(),
       refetchAnalysis()
     ]);
+  };
+
+  // Handle analysis mode selection
+  const handleManualAnalysis = () => {
+    console.log('Manual Analysis selected');
+    // Placeholder for future manual analysis logic
+  };
+
+  const handleAIAnalysis = () => {
+    console.log('AI Analysis selected');
+    // Placeholder for future AI-based analysis logic
   };
 
   // Refresh data on component mount
@@ -94,7 +106,13 @@ const PricingGrid: React.FC = () => {
           )}
         </div>
         
-        {/* Improved simulation summary with integrated total section */}
+        {/* Analysis Mode Selector Section */}
+        <AnalysisModeSelector 
+          onManualAnalysis={handleManualAnalysis}
+          onAIAnalysis={handleAIAnalysis}
+        />
+        
+        {/* Simulation summary with integrated total section */}
         <SimulationSummary 
           analysisItems={analysisItems}
           products={products}
