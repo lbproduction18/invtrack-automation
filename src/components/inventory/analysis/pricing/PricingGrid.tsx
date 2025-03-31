@@ -13,8 +13,6 @@ import { usePricingCalculation } from '@/components/inventory/analysis/pricing/u
 import PriceTable from '@/components/inventory/analysis/pricing/PriceTable';
 import SimulationSummary from '@/components/inventory/analysis/pricing/SimulationSummary';
 import UpdatePricesButton from '@/components/inventory/analysis/pricing/UpdatePricesButton';
-import RefreshPriceGridButton from '@/components/inventory/analysis/pricing/RefreshPriceGridButton';
-import AnalysisModeSelector from '@/components/inventory/analysis/pricing/AnalysisModeSelector';
 import { Loader2, RefreshCw, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -38,7 +36,7 @@ const PricingGrid: React.FC = () => {
     handleQuantityChange,
     getTotalForProduct,
     getUnitPriceForSKU,
-    resetSimulation,
+    resetSimulation, // Added reset functionality
   } = usePricingCalculation(productPrices);
   
   const isLoading = isPricesLoading || isProductsLoading || isAnalysisLoading;
@@ -50,12 +48,8 @@ const PricingGrid: React.FC = () => {
     ]);
   };
 
-  const handleManualAnalysis = () => {
-    console.log('Manual Analysis selected');
-  };
-
-  const handleAIAnalysis = () => {
-    console.log('AI Analysis selected');
+  const handleResetSimulation = () => {
+    resetSimulation(); // Call the reset function from the hook
   };
 
   useEffect(() => {
@@ -80,7 +74,7 @@ const PricingGrid: React.FC = () => {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={resetSimulation}
+              onClick={handleResetSimulation}
               className="text-xs h-8 border-[#272727] bg-[#161616] hover:bg-[#222]"
             >
               <RotateCw className="mr-2 h-3 w-3" />
@@ -95,8 +89,8 @@ const PricingGrid: React.FC = () => {
         </div>
       </CardHeader>
       
-      <CardContent className="p-4">
-        <div className="rounded-md border border-[#272727] overflow-hidden">
+      <CardContent className="p-0">
+        <div className="rounded-md border border-[#272727] overflow-hidden mt-4">
           {isLoading ? (
             <div className="flex justify-center items-center p-8">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -119,21 +113,18 @@ const PricingGrid: React.FC = () => {
           )}
         </div>
         
-        <AnalysisModeSelector 
-          onManualAnalysis={handleManualAnalysis}
-          onAIAnalysis={handleAIAnalysis}
-        />
-        
-        <SimulationSummary 
-          analysisItems={analysisItems}
-          products={products}
-          simulationTotal={simulationTotal}
-          selectedSKUs={selectedSKUs}
-          quantities={quantities}
-          calculatedPrices={calculatedPrices}
-          productPrices={productPrices}
-          getUnitPriceForSKU={getUnitPriceForSKU}
-        />
+        <div className="mt-4">
+          <SimulationSummary 
+            analysisItems={analysisItems}
+            products={products}
+            simulationTotal={simulationTotal}
+            selectedSKUs={selectedSKUs}
+            quantities={quantities}
+            calculatedPrices={calculatedPrices}
+            productPrices={productPrices}
+            getUnitPriceForSKU={getUnitPriceForSKU}
+          />
+        </div>
       </CardContent>
     </Card>
   );
