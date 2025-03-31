@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { AnalysisItem } from '@/types/analysisItem';
 import { Product } from '@/types/product';
@@ -7,11 +8,11 @@ import {
   TableCell, 
   TableHead, 
   TableHeader, 
-  TableRow 
+  TableRow,
+  TableFooter
 } from "@/components/ui/table";
 import { formatTotalPrice, formatPrice } from './PriceFormatter';
 import { Loader2 } from 'lucide-react';
-import SimulationTotal from './components/SimulationTotal';
 
 interface SimulationSummaryProps {
   analysisItems: AnalysisItem[];
@@ -98,33 +99,40 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
           
           <TableBody>
             {validAnalysisItems.length === 0 ? (
-              <>
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-gray-500">
-                    Aucun produit sélectionné dans la simulation
-                  </TableCell>
-                </TableRow>
-                <SimulationTotal simulationTotal={simulationTotal} />
-              </>
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center text-gray-500">
+                  Aucun produit sélectionné dans la simulation
+                </TableCell>
+              </TableRow>
             ) : (
-              <>
-                {validAnalysisItems.map(item => {
-                  const details = getProductDetails(item);
-                  return (
-                    <TableRow key={item.id} className="hover:bg-[#1a1a1a]">
-                      <TableCell className="py-1">{details.sku}</TableCell>
-                      <TableCell className="py-1">{details.name}</TableCell>
-                      <TableCell className="py-1 text-center">{details.quantity}</TableCell>
-                      <TableCell className="py-1 text-center">{formatPrice(details.unitPrice)}</TableCell>
-                      <TableCell className="py-1 text-right">{formatTotalPrice(details.totalPrice)}</TableCell>
-                    </TableRow>
-                  );
-                })}
-                
-                <SimulationTotal simulationTotal={simulationTotal} />
-              </>
+              validAnalysisItems.map(item => {
+                const details = getProductDetails(item);
+                return (
+                  <TableRow key={item.id} className="hover:bg-[#1a1a1a]">
+                    <TableCell className="py-1">{details.sku}</TableCell>
+                    <TableCell className="py-1">{details.name}</TableCell>
+                    <TableCell className="py-1 text-center">{details.quantity}</TableCell>
+                    <TableCell className="py-1 text-center">{formatPrice(details.unitPrice)}</TableCell>
+                    <TableCell className="py-1 text-right">{formatTotalPrice(details.totalPrice)}</TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
+          
+          {/* Add a footer section with the total row */}
+          <TableFooter className="bg-[#161616] border-t border-[#272727]">
+            <TableRow className="hover:bg-[#161616]">
+              <TableCell colSpan={4} className="text-right font-medium py-3">
+                Total de la simulation
+              </TableCell>
+              <TableCell className="text-right py-3">
+                <span className="font-bold text-green-500 text-lg">
+                  {formatTotalPrice(simulationTotal)}
+                </span>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
         </Table>
       )}
     </div>
