@@ -82,8 +82,8 @@ const PricingGrid: React.FC = () => {
         </div>
       </CardHeader>
       
-      <CardContent className="p-0">
-        <div className="rounded-md border border-[#272727] overflow-hidden mt-4">
+      <CardContent className="p-4">
+        <div className="rounded-md border border-[#272727] overflow-hidden">
           {isLoading ? (
             <div className="flex justify-center items-center p-8">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
