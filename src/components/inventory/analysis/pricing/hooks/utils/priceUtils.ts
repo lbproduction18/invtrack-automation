@@ -46,10 +46,12 @@ export const calculateProductTotal = (
   if (!calculatedPrices[productId]) return 0;
   
   // Use reduce to sum up all the prices in this product's SKUs
-  return Object.values(calculatedPrices[productId]).reduce((sum: number, price) => {
-    const numericPrice = Number(price) || 0;
-    return sum + numericPrice;
-  }, 0); // Initialize the accumulator as 0 (number type)
+  return Object.values(calculatedPrices[productId])
+    .reduce((sum: number, price: any): number => {
+      // Force explicit number conversion with type assertion
+      const numericPrice: number = typeof price === 'string' ? Number(price) || 0 : (Number(price) || 0);
+      return sum + numericPrice;
+    }, 0 as number); // Explicitly type the initial value as number
 };
 
 /**
