@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Check } from 'lucide-react';
+import { RefreshCw, Check, Tag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAnalysisItems, type AnalysisItem } from '@/hooks/useAnalysisItems';
 import { ProductPrice } from '@/hooks/useProductPrices';
@@ -129,7 +129,7 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
       size="sm"
       disabled={isLoading}
       onClick={handleUpdatePrices}
-      className={`text-xs ${className}`}
+      className={`text-xs border-[#272727] bg-[#161616] hover:bg-[#222] flex items-center ${className}`}
     >
       {isLoading ? (
         <>
@@ -143,7 +143,7 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
         </>
       ) : (
         <>
-          <RefreshCw className="mr-2 h-3 w-3" />
+          <Tag className="mr-2 h-3 w-3" />
           Mettre à jour les prix
         </>
       )}
