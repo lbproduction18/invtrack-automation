@@ -87,3 +87,17 @@ export function getActionTypeColor(actionType: string): string {
       return 'bg-gray-500/10 text-gray-500 border-gray-500/20';
   }
 }
+
+/**
+ * Format log entry details
+ */
+export function formatLogEntry(log: any): string {
+  if (log.action_type === 'UPDATE' && log.old_values && log.new_values) {
+    return formatChanges(log.old_values, log.new_values);
+  } else if (log.action_type === 'INSERT') {
+    return 'New item created';
+  } else if (log.action_type === 'DELETE') {
+    return 'Item deleted';
+  }
+  return log.note || 'No details available';
+}
