@@ -20,14 +20,13 @@ const AnalysisMethodSection: React.FC = () => {
         onSelectMode={handleModeSelection}
       />
       
-      {selectedMode === 'manual' && (
-        <div className="animate-fade-in">
-          <PricingGrid />
-        </div>
-      )}
+      {/* Show PricingGrid regardless of selected mode */}
+      <div className="animate-fade-in">
+        <PricingGrid />
+      </div>
       
       {selectedMode === 'ai' && (
-        <div className="animate-fade-in">
+        <div className="animate-fade-in mt-6">
           <Card className="border border-[#272727] bg-[#131313]">
             <CardHeader className="px-4 py-3 border-b border-[#272727]">
               <CardTitle className="text-sm font-medium">Analyse AI</CardTitle>
