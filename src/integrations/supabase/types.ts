@@ -158,6 +158,33 @@ export type Database = {
         }
         Relationships: []
       }
+      budget_settings: {
+        Row: {
+          created_at: string | null
+          deposit_percentage: number | null
+          id: string
+          notes: string | null
+          total_budget: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          deposit_percentage?: number | null
+          id?: string
+          notes?: string | null
+          total_budget?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          deposit_percentage?: number | null
+          id?: string
+          notes?: string | null
+          total_budget?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       "Low stock product": {
         Row: {
           created_at: string
