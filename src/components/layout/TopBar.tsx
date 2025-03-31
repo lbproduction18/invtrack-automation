@@ -1,20 +1,15 @@
 
 import React from 'react';
-import { Bell, Settings, Search, Home } from 'lucide-react';
+import { Bell, Settings, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import UserMenu from './UserMenu';
-import { Link } from 'react-router-dom';
 
 const TopBar: React.FC = () => {
   return (
     <header className="border-b border-[#272727] bg-[#121212]/30 backdrop-blur-sm">
       <div className="flex items-center justify-between h-16 px-6">
-        <div className="flex items-center gap-4">
-          <Link to="/" className="flex items-center gap-2 text-gray-200 hover:text-white">
-            <Home className="h-5 w-5" />
-            <span className="font-medium hidden md:block">Dashboard</span>
-          </Link>
+        <div className="flex items-center">
           <div className="relative max-w-md w-full hidden md:block">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
             <Input

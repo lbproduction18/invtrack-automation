@@ -6,7 +6,6 @@ import OrderSimulationTable from '../OrderSimulationTable';
 import PricingGrid from '../PricingGrid';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { type ProductPrice } from '@/hooks/useProductPrices';
-import { type SelectedSKU } from '@/types/product';
 
 interface SimulationTabsContainerProps {
   activeTab: string;
@@ -18,7 +17,7 @@ interface SimulationTabsContainerProps {
   onSimulationTotalChange: (total: number) => void;
   onRefresh: () => Promise<void>;
   quantityOptions: QuantityOption[];
-  selectedSKUs: Record<string, SelectedSKU[]>;
+  selectedSKUs: Record<string, Array<{productId: string; SKU: string; productName: string | null; quantity: QuantityOption; price: number}>>;
   groupedAnalysisProducts: Record<string, Array<{id: string, SKU: string, productName: string | null}>>;
   simulationTotal: number;
   onAddSKU: (productCategory: string, productId: string, SKU: string, productName: string | null) => void;

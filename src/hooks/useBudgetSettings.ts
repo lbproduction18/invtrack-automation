@@ -1,6 +1,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface BudgetSettings {
   id: string;
@@ -15,7 +16,7 @@ export function useBudgetSettings() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch budget settings using a mock for now
+  // Fetch budget settings
   const { 
     data: budgetSettings, 
     isLoading, 
@@ -24,30 +25,59 @@ export function useBudgetSettings() {
   } = useQuery({
     queryKey: ['budgetSettings'],
     queryFn: async () => {
-      console.log('Getting default budget settings since DB types are not updated...');
-      // Return default values since we can't properly type the Supabase query yet
-      return {
-        id: '1',
-        total_budget: 300000,
-        deposit_percentage: 50,
-        notes: 'Budget initial',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      } as BudgetSettings;
+      console.log('Fetching budget settings from Supabase...');
+      try {
+        const { data, error } = await supabase
+          .from('budget_settings')
+          .select('*')
+          .limit(1)
+          .single();
+          
+        if (error) {
+          // If no settings exist yet, create default ones
+          if (error.code === 'PGRST116') {
+            const defaultSettings = {
+              total_budget: 300000,
+              deposit_percentage: 50,
+              notes: 'Budget initial'
+            };
+            
+            const { data: newData, error: insertError } = await supabase
+              .from('budget_settings')
+              .insert(defaultSettings)
+              .select()
+              .single();
+              
+            if (insertError) throw insertError;
+            
+            return newData;
+          }
+          
+          throw error;
+        }
+        
+        return data;
+      } catch (err) {
+        console.error('Exception when fetching budget settings:', err);
+        throw err;
+      }
     }
   });
 
-  // Mock update budget settings
+  // Update budget settings
   const updateBudgetSettings = useMutation({
     mutationFn: async (updates: Partial<BudgetSettings>) => {
-      console.log('Mock updating budget settings:', updates);
+      if (!budgetSettings?.id) throw new Error('No budget settings found to update');
       
-      // Return a mock response with the updates applied
-      return {
-        ...budgetSettings,
-        ...updates,
-        updated_at: new Date().toISOString()
-      };
+      const { data, error } = await supabase
+        .from('budget_settings')
+        .update(updates)
+        .eq('id', budgetSettings.id)
+        .select()
+        .single();
+        
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       toast({

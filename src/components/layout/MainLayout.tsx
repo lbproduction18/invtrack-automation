@@ -16,9 +16,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground">
+    <div className="flex flex-col h-screen overflow-hidden bg-[#0F0F0F]">
       <TopBar />
-      <main className="flex-1 overflow-auto bg-background backdrop-blur-sm p-4">
+      <main className="flex-1 overflow-auto bg-[#0F0F0F] backdrop-blur-sm p-4">
         <div className="page-container">
           {children}
         </div>

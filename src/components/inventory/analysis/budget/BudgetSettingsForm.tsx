@@ -6,7 +6,7 @@ import { type BudgetSettings } from "@/hooks/useBudgetSettings";
 
 interface BudgetSettingsFormProps {
   budgetSettings: BudgetSettings | null;
-  onSettingChange: (field: keyof BudgetSettings, value: string | number) => void;
+  onSettingChange: (field: string, value: string | number) => void;
 }
 
 const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({

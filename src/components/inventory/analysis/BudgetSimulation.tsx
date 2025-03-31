@@ -14,7 +14,6 @@ import SimulationTabsContainer from './simulation/SimulationTabsContainer';
 import BudgetSidePanel from './budget/BudgetSidePanel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
-import { useBudgetSettings } from '@/hooks/useBudgetSettings';
 
 const BudgetSimulation: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('simulation');
@@ -23,7 +22,6 @@ const BudgetSimulation: React.FC = () => {
   const { products } = useProducts('all');
   const { productPrices, isLoading: isLoadingPrices, refetch: refetchPrices } = useProductPrices();
   const { analysisItems, refetch: refetchAnalysis } = useAnalysisItems();
-  const { budgetSettings } = useBudgetSettings();
   
   // Simulation state management
   const { 
@@ -86,64 +84,10 @@ const BudgetSimulation: React.FC = () => {
   };
   
   // Refresh data when needed
-  const handleRefresh = async (): Promise<void> => {
+  const handleRefresh = async () => {
     await refetchPrices();
     await refetchAnalysis();
-    return Promise.resolve();
   };
-
-  // Wrapper for calculateSKUTotal to match the expected signature in SimulationTabsContainer
-  const calculateSKUTotalWrapper = (productName: string, sku: { 
-    productId: string; 
-    SKU: string; 
-    productName: string | null; 
-    quantity: QuantityOption; 
-    price: number 
-  }): number => {
-    return calculateSKUTotal(sku);
-  };
-
-  // Wrapper for handleAddSKU to match expected signature
-  const handleAddSKUWrapper = (
-    productCategory: string,
-    productId: string,
-    SKU: string,
-    productName: string | null
-  ): void => {
-    handleAddSKU(productCategory, { id: productId, SKU, productName });
-  };
-
-  // Wrapper for handleQuantityChange to match expected signature
-  const handleQuantityChangeWrapper = (
-    productCategory: string,
-    productId: string,
-    quantity: QuantityOption
-  ): void => {
-    // Find the index of the SKU with this productId in the selectedSKUs array
-    const skuIndex = selectedSKUs[productCategory]?.findIndex(sku => sku.productId === productId) ?? -1;
-    if (skuIndex !== -1) {
-      handleQuantityChange(productCategory, skuIndex, quantity);
-    }
-  };
-
-  // Wrapper for handleRemoveSKU to match expected signature
-  const handleRemoveSKUWrapper = (
-    productCategory: string,
-    productId: string
-  ): void => {
-    // Find the index of the SKU with this productId in the selectedSKUs array
-    const skuIndex = selectedSKUs[productCategory]?.findIndex(sku => sku.productId === productId) ?? -1;
-    if (skuIndex !== -1) {
-      handleRemoveSKU(productCategory, skuIndex);
-    }
-  };
-
-  // Get budget values
-  const totalBudget = budgetSettings?.total_budget || 300000;
-  const depositPercentage = budgetSettings?.deposit_percentage || 50;
-  const depositAmount = simulationTotal * (depositPercentage / 100);
-  const budgetPercentage = (simulationTotal / totalBudget) * 100;
-  const remainingBudget = totalBudget - simulationTotal;
 
   // Ensure we sync any missing SKU data with Supabase
   useEffect(() => {
@@ -154,17 +98,15 @@ const BudgetSimulation: React.FC = () => {
         
         if (analysisItem && (!analysisItem.sku_code || !analysisItem.sku_label)) {
           console.log(`Syncing missing SKU data for product ${sku.productId}`);
-          // Use updateAnalysisItem from the hook
+          // Update the analysis item with the SKU data
           const { updateAnalysisItem } = useAnalysisItems();
-          if (updateAnalysisItem) {
-            updateAnalysisItem.mutate({
-              id: analysisItem.id,
-              data: {
-                sku_code: sku.SKU,
-                sku_label: sku.productName || ''
-              }
-            });
-          }
+          updateAnalysisItem.mutate({
+            id: analysisItem.id,
+            data: {
+              sku_code: sku.SKU,
+              sku_label: sku.productName || ''
+            }
+          });
         }
       }
     }
@@ -183,10 +125,10 @@ const BudgetSimulation: React.FC = () => {
           selectedSKUs={selectedSKUs}
           groupedAnalysisProducts={groupedAnalysisProducts}
           simulationTotal={simulationTotal}
-          onAddSKU={handleAddSKUWrapper}
-          onQuantityChange={handleQuantityChangeWrapper}
-          onRemoveSKU={handleRemoveSKUWrapper}
-          calculateSKUTotal={calculateSKUTotalWrapper}
+          onAddSKU={handleAddSKU}
+          onQuantityChange={handleQuantityChange}
+          onRemoveSKU={handleRemoveSKU}
+          calculateSKUTotal={calculateSKUTotal}
           selectedQuantities={selectedQuantities}
           onOrderQuantityChange={handleOrderQuantityChange}
           onSimulationTotalChange={handleSimulationTotalChange}
@@ -219,16 +161,16 @@ const BudgetSimulation: React.FC = () => {
       <div className="lg:col-span-1">
         <BudgetSidePanel
           productCount={Object.keys(selectedSKUs).length}
-          totalBudget={totalBudget}
+          totalBudget={300000} // Default budget, this could be fetched from settings
           configuredProductCount={Object.values(selectedSKUs).flat().length}
           totalProductCount={products.length}
           onCreateOrder={() => console.log("Create order")}
           isLoading={isLoadingPrices}
           simulationTotal={simulationTotal}
-          depositAmount={depositAmount}
-          depositPercentage={depositPercentage}
-          budgetPercentage={budgetPercentage}
-          remainingBudget={remainingBudget}
+          depositAmount={simulationTotal * 0.5} // 50% deposit by default
+          depositPercentage={50}
+          budgetPercentage={simulationTotal / 300000 * 100}
+          remainingBudget={300000 - simulationTotal}
         />
       </div>
     </div>
