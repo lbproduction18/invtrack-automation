@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useAnalysisItems, type AnalysisItem } from '@/hooks/useAnalysisItems';
 import { useProducts } from '@/hooks/useProducts';
 import AnalysisProductsGrid from './analysis/AnalysisProductsGrid';
-import PricingGrid from './analysis/PricingGrid';
+import AnalysisMethodSection from './analysis/AnalysisMethodSection';
 
 // Define QuantityOption type consistently in this file
 export type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000 | 8000;
@@ -51,10 +51,7 @@ export const AnalysisContent: React.FC = () => {
         refetchAnalysis={refetchAnalysis}
       />
       
-      <div>
-        <h2 className="text-lg font-medium mb-4">Grille tarifaire</h2>
-        <PricingGrid />
-      </div>
+      <AnalysisMethodSection />
     </div>
   );
 };

@@ -1,16 +1,16 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Wrench, Zap } from 'lucide-react';
+import { Settings, Zap } from 'lucide-react';
 
 interface AnalysisModeSelectorProps {
-  onManualAnalysis: () => void;
-  onAIAnalysis: () => void;
+  selectedMode: 'manual' | 'ai' | null;
+  onSelectMode: (mode: 'manual' | 'ai') => void;
 }
 
 const AnalysisModeSelector: React.FC<AnalysisModeSelectorProps> = ({
-  onManualAnalysis,
-  onAIAnalysis
+  selectedMode,
+  onSelectMode
 }) => {
   return (
     <div className="my-8 py-6 border-t border-[#272727] bg-[#161616] rounded-md p-4">
@@ -20,18 +20,18 @@ const AnalysisModeSelector: React.FC<AnalysisModeSelectorProps> = ({
       
       <div className="flex justify-center items-center gap-6">
         <Button 
-          variant="secondary" 
-          onClick={onManualAnalysis}
+          variant={selectedMode === 'manual' ? 'default' : 'secondary'} 
+          onClick={() => onSelectMode('manual')}
           className="min-w-[180px] py-5"
           size="lg"
         >
-          <Wrench className="mr-2 h-5 w-5" />
+          <Settings className="mr-2 h-5 w-5" />
           Analyse Manuelle
         </Button>
         
         <Button 
-          variant="default" 
-          onClick={onAIAnalysis}
+          variant={selectedMode === 'ai' ? 'default' : 'secondary'} 
+          onClick={() => onSelectMode('ai')}
           className="min-w-[180px] py-5"
           size="lg"
         >
@@ -39,6 +39,24 @@ const AnalysisModeSelector: React.FC<AnalysisModeSelectorProps> = ({
           Analyse AI
         </Button>
       </div>
+      
+      {selectedMode && (
+        <div className="mt-6 animate-fade-in">
+          {selectedMode === 'manual' && (
+            <div className="text-center p-4 bg-[#1E1E1E] rounded-md">
+              <p className="text-gray-300">Interface d'analyse manuelle</p>
+              {/* Content for manual analysis will go here */}
+            </div>
+          )}
+          
+          {selectedMode === 'ai' && (
+            <div className="text-center p-4 bg-[#1E1E1E] rounded-md">
+              <p className="text-gray-300">Interface d'analyse AI</p>
+              {/* Content for AI analysis will go here */}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
