@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./components/layout/MainLayout";
 import Index from "./pages/Index";
 import Inventory from "./pages/Inventory";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 // Create a new QueryClient instance outside of the component
@@ -21,8 +22,10 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<MainLayout><Index /></MainLayout>} />
+            <Route path="/" element={<MainLayout><Dashboard /></MainLayout>} />
+            <Route path="/process" element={<MainLayout><Index /></MainLayout>} />
             <Route path="/inventory" element={<MainLayout><Inventory /></MainLayout>} />
+            <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

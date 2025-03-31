@@ -1,118 +1,73 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { type AnalysisItem, type AnalysisStatus } from "@/types/analysis";
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-
-export function useAddToAnalysis() {
-  const { toast } = useToast();
+export const useAddToAnalysis = () => {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
-  const addToAnalysis = useMutation({
+  return useMutation({
     mutationFn: async (productIds: string[]) => {
-      // First, update the product status
-      const { error: productError } = await supabase
-        .from('Low stock product')
-        .update({ status: 'analysis' })
-        .in('id', productIds);
-        
-      if (productError) {
-        throw productError;
+      if (!productIds.length) {
+        throw new Error("No products selected");
       }
-      
-      // Get complete product details to include all relevant information
-      const { data: productDetails, error: detailsError } = await supabase
+
+      // Fetch the products first
+      const { data: products, error: productsError } = await supabase
         .from('Low stock product')
-        .select('id, SKU, product_name, current_stock, threshold, created_at, note, priority_badge, last_order_date, last_order_quantity')
+        .select('*')
         .in('id', productIds);
-        
-      if (detailsError) {
-        throw detailsError;
-      }
-      
-      // Create analysis items with all available information from Step 1
-      const analysisItems = productIds.map(id => {
-        const product = productDetails.find(p => p.id === id);
-        return {
-          product_id: id,
-          quantity_selected: null,
-          last_order_info: product?.last_order_quantity ? `${product.last_order_quantity}` : null,
-          lab_status_text: null,
-          sku_code: product?.SKU || null,
-          sku_label: product?.product_name || null,
-          weeks_delivery: null,
-          // Add these fields related to stock info
-          stock: product?.current_stock || null,
-          threshold: product?.threshold || null,
-          last_order_date: product?.last_order_date || null,
-          // Include price fields as null for now
-          price_1000: null,
-          price_2000: null,
-          price_3000: null,
-          price_4000: null,
-          price_5000: null,
-          price_8000: null,
-          // Add the note and priority_badge from Step 1
-          note: product?.note || null,
-          priority_badge: product?.priority_badge || null,
-          date_added: product?.created_at || null
-        };
-      });
-      
-      console.log('Analysis items to insert:', analysisItems);
-      
-      // Insert into analysis_items
-      const { data, error } = await supabase
+
+      if (productsError) throw productsError;
+      if (!products?.length) throw new Error("No products found with the provided IDs");
+
+      // Begin preparing the analysis items to insert
+      const analysisItems = products.map(product => ({
+        product_id: product.id,
+        product_name: product.name,
+        sku_code: product.SKU,
+        priority_badge: product.priority_badge,
+        current_stock: product.stock,
+        stock_threshold: product.threshold,
+        note: product.note,
+        date_added: new Date().toISOString(),
+        status: 'pending' as AnalysisStatus,
+        quantity_to_order: 0,
+        price_per_unit: 0,
+        // Include any other required fields from your AnalysisItem type
+      }));
+
+      // Insert the analysis items
+      const { data: inserted, error: insertError } = await supabase
         .from('analysis_items')
         .insert(analysisItems)
         .select();
-        
-      if (error) {
-        console.error('Error inserting analysis items:', error);
-        throw error;
-      }
+
+      if (insertError) throw insertError;
       
-      // Create log entries for tracking transitions
-      const logEntries = productIds.map(id => {
-        const product = productDetails.find(p => p.id === id);
-        return {
-          sku_code: product?.SKU || null,
-          stock: product?.current_stock || null,
-          threshold: product?.threshold || null,
-          last_order_date: product?.last_order_date || null
-        };
-      });
-      
-      // Insert into analysis_log
-      const { error: logError } = await supabase
-        .from('analysis_log')
-        .insert(logEntries);
-        
-      if (logError) {
-        console.error('Error creating log entries:', logError);
-        // Don't throw here - we'll still return the analysis items even if logging fails
-      }
-      
-      return data;
+      // No longer logging to analysis_log - removed that functionality
+
+      return inserted;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['analysisItems'] });
+      
       toast({
         title: "Produits ajoutés à l'analyse",
-        description: "Les produits ont été transférés avec succès.",
+        description: `${data.length} produit(s) ont été ajoutés à l'analyse avec succès.`,
       });
-      
-      // Invalidate relevant queries
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-      queryClient.invalidateQueries({ queryKey: ['analysisItems'] });
     },
     onError: (error) => {
-      console.error('Error adding to analysis:', error);
+      console.error("Error adding products to analysis:", error);
+      
       toast({
+        variant: "destructive",
         title: "Erreur",
-        description: "Impossible d'ajouter les produits à l'analyse. Veuillez réessayer.",
-        variant: "destructive"
+        description: error instanceof Error 
+          ? error.message 
+          : "Une erreur est survenue lors de l'ajout des produits à l'analyse.",
       });
     }
   });
-
-  return { addToAnalysis };
-}
+};
