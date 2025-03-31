@@ -46,8 +46,15 @@ export const calculateProductTotal = (
   if (!calculatedPrices[productId]) return 0;
   
   return Object.values(calculatedPrices[productId]).reduce((sum, price) => {
-    // Ensure we're adding numbers by explicitly converting to number
-    const numericPrice = typeof price === 'number' ? price : Number(price) || 0;
+    // Handle different types properly by ensuring we're always working with numbers
+    let numericPrice = 0;
+    if (typeof price === 'number') {
+      numericPrice = price;
+    } else if (typeof price === 'string') {
+      // Try to parse the string as a number, return 0 if it fails
+      const parsed = parseFloat(price);
+      numericPrice = isNaN(parsed) ? 0 : parsed;
+    }
     return sum + numericPrice;
   }, 0);
 };
