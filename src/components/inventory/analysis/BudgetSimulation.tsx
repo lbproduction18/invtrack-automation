@@ -84,9 +84,56 @@ const BudgetSimulation: React.FC = () => {
   };
   
   // Refresh data when needed
-  const handleRefresh = async () => {
+  const handleRefresh = async (): Promise<void> => {
     await refetchPrices();
     await refetchAnalysis();
+    return Promise.resolve();
+  };
+
+  // Wrapper for calculateSKUTotal to match the expected signature in SimulationTabsContainer
+  const calculateSKUTotalWrapper = (productName: string, sku: { 
+    productId: string; 
+    SKU: string; 
+    productName: string | null; 
+    quantity: QuantityOption; 
+    price: number 
+  }): number => {
+    return calculateSKUTotal(sku);
+  };
+
+  // Wrapper for handleAddSKU to match expected signature
+  const handleAddSKUWrapper = (
+    productCategory: string,
+    productId: string,
+    SKU: string,
+    productName: string | null
+  ): void => {
+    handleAddSKU(productCategory, { id: productId, SKU, productName });
+  };
+
+  // Wrapper for handleQuantityChange to match expected signature
+  const handleQuantityChangeWrapper = (
+    productCategory: string,
+    productId: string,
+    quantity: QuantityOption
+  ): void => {
+    // Find the index of the SKU with this productId in the selectedSKUs array
+    const skuIndex = selectedSKUs[productCategory]?.findIndex(sku => sku.productId === productId) ?? -1;
+    if (skuIndex !== -1) {
+      handleQuantityChange(productCategory, skuIndex, quantity);
+    }
+  };
+
+  // Wrapper for handleRemoveSKU to match expected signature
+  const handleRemoveSKUWrapper = (
+    productCategory: string,
+    productId: string
+  ): void => {
+    // Find the index of the SKU with this productId in the selectedSKUs array
+    const skuIndex = selectedSKUs[productCategory]?.findIndex(sku => sku.productId === productId) ?? -1;
+    if (skuIndex !== -1) {
+      handleRemoveSKU(productCategory, skuIndex);
+    }
   };
 
   // Ensure we sync any missing SKU data with Supabase
@@ -125,10 +172,10 @@ const BudgetSimulation: React.FC = () => {
           selectedSKUs={selectedSKUs}
           groupedAnalysisProducts={groupedAnalysisProducts}
           simulationTotal={simulationTotal}
-          onAddSKU={handleAddSKU}
-          onQuantityChange={handleQuantityChange}
-          onRemoveSKU={handleRemoveSKU}
-          calculateSKUTotal={calculateSKUTotal}
+          onAddSKU={handleAddSKUWrapper}
+          onQuantityChange={handleQuantityChangeWrapper}
+          onRemoveSKU={handleRemoveSKUWrapper}
+          calculateSKUTotal={calculateSKUTotalWrapper}
           selectedQuantities={selectedQuantities}
           onOrderQuantityChange={handleOrderQuantityChange}
           onSimulationTotalChange={handleSimulationTotalChange}
