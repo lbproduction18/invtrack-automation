@@ -97,6 +97,11 @@ const PricingGrid: React.FC = () => {
             analysisItems={analysisItems}
             products={products}
             simulationTotal={simulationTotal}
+            selectedSKUs={selectedSKUs}
+            quantities={quantities}
+            calculatedPrices={calculatedPrices}
+            productPrices={productPrices}
+            getUnitPriceForSKU={getUnitPriceForSKU}
           />
         </div>
       </CardContent>

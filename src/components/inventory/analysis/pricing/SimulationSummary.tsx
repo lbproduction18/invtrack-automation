@@ -19,12 +19,22 @@ interface SimulationSummaryProps {
   analysisItems: AnalysisItem[];
   products: Product[];
   simulationTotal: number;
+  selectedSKUs: Record<string, string[]>;
+  quantities: Record<string, Record<string, string>>;
+  calculatedPrices: Record<string, Record<string, number | string>>;
+  productPrices: any[];
+  getUnitPriceForSKU: (productId: string, sku: string, quantity?: string) => number;
 }
 
 const SimulationSummary: React.FC<SimulationSummaryProps> = ({
   analysisItems,
   products,
-  simulationTotal
+  simulationTotal,
+  selectedSKUs,
+  quantities,
+  calculatedPrices,
+  productPrices,
+  getUnitPriceForSKU
 }) => {
   // Find the corresponding product for each analysis item
   const getProductDetails = (analysisItem: AnalysisItem) => {
@@ -68,11 +78,54 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
     return unitPrice * quantity;
   };
 
+  // Extract details from the selectedSKUs and related data
+  const getSelectedSKUDetails = () => {
+    const details: Array<{
+      sku: string;
+      productName: string | null;
+      quantity: string;
+      unitPrice: number;
+      totalPrice: number;
+    }> = [];
+
+    // Go through each product and its selected SKUs
+    Object.entries(selectedSKUs).forEach(([productId, skus]) => {
+      const product = productPrices.find(p => p.id === productId);
+      
+      skus.forEach(sku => {
+        const quantity = quantities[productId]?.[sku] || '0';
+        
+        // Skip invalid entries (quantity must be a valid number > 0)
+        if (quantity && parseInt(quantity) > 0) {
+          const unitPrice = getUnitPriceForSKU(productId, sku, quantity);
+          const totalPrice = typeof calculatedPrices[productId]?.[sku] === 'number' 
+            ? calculatedPrices[productId][sku] as number 
+            : 0;
+          
+          details.push({
+            sku,
+            productName: product?.product_name || null,
+            quantity,
+            unitPrice,
+            totalPrice
+          });
+        }
+      });
+    });
+    
+    return details;
+  };
+
   // Filter analysis items that have sku_code and quantity_selected
   const validAnalysisItems = analysisItems.filter(item => 
     item.sku_code && item.quantity_selected && item.quantity_selected > 0
   );
 
+  // Get selected SKU details from the current selection
+  const selectedSKUDetails = getSelectedSKUDetails();
+  
+  // Determine if we have any items to display (either from analysis or current selection)
+  const hasItemsToDisplay = selectedSKUDetails.length > 0;
   const isLoading = false; // We could add loading state later if needed
 
   return (
@@ -99,30 +152,27 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
           </TableHeader>
           
           <TableBody>
-            {validAnalysisItems.length === 0 ? (
+            {!hasItemsToDisplay ? (
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center text-gray-500">
                   Aucun produit sélectionné dans la simulation
                 </TableCell>
               </TableRow>
             ) : (
-              validAnalysisItems.map(item => {
-                const details = getProductDetails(item);
-                return (
-                  <TableRow key={item.id} className="hover:bg-[#1a1a1a]">
-                    <TableCell className="py-1">{details.sku}</TableCell>
-                    <TableCell className="py-1">{details.name}</TableCell>
-                    <TableCell className="py-1 text-center">{details.quantity}</TableCell>
-                    <TableCell className="py-1 text-center">{formatPrice(details.unitPrice)}</TableCell>
-                    <TableCell className="py-1 text-right">{formatTotalPrice(details.totalPrice)}</TableCell>
-                  </TableRow>
-                );
-              })
+              selectedSKUDetails.map(item => (
+                <TableRow key={item.sku} className="hover:bg-[#1a1a1a]">
+                  <TableCell className="py-1">{item.sku}</TableCell>
+                  <TableCell className="py-1">{item.productName || '-'}</TableCell>
+                  <TableCell className="py-1 text-center">{item.quantity}</TableCell>
+                  <TableCell className="py-1 text-center">{formatPrice(item.unitPrice)}</TableCell>
+                  <TableCell className="py-1 text-right">{formatTotalPrice(item.totalPrice)}</TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
           
           {/* Only show the footer if we have items or a non-zero total */}
-          {(validAnalysisItems.length > 0 || simulationTotal > 0) && (
+          {(hasItemsToDisplay || simulationTotal > 0) && (
             <TableFooter className="bg-[#161616] border-t border-[#272727]">
               <SimulationTotal simulationTotal={simulationTotal} />
             </TableFooter>
