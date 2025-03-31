@@ -20,7 +20,7 @@ export interface AnalysisItem {
   price_8000: number | null;
   stock: number | null;
   threshold: number | null;
-  note: string | null;
-  priority_badge: string | null;
-  date_added: string | null;
+  note?: string | null;
+  priority_badge?: string | null;
+  date_added?: string | null;
 }

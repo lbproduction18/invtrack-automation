@@ -40,13 +40,10 @@ export function useAddToAnalysis() {
           sku_code: product?.SKU || null,
           sku_label: product?.product_name || null,
           weeks_delivery: null,
-          // Add all data from Step 1 to ensure continuity
+          // Add these fields related to stock info
           stock: product?.current_stock || null,
           threshold: product?.threshold || null,
           last_order_date: product?.last_order_date || null,
-          note: product?.note || null,
-          priority_badge: product?.priority_badge || null,
-          date_added: product?.created_at || null,
           // Include price fields as null for now
           price_1000: null,
           price_2000: null,
