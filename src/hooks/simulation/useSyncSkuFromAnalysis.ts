@@ -10,7 +10,7 @@ import { QuantityOption } from '@/components/inventory/AnalysisContent';
  */
 export function useSyncSkuFromAnalysis(
   setSelectedSKUs: React.Dispatch<React.SetStateAction<Record<string, any[]>>>,
-  setSelectedQuantities: React.Dispatch<React.SetStateAction<Record<string, string>>>
+  handleOrderQuantityChange: (productId: string, quantityValue: string) => void
 ) {
   const { analysisItems } = useAnalysisItems();
   const { products } = useProducts('analysis');
@@ -29,6 +29,7 @@ export function useSyncSkuFromAnalysis(
     analysisItems.forEach(item => {
       if (item.product_id && item.quantity_selected) {
         quantities[item.product_id] = item.quantity_selected.toString();
+        handleOrderQuantityChange(item.product_id, item.quantity_selected.toString());
       }
       
       // If this analysis item has SKU information, sync it
@@ -68,11 +69,9 @@ export function useSyncSkuFromAnalysis(
       }
     });
     
-    setSelectedQuantities(quantities);
-    
     // If we have synced SKUs, update the selected SKUs state
     if (Object.keys(syncedSKUs).length > 0) {
       setSelectedSKUs(syncedSKUs);
     }
-  }, [analysisItems, products, productPrices, setSelectedSKUs, setSelectedQuantities]);
+  }, [analysisItems, products, productPrices, setSelectedSKUs, handleOrderQuantityChange]);
 }

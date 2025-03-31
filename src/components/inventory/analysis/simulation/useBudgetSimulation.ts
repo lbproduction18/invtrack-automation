@@ -46,11 +46,12 @@ export function useBudgetSimulation(onCreateOrder: () => void) {
     depositPercentage,
     depositAmount,
     remainingBudget,
-    budgetPercentage
+    budgetPercentage,
+    getUnitPriceWrapper
   } = useBudgetMetrics(simulationTotal);
   
-  // Sync SKUs from analysis items
-  useSyncSkuFromAnalysis(setSelectedSKUs, setSelectedQuantities);
+  // Sync SKUs from analysis items - fixed the issue with setSelectedQuantities
+  useSyncSkuFromAnalysis(setSelectedSKUs, handleOrderQuantityChange);
   
   // Predefined quantity options
   const standardQuantities: QuantityOption[] = [1000, 2000, 3000, 4000, 5000, 8000];
@@ -84,6 +85,7 @@ export function useBudgetSimulation(onCreateOrder: () => void) {
     handleQuantityChange,
     handleOrderQuantityChange,
     handleRefresh,
-    calculateSKUTotal
+    calculateSKUTotal,
+    getUnitPriceForSKU: getUnitPriceWrapper // Using the wrapper function
   };
 }

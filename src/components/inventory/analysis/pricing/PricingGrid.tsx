@@ -9,17 +9,21 @@ import {
 import { useProductPrices } from '@/hooks/useProductPrices';
 import { useProducts } from '@/hooks/useProducts';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
-import { usePricingCalculation } from '@/components/inventory/analysis/pricing/usePricingCalculation';
-import PriceTable from '@/components/inventory/analysis/pricing/PriceTable';
-import SimulationSummary from '@/components/inventory/analysis/pricing/SimulationSummary';
-import UpdatePricesButton from '@/components/inventory/analysis/pricing/UpdatePricesButton';
+import { usePricingCalculation } from './usePricingCalculation';
+import PriceTable from './PriceTable';
+import SimulationSummary from './SimulationSummary';
+import UpdatePricesButton from './UpdatePricesButton';
 import { Loader2, RefreshCw, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useBudgetSimulation } from '../simulation/useBudgetSimulation';
 
 const PricingGrid: React.FC = () => {
   const { productPrices, isLoading: isPricesLoading, refetch: refetchPrices } = useProductPrices();
   const { products, isLoading: isProductsLoading } = useProducts('analysis');
   const { analysisItems, isLoading: isAnalysisLoading, refetch: refetchAnalysis } = useAnalysisItems();
+  
+  // Use the budget simulation hook to get the wrapper function
+  const { getUnitPriceForSKU } = useBudgetSimulation(() => {});
   
   const analysisProductSKUs = products.map(product => ({
     id: product.id,
@@ -35,8 +39,7 @@ const PricingGrid: React.FC = () => {
     handleSKURemove,
     handleQuantityChange,
     getTotalForProduct,
-    getUnitPriceForSKU,
-    resetSimulation, // Added reset functionality
+    resetSimulation,
   } = usePricingCalculation(productPrices);
   
   const isLoading = isPricesLoading || isProductsLoading || isAnalysisLoading;

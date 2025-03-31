@@ -9,6 +9,7 @@ import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { useProductPrices } from '@/hooks/useProductPrices';
 import { usePricingCalculation } from './pricing/usePricingCalculation';
 import { AnalysisProduct } from '@/components/inventory/AnalysisContent';
+import { useBudgetSimulation } from './simulation/useBudgetSimulation';
 
 const BudgetSimulation: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState('tab1');
@@ -17,12 +18,14 @@ const BudgetSimulation: React.FC = () => {
   const { productPrices, isLoading: isPricesLoading } = useProductPrices();
   const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
 
+  // Use the budget simulation hook
+  const { getUnitPriceForSKU } = useBudgetSimulation(() => {});
+
   const {
     selectedSKUs,
     quantities,
     calculatedPrices,
-    simulationTotal,
-    getUnitPriceForSKU
+    simulationTotal
   } = usePricingCalculation(productPrices);
 
   const isLoading = isProductsLoading || isAnalysisLoading || isPricesLoading;

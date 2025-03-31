@@ -17,11 +17,15 @@ import RefreshPriceGridButton from '@/components/inventory/analysis/pricing/Refr
 import { Button } from '@/components/ui/button';
 import { Loader2, RotateCw, RefreshCw } from 'lucide-react';
 import { formatTotalPrice } from '@/components/inventory/analysis/pricing/PriceFormatter';
+import { useBudgetSimulation } from './simulation/useBudgetSimulation';
 
 const PricingGrid: React.FC = () => {
   const { productPrices, isLoading: isPricesLoading, refetch: refetchPrices } = useProductPrices();
   const { products, isLoading: isProductsLoading } = useProducts('analysis');
   const { analysisItems, isLoading: isAnalysisLoading, refetch: refetchAnalysis } = useAnalysisItems();
+  
+  // Use the budget simulation hook to get the wrapper function
+  const { getUnitPriceForSKU } = useBudgetSimulation(() => {});
   
   const analysisProductSKUs = products.map(product => ({
     id: product.id,
@@ -37,8 +41,7 @@ const PricingGrid: React.FC = () => {
     handleSKURemove,
     handleQuantityChange,
     getTotalForProduct,
-    getUnitPriceForSKU,
-    resetSimulation, // Added reset functionality
+    resetSimulation,
   } = usePricingCalculation(productPrices);
   
   const isLoading = isPricesLoading || isProductsLoading || isAnalysisLoading;

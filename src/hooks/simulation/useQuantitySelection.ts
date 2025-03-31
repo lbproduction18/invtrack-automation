@@ -18,6 +18,8 @@ export function useQuantitySelection() {
       ...prev,
       [productId]: quantityValue
     }));
+    
+    return quantityValue; // Return the value for chaining
   };
   
   // Sync product quantities from analysis_items on component load
@@ -36,6 +38,7 @@ export function useQuantitySelection() {
   
   return {
     selectedQuantities,
-    handleOrderQuantityChange
+    handleOrderQuantityChange,
+    setSelectedQuantities
   };
 }
