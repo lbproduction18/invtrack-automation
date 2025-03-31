@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import AnalysisModeSelector from './pricing/AnalysisModeSelector';
-import PricingGrid from './pricing/PricingGrid';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type AnalysisMode = 'manual' | 'ai' | null;
@@ -19,12 +18,6 @@ const AnalysisMethodSection: React.FC = () => {
         selectedMode={selectedMode}
         onSelectMode={handleModeSelection}
       />
-      
-      {selectedMode === 'manual' && (
-        <div className="animate-fade-in">
-          <PricingGrid />
-        </div>
-      )}
       
       {selectedMode === 'ai' && (
         <div className="animate-fade-in">
