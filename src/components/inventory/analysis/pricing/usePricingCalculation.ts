@@ -1,54 +1,82 @@
 
-import { useEffect } from 'react';
-import { ProductPrice } from '@/hooks/useProductPrices';
-import { getStandardQuantities } from './utils/pricingUtils';
+import { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { type ProductPrice } from '@/hooks/useProductPrices';
+import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { useSKUSelection } from './hooks/useSKUSelection';
 import { usePriceCalculation } from './hooks/usePriceCalculation';
-import { calculateSimulationTotal } from './utils/priceCalculationUtils';
+import { useQuantityManagement } from './hooks/useQuantityManagement';
+import { getUnitPriceForSKU } from './hooks/utils/priceUtils';
 
-/**
- * Hook to handle pricing calculations for the pricing grid
- */
 export function usePricingCalculation(productPrices: ProductPrice[]) {
-  // Use our smaller, focused hooks
-  const { selectedSKUs, handleSKUSelect, handleSKURemove, resetSKUSelection } = useSKUSelection();
+  const { toast } = useToast();
+  
+  // Use our custom hooks for SKU selection, price calculation, and quantity management
+  const { 
+    selectedSKUs, 
+    handleSKUSelect, 
+    handleSKURemove,
+    resetSKUSelection
+  } = useSKUSelection();
+  
   const {
     quantities,
+    handleQuantityChange,
+    clearQuantityForSKU,
+    resetQuantities
+  } = useQuantityManagement();
+  
+  const {
     calculatedPrices,
     simulationTotal,
-    getQuantityForSKU,
     getPriceForSKU,
-    getTotalForProduct,
-    handleQuantityChange,
-    getUnitPriceForSKU,
-    clearPriceDataForSKU,
-    resetPriceCalculations
-  } = usePriceCalculation(productPrices);
+    setCalculatedPrice,
+    clearPriceForSKU,
+    resetPriceCalculations,
+    getTotalForProduct
+  } = usePriceCalculation();
 
-  // Standard quantities that match price columns
-  const standardQuantities = getStandardQuantities();
+  // Get the price for a SKU based on its quantity
+  const getUnitPriceForSKUWrapper = (sku: string, quantity: number): number => {
+    return getUnitPriceForSKU(productPrices, sku, quantity);
+  };
 
-  // Calculate the total simulation amount whenever calculatedPrices change
-  useEffect(() => {
-    // Instead of trying to use setSimulationTotal, we'll let the usePriceCalculation hook
-    // handle its own state updates via the calculateSimulationTotal function
-    // The total will automatically update through its own internal effect
-  }, [calculatedPrices]);
+  // Handle quantity change for a selected SKU with price calculation
+  const handleQuantityChangeWithPrice = (productId: string, sku: string, quantityValue: string) => {
+    // Update the quantity
+    handleQuantityChange(productId, sku, quantityValue);
+    
+    // Calculate the price for this quantity
+    const parsedQuantity = parseInt(quantityValue, 10) || 0;
+    const unitPrice = getUnitPriceForSKUWrapper(sku, parsedQuantity);
+    const totalPrice = parsedQuantity * unitPrice;
+    
+    // Update the calculated price for this SKU
+    setCalculatedPrice(productId, sku, totalPrice);
+    
+    return quantityValue;
+  };
 
-  // Enhanced SKU removal handler that also clears price data
-  const handleSKURemoveWithPriceCleanup = (productId: string, sku: string) => {
-    // First clear the price data for this SKU
-    clearPriceDataForSKU(productId, sku);
-    // Then remove the SKU from the selection
+  // Remove a SKU and clean up related data
+  const handleSKURemoveWithCleanup = (productId: string, sku: string) => {
+    // Remove the SKU from selections
     handleSKURemove(productId, sku);
+    
+    // Clean up price and quantity data
+    clearPriceForSKU(productId, sku);
+    clearQuantityForSKU(productId, sku);
   };
 
   // Reset the entire simulation
   const resetSimulation = () => {
-    // Reset the SKU selection
     resetSKUSelection();
-    // Reset all price calculations (which also resets quantities and the simulation total)
+    resetQuantities();
     resetPriceCalculations();
+    
+    toast({
+      title: "Simulation réinitialisée",
+      description: "Toutes les sélections ont été effacées."
+    });
   };
 
   return {
@@ -56,14 +84,11 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     quantities,
     calculatedPrices,
     simulationTotal,
-    standardQuantities,
-    getQuantityForSKU,
-    getPriceForSKU,
-    getTotalForProduct,
     handleSKUSelect,
-    handleSKURemove: handleSKURemoveWithPriceCleanup,
-    handleQuantityChange,
-    getUnitPriceForSKU,
-    resetSimulation
+    handleSKURemove: handleSKURemoveWithCleanup,
+    handleQuantityChange: handleQuantityChangeWithPrice,
+    getTotalForProduct,
+    getUnitPriceForSKU: getUnitPriceForSKUWrapper,
+    resetSimulation,
   };
 }
