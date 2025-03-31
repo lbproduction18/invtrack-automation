@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -11,7 +10,7 @@ import { useProducts } from '@/hooks/useProducts';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { usePricingCalculation } from '@/components/inventory/analysis/pricing/usePricingCalculation';
 import PriceTable from '@/components/inventory/analysis/pricing/PriceTable';
-import TotalSummary from '@/components/inventory/analysis/pricing/TotalSummary';
+import SimulationSummary from '@/components/inventory/analysis/pricing/SimulationSummary';
 import SelectedSKUsList from '@/components/inventory/analysis/pricing/SelectedSKUsList';
 import UpdatePricesButton from '@/components/inventory/analysis/pricing/UpdatePricesButton';
 import RefreshPriceGridButton from '@/components/inventory/analysis/pricing/RefreshPriceGridButton';
@@ -23,13 +22,11 @@ const PricingGrid: React.FC = () => {
   const { products, isLoading: isProductsLoading } = useProducts('analysis');
   const { analysisItems, isLoading: isAnalysisLoading, refetch: refetchAnalysis } = useAnalysisItems();
   
-  // Get the SKUs of products that are in analysis
   const analysisProductSKUs = products.map(product => ({
     id: product.id,
     SKU: product.SKU
   }));
   
-  // Use our custom hook for pricing calculations
   const {
     selectedSKUs,
     quantities,
@@ -44,7 +41,6 @@ const PricingGrid: React.FC = () => {
   
   const isLoading = isPricesLoading || isProductsLoading || isAnalysisLoading;
 
-  // Refresh all data
   const handleRefresh = async () => {
     await Promise.all([
       refetchPrices(),
@@ -52,12 +48,10 @@ const PricingGrid: React.FC = () => {
     ]);
   };
 
-  // Refresh data on component mount
   useEffect(() => {
     handleRefresh();
   }, []);
   
-  // Prepare detailed SKU information for summary
   const prepareSelectedSKUDetails = () => {
     const details: Array<{
       sku: string;
@@ -67,9 +61,7 @@ const PricingGrid: React.FC = () => {
       productName?: string;
     }> = [];
     
-    // For each product with selected SKUs
     Object.entries(selectedSKUs).forEach(([productId, skus]) => {
-      // For each selected SKU in this product
       skus.forEach(sku => {
         const quantity = quantities[productId]?.[sku] || '0';
         const totalPrice = typeof calculatedPrices[productId]?.[sku] === 'number' 
@@ -77,7 +69,6 @@ const PricingGrid: React.FC = () => {
           : 0;
         const unitPrice = getUnitPriceForSKU(productId, sku);
         
-        // Find the product name for this product ID
         const product = productPrices.find(p => p.id === productId);
         
         details.push({
@@ -133,22 +124,12 @@ const PricingGrid: React.FC = () => {
           )}
         </div>
         
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2">
-            <SelectedSKUsList
-              productId=""
-              skus={[]}
-              quantities={{}}
-              calculatedPrices={{}}
-              onQuantityChange={() => {}}
-              onRemoveSKU={() => {}}
-              showDetailedSummary={true}
-              selectedSKUDetails={prepareSelectedSKUDetails()}
-            />
-          </div>
-          <div>
-            <TotalSummary simulationTotal={simulationTotal} />
-          </div>
+        <div className="mt-4">
+          <SimulationSummary 
+            analysisItems={analysisItems}
+            products={products}
+            simulationTotal={simulationTotal}
+          />
         </div>
       </CardContent>
     </Card>

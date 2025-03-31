@@ -11,7 +11,7 @@ interface TotalSummaryProps {
 }
 
 const TotalSummary: React.FC<TotalSummaryProps> = ({ simulationTotal }) => {
-  return null;
+  return null; // Not used anymore - total is displayed in the SimulationSummary component
 };
 
 export default TotalSummary;
