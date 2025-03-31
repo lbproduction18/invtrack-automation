@@ -1,140 +1,181 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ProductPrice } from '@/hooks/useProductPrices';
+import { QuantityOption } from '@/components/inventory/AnalysisContent';
 
-/**
- * Hook to manage price state and calculations
- */
 export function usePriceState(productPrices: ProductPrice[]) {
+  // State for selected SKUs, quantities, and calculated prices
+  const [selectedSKUs, setSelectedSKUs] = useState<Record<string, string[]>>({});
+  const [quantities, setQuantities] = useState<Record<string, Record<string, string>>>({});
   const [calculatedPrices, setCalculatedPrices] = useState<Record<string, Record<string, number | string>>>({});
   const [simulationTotal, setSimulationTotal] = useState<number>(0);
 
-  /**
-   * Calculate the price for a selected SKU based on quantity
-   */
-  const calculateTotalPrice = (productId: string, sku: string, quantityValue: string) => {
-    // Find the product price data
-    const productPrice = productPrices.find(p => p.id === productId);
-    if (!productPrice) return;
+  // Get unit price for a specific SKU and quantity
+  const getUnitPriceForSKU = (sku: string, quantity: number): number => {
+    // Find the product price entry that matches this SKU
+    const productPrice = productPrices.find(price => {
+      // Extract the category from the SKU (e.g., "BNT" from "BNT-LOTUS")
+      const skuCategory = sku.split('-')[0];
+      // Check if the product name contains this category
+      return price.product_name.toLowerCase().includes(skuCategory.toLowerCase());
+    });
 
-    const quantity = parseInt(quantityValue);
-    if (isNaN(quantity) || quantity <= 0) return;
-
-    let unitPrice = 0;
-
-    // Determine which price to use based on quantity
-    if (quantity <= 1000) {
-      unitPrice = productPrice.price_1000 || 0;
-    } else if (quantity <= 2000) {
-      unitPrice = productPrice.price_2000 || 0;
-    } else if (quantity <= 3000) {
-      unitPrice = productPrice.price_3000 || 0;
-    } else if (quantity <= 4000) {
-      unitPrice = productPrice.price_4000 || 0;
-    } else if (quantity <= 5000) {
-      unitPrice = productPrice.price_5000 || 0;
-    } else {
-      unitPrice = productPrice.price_8000 || 0;
-    }
-
-    // Calculate total price
-    const totalPrice = unitPrice * quantity;
-
-    // Update calculated prices state
-    setCalculatedPrices(prev => ({
-      ...prev,
-      [productId]: {
-        ...(prev[productId] || {}),
-        [sku]: totalPrice
-      }
-    }));
-  };
-
-  /**
-   * Get the unit price for a SKU based on quantity
-   */
-  const getUnitPriceForSKU = (productId: string, sku: string, quantityStr?: string): number => {
-    const productPrice = productPrices.find(p => p.id === productId);
     if (!productPrice) return 0;
 
-    let quantity = 0;
-    if (quantityStr) {
-      quantity = parseInt(quantityStr);
-      if (isNaN(quantity)) quantity = 0;
+    // Determine which price field to use based on quantity
+    let priceField: keyof ProductPrice;
+    
+    if (quantity <= 1000) {
+      priceField = 'price_1000';
+    } else if (quantity <= 2000) {
+      priceField = 'price_2000';
+    } else if (quantity <= 3000) {
+      priceField = 'price_3000';
+    } else if (quantity <= 4000) {
+      priceField = 'price_4000';
+    } else if (quantity <= 5000) {
+      priceField = 'price_5000';
+    } else {
+      priceField = 'price_8000';
     }
 
-    if (quantity <= 0) return 0;
-
-    if (quantity <= 1000) return productPrice.price_1000 || 0;
-    if (quantity <= 2000) return productPrice.price_2000 || 0;
-    if (quantity <= 3000) return productPrice.price_3000 || 0;
-    if (quantity <= 4000) return productPrice.price_4000 || 0;
-    if (quantity <= 5000) return productPrice.price_5000 || 0;
-    return productPrice.price_8000 || 0;
+    // Return the price or 0 if not available
+    return productPrice[priceField] as number || 0;
   };
 
-  /**
-   * Get the calculated price for a specific SKU
-   */
-  const getPriceForSKU = (productId: string, sku: string): number | string => {
-    return calculatedPrices[productId]?.[sku] || 0;
-  };
-
-  /**
-   * Get the total price for all selected SKUs of a product
-   */
-  const getTotalForProduct = (productId: string): number => {
-    if (!calculatedPrices[productId]) return 0;
-
-    return Object.values(calculatedPrices[productId]).reduce((total, price) => {
-      // Convert the price to a number to avoid type issues
-      const numericPrice = typeof price === 'number' ? price : Number(price) || 0;
-      return total + numericPrice;
-    }, 0);
-  };
-
-  /**
-   * Clear the price data for a specific SKU
-   */
-  const clearPriceForSKU = (productId: string, sku: string) => {
-    setCalculatedPrices(prev => {
-      if (!prev[productId]) return prev;
-
-      const updatedPrices = { ...prev[productId] };
-      delete updatedPrices[sku];
-
-      // If there are no more prices for this product, remove the product entry
-      if (Object.keys(updatedPrices).length === 0) {
-        const newState = { ...prev };
-        delete newState[productId];
-        return newState;
+  // Handle adding a SKU to the selection
+  const handleSKUSelect = (productId: string, sku: string) => {
+    setSelectedSKUs(prev => {
+      const updatedSKUs = { ...prev };
+      if (!updatedSKUs[productId]) {
+        updatedSKUs[productId] = [];
       }
-
-      // Otherwise, update the prices for this product
-      return {
-        ...prev,
-        [productId]: updatedPrices
-      };
+      if (!updatedSKUs[productId].includes(sku)) {
+        updatedSKUs[productId] = [...updatedSKUs[productId], sku];
+      }
+      return updatedSKUs;
     });
   };
 
-  /**
-   * Reset all price calculations
-   */
-  const resetPriceCalculations = () => {
+  // Handle removing a SKU from the selection
+  const handleSKURemove = (productId: string, sku: string) => {
+    setSelectedSKUs(prev => {
+      const updatedSKUs = { ...prev };
+      if (updatedSKUs[productId]) {
+        updatedSKUs[productId] = updatedSKUs[productId].filter(s => s !== sku);
+        if (updatedSKUs[productId].length === 0) {
+          delete updatedSKUs[productId];
+        }
+      }
+      return updatedSKUs;
+    });
+
+    // Also clean up quantities and calculated prices
+    setQuantities(prev => {
+      const updatedQuantities = { ...prev };
+      if (updatedQuantities[productId]) {
+        delete updatedQuantities[productId][sku];
+        if (Object.keys(updatedQuantities[productId]).length === 0) {
+          delete updatedQuantities[productId];
+        }
+      }
+      return updatedQuantities;
+    });
+
+    setCalculatedPrices(prev => {
+      const updatedPrices = { ...prev };
+      if (updatedPrices[productId]) {
+        delete updatedPrices[productId][sku];
+        if (Object.keys(updatedPrices[productId]).length === 0) {
+          delete updatedPrices[productId];
+        }
+      }
+      return updatedPrices;
+    });
+
+    // Recalculate total
+    setSimulationTotal(prev => {
+      const prevTotal = prev || 0;
+      const quantityValue = quantities[productId]?.[sku] || '0';
+      const parsedQuantity = parseInt(quantityValue, 10) || 0;
+      const unitPrice = getUnitPriceForSKU(sku, parsedQuantity);
+      const updatedTotal = parseFloat(String(prevTotal)) + parseFloat(String(parsedQuantity)) * unitPrice;
+      return Math.max(0, prevTotal - (parsedQuantity * unitPrice));
+    });
+  };
+
+  // Handle quantity change for a selected SKU
+  const handleQuantityChange = (productId: string, sku: string, quantityValue: string) => {
+    // Update quantities state
+    setQuantities(prev => {
+      const updatedQuantities = { ...prev };
+      if (!updatedQuantities[productId]) {
+        updatedQuantities[productId] = {};
+      }
+      updatedQuantities[productId][sku] = quantityValue;
+      return updatedQuantities;
+    });
+
+    // Calculate price based on quantity and update calculated prices
+    const parsedQuantity = parseInt(quantityValue, 10) || 0;
+    const unitPrice = getUnitPriceForSKU(sku, parsedQuantity);
+    const totalPrice = parsedQuantity * unitPrice;
+
+    setCalculatedPrices(prev => {
+      const updatedPrices = { ...prev };
+      if (!updatedPrices[productId]) {
+        updatedPrices[productId] = {};
+      }
+      updatedPrices[productId][sku] = totalPrice;
+      return updatedPrices;
+    });
+
+    // Recalculate total simulation price
+    calculateSimulationTotal();
+  };
+
+  // Calculate total for a specific product
+  const getTotalForProduct = (productId: string): number => {
+    if (!calculatedPrices[productId]) return 0;
+    
+    return Object.values(calculatedPrices[productId]).reduce((sum, price) => {
+      return sum + (typeof price === 'number' ? price : 0);
+    }, 0);
+  };
+
+  // Calculate total for the entire simulation
+  const calculateSimulationTotal = () => {
+    let total = 0;
+    
+    Object.keys(calculatedPrices).forEach(productId => {
+      total += getTotalForProduct(productId);
+    });
+    
+    setSimulationTotal(total);
+  };
+
+  // Reset the simulation
+  const resetSimulation = () => {
+    setSelectedSKUs({});
+    setQuantities({});
     setCalculatedPrices({});
     setSimulationTotal(0);
   };
 
+  // Recalculate total whenever calculated prices change
+  useEffect(() => {
+    calculateSimulationTotal();
+  }, [calculatedPrices]);
+
   return {
+    selectedSKUs,
+    quantities,
     calculatedPrices,
     simulationTotal,
-    setSimulationTotal,
-    calculateTotalPrice,
-    getPriceForSKU,
-    getUnitPriceForSKU,
+    handleSKUSelect,
+    handleSKURemove,
+    handleQuantityChange,
     getTotalForProduct,
-    clearPriceForSKU,
-    resetPriceCalculations
+    getUnitPriceForSKU,
+    resetSimulation,
   };
 }

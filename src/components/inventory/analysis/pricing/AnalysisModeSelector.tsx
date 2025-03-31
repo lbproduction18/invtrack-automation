@@ -39,24 +39,6 @@ const AnalysisModeSelector: React.FC<AnalysisModeSelectorProps> = ({
           Analyse AI
         </Button>
       </div>
-      
-      {selectedMode && (
-        <div className="mt-6 animate-fade-in">
-          {selectedMode === 'manual' && (
-            <div className="text-center p-4 bg-[#1E1E1E] rounded-md">
-              <p className="text-gray-300">Interface d'analyse manuelle</p>
-              {/* Content for manual analysis will go here */}
-            </div>
-          )}
-          
-          {selectedMode === 'ai' && (
-            <div className="text-center p-4 bg-[#1E1E1E] rounded-md">
-              <p className="text-gray-300">Interface d'analyse AI</p>
-              {/* Content for AI analysis will go here */}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 };
