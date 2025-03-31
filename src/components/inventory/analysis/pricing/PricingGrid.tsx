@@ -11,12 +11,10 @@ import { useProducts } from '@/hooks/useProducts';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { usePricingCalculation } from '@/components/inventory/analysis/pricing/usePricingCalculation';
 import PriceTable from '@/components/inventory/analysis/pricing/PriceTable';
-import TotalSummary from '@/components/inventory/analysis/pricing/TotalSummary';
-import SelectedSKUsList from '@/components/inventory/analysis/pricing/SelectedSKUsList';
+import SimulationSummary from '@/components/inventory/analysis/pricing/SimulationSummary';
 import UpdatePricesButton from '@/components/inventory/analysis/pricing/UpdatePricesButton';
 import RefreshPriceGridButton from '@/components/inventory/analysis/pricing/RefreshPriceGridButton';
 import { Loader2 } from 'lucide-react';
-import { formatTotalPrice } from '@/components/inventory/analysis/pricing/PriceFormatter';
 
 const PricingGrid: React.FC = () => {
   const { productPrices, isLoading: isPricesLoading, refetch: refetchPrices } = useProductPrices();
@@ -55,11 +53,6 @@ const PricingGrid: React.FC = () => {
   useEffect(() => {
     handleRefresh();
   }, []);
-  
-  // Safely get all SKUs from selectedSKUs
-  const getAllSelectedSKUs = () => {
-    return Object.values(selectedSKUs).flat();
-  };
 
   return (
     <Card className="border border-[#272727] bg-[#131313]">
@@ -96,26 +89,17 @@ const PricingGrid: React.FC = () => {
               handleSKURemove={handleSKURemove}
               handleQuantityChange={handleQuantityChange}
               getTotalForProduct={getTotalForProduct}
-              formatTotalPrice={formatTotalPrice}
+              formatTotalPrice={(price) => `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
             />
           )}
         </div>
         
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2">
-            <SelectedSKUsList
-              productId=""
-              skus={getAllSelectedSKUs()}
-              quantities={{}}
-              calculatedPrices={{}}
-              onQuantityChange={() => {}}
-              onRemoveSKU={() => {}}
-            />
-          </div>
-          <div>
-            <TotalSummary simulationTotal={simulationTotal} />
-          </div>
-        </div>
+        {/* New unified simulation summary section */}
+        <SimulationSummary 
+          analysisItems={analysisItems}
+          products={products}
+          simulationTotal={simulationTotal}
+        />
       </CardContent>
     </Card>
   );
