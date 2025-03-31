@@ -21,13 +21,11 @@ const PricingGrid: React.FC = () => {
   const { products, isLoading: isProductsLoading } = useProducts('analysis');
   const { analysisItems, isLoading: isAnalysisLoading, refetch: refetchAnalysis } = useAnalysisItems();
   
-  // Get the SKUs of products that are in analysis
   const analysisProductSKUs = products.map(product => ({
     id: product.id,
     SKU: product.SKU
   }));
   
-  // Use our custom hook for pricing calculations
   const {
     selectedSKUs,
     quantities,
@@ -41,7 +39,6 @@ const PricingGrid: React.FC = () => {
   
   const isLoading = isPricesLoading || isProductsLoading || isAnalysisLoading;
 
-  // Refresh all data
   const handleRefresh = async () => {
     await Promise.all([
       refetchPrices(),
@@ -49,18 +46,14 @@ const PricingGrid: React.FC = () => {
     ]);
   };
 
-  // Handle analysis mode selection
   const handleManualAnalysis = () => {
     console.log('Manual Analysis selected');
-    // Placeholder for future manual analysis logic
   };
 
   const handleAIAnalysis = () => {
     console.log('AI Analysis selected');
-    // Placeholder for future AI-based analysis logic
   };
 
-  // Refresh data on component mount
   useEffect(() => {
     handleRefresh();
   }, []);
@@ -105,13 +98,11 @@ const PricingGrid: React.FC = () => {
           )}
         </div>
         
-        {/* Analysis Mode Selector Section */}
         <AnalysisModeSelector 
           onManualAnalysis={handleManualAnalysis}
           onAIAnalysis={handleAIAnalysis}
         />
         
-        {/* Simulation summary with integrated total section */}
         <SimulationSummary 
           analysisItems={analysisItems}
           products={products}

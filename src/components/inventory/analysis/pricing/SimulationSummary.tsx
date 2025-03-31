@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AnalysisItem } from '@/types/analysisItem';
 import { Product } from '@/types/product';
@@ -12,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { formatTotalPrice, formatPrice } from './PriceFormatter';
 import { Loader2 } from 'lucide-react';
+import SimulationTotal from './components/SimulationTotal';
 
 interface SimulationSummaryProps {
   analysisItems: AnalysisItem[];
@@ -85,56 +85,43 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
           <span className="ml-2">Chargement des données...</span>
         </div>
       ) : (
-        <div>
-          <Table>
-            <TableHeader className="bg-[#161616] sticky top-0 z-10">
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="text-left">SKU</TableHead>
-                <TableHead className="text-left">Produit</TableHead>
-                <TableHead className="text-center">Quantité</TableHead>
-                <TableHead className="text-center">Prix unitaire</TableHead>
-                <TableHead className="text-right">Total</TableHead>
+        <Table>
+          <TableHeader className="bg-[#161616] sticky top-0 z-10">
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="text-left">SKU</TableHead>
+              <TableHead className="text-left">Produit</TableHead>
+              <TableHead className="text-center">Quantité</TableHead>
+              <TableHead className="text-center">Prix unitaire</TableHead>
+              <TableHead className="text-right">Total</TableHead>
+            </TableRow>
+          </TableHeader>
+          
+          <TableBody>
+            {validAnalysisItems.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center text-gray-500">
+                  Aucun produit sélectionné dans la simulation
+                </TableCell>
               </TableRow>
-            </TableHeader>
+            ) : (
+              validAnalysisItems.map(item => {
+                const details = getProductDetails(item);
+                return (
+                  <TableRow key={item.id} className="hover:bg-[#1a1a1a]">
+                    <TableCell className="py-1">{details.sku}</TableCell>
+                    <TableCell className="py-1">{details.name}</TableCell>
+                    <TableCell className="py-1 text-center">{details.quantity}</TableCell>
+                    <TableCell className="py-1 text-center">{formatPrice(details.unitPrice)}</TableCell>
+                    <TableCell className="py-1 text-right">{formatTotalPrice(details.totalPrice)}</TableCell>
+                  </TableRow>
+                );
+              })
+            )}
             
-            <TableBody>
-              {validAnalysisItems.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-gray-500">
-                    Aucun produit sélectionné dans la simulation
-                  </TableCell>
-                </TableRow>
-              ) : (
-                validAnalysisItems.map(item => {
-                  const details = getProductDetails(item);
-                  return (
-                    <TableRow key={item.id} className="hover:bg-[#1a1a1a]">
-                      <TableCell className="py-1">{details.sku}</TableCell>
-                      <TableCell className="py-1">{details.name}</TableCell>
-                      <TableCell className="py-1 text-center">{details.quantity}</TableCell>
-                      <TableCell className="py-1 text-center">{formatPrice(details.unitPrice)}</TableCell>
-                      <TableCell className="py-1 text-right">{formatTotalPrice(details.totalPrice)}</TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-              
-              {/* Total row - now part of the table */}
-              {validAnalysisItems.length > 0 && (
-                <TableRow className="bg-[#161616] border-t border-[#272727] hover:bg-[#161616]">
-                  <TableCell colSpan={4} className="py-3 font-medium text-right">
-                    Total de la simulation
-                  </TableCell>
-                  <TableCell className="py-3 text-right">
-                    <span className="font-bold text-primary text-lg">
-                      {formatTotalPrice(simulationTotal)}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+            {/* Always show the total row, even when no items are selected */}
+            <SimulationTotal simulationTotal={simulationTotal} />
+          </TableBody>
+        </Table>
       )}
     </div>
   );
