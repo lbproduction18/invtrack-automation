@@ -25,6 +25,7 @@ interface PriceTableProps {
   handleQuantityChange: (productId: string, sku: string, quantityValue: string) => void;
   getTotalForProduct: (productId: string) => number;
   formatTotalPrice: (price: number) => string;
+  showQuantityInputs?: boolean;
 }
 
 const PriceTable: React.FC<PriceTableProps> = ({
@@ -38,7 +39,8 @@ const PriceTable: React.FC<PriceTableProps> = ({
   handleSKURemove,
   handleQuantityChange,
   getTotalForProduct,
-  formatTotalPrice
+  formatTotalPrice,
+  showQuantityInputs = true
 }) => {
   if (isLoading) {
     return (
@@ -109,6 +111,7 @@ const PriceTable: React.FC<PriceTableProps> = ({
               getTotalForProduct={getTotalForProduct}
               formatPrice={formatPrice}
               formatTotalPrice={formatTotalPrice}
+              showQuantityInputs={showQuantityInputs}
             />
           ))
         )}

@@ -118,6 +118,7 @@ const PricingGrid: React.FC<PricingGridProps> = ({
               handleQuantityChange={handleQuantityChange}
               getTotalForProduct={getTotalForProduct}
               formatTotalPrice={(price) => `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+              showQuantityInputs={showSimulationSummary} // Only show quantity inputs in manual mode
             />
           )}
         </div>

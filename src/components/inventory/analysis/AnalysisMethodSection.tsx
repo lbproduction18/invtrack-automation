@@ -32,24 +32,30 @@ const AnalysisMethodSection: React.FC = () => {
         isTransitioning={isTransitioning}
       />
       
-      {/* The PricingGrid is always visible regardless of the selected mode */}
-      <div className={`transition-opacity duration-200 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-        <PricingGrid showSimulationSummary={selectedMode === 'manual'} />
-      </div>
+      {/* Manual Analysis Mode */}
+      {selectedMode === 'manual' && (
+        <div className={`transition-opacity duration-200 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+          <PricingGrid showSimulationSummary={true} />
+        </div>
+      )}
       
-      {/* Only show AI analysis placeholder in AI mode */}
+      {/* AI Analysis Mode */}
       {selectedMode === 'ai' && (
-        <div className="animate-fade-in mt-6">
-          <Card className="border border-[#272727] bg-[#131313]">
-            <CardHeader className="px-4 py-3 border-b border-[#272727]">
-              <CardTitle className="text-sm font-medium">Analyse AI</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <p className="text-gray-400 text-center py-8">
-                AI analysis output will be generated in the next step, including recommendations and data visualizations.
-              </p>
-            </CardContent>
-          </Card>
+        <div className={`transition-opacity duration-200 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+          <div className="space-y-6">
+            <PricingGrid showSimulationSummary={false} />
+            
+            <Card className="border border-[#272727] bg-[#131313]">
+              <CardHeader className="px-4 py-3 border-b border-[#272727]">
+                <CardTitle className="text-sm font-medium">Analyse AI</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <p className="text-gray-400 text-center py-8">
+                  AI analysis output will be generated in the next step, including recommendations and data visualizations.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       )}
     </div>

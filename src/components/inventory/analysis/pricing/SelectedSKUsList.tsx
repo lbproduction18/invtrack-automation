@@ -1,32 +1,19 @@
 
 import React from 'react';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { formatTotalPrice, formatPrice } from './PriceFormatter';
-import { X } from "lucide-react";
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
+import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 
 interface SelectedSKUsListProps {
   productId: string;
   skus: string[];
   quantities: Record<string, string>;
   calculatedPrices: Record<string, number | string>;
-  onQuantityChange: (productId: string, sku: string, quantityValue: string) => void;
+  onQuantityChange: (productId: string, sku: string, quantity: string) => void;
   onRemoveSKU: (productId: string, sku: string) => void;
   hasOnlyPrice8000?: boolean;
-  showDetailedSummary?: boolean;
-  selectedSKUDetails?: Array<{
-    sku: string;
-    quantity: string;
-    unitPrice: number;
-    totalPrice: number;
-    productName?: string;
-  }>;
+  showQuantityInputs?: boolean;
 }
 
 const SelectedSKUsList: React.FC<SelectedSKUsListProps> = ({
@@ -37,106 +24,70 @@ const SelectedSKUsList: React.FC<SelectedSKUsListProps> = ({
   onQuantityChange,
   onRemoveSKU,
   hasOnlyPrice8000 = false,
-  showDetailedSummary = false,
-  selectedSKUDetails = []
+  showQuantityInputs = true
 }) => {
-  // If no SKUs are selected or if we're showing the full summary view
-  if ((!skus || skus.length === 0) && !showDetailedSummary) {
-    return null;
-  }
-  
-  // Show the product-specific SKU selection table
-  if (!showDetailedSummary) {
-    return (
-      <div className="w-full p-2 rounded-md border border-[#272727] bg-[#161616] mb-2">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[40%]">SKU</TableHead>
-              <TableHead className="w-[20%] text-center">Quantité</TableHead>
-              <TableHead className="w-[30%] text-center">Prix</TableHead>
-              <TableHead className="w-[10%] text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {skus.map((sku) => {
-              const quantityValue = quantities[sku] || '';
-              const calculatedPrice = calculatedPrices[sku] || '';
-              const isErrorMessage = typeof calculatedPrice === 'string' && calculatedPrice.length > 0;
-              
-              return (
-                <TableRow key={sku} className="hover:bg-[#1a1a1a]">
-                  <TableCell className="py-1">{sku}</TableCell>
-                  <TableCell className="py-1 text-center">
-                    <input
-                      type="number"
-                      className="w-20 px-2 py-1 text-sm border border-[#403E43] rounded-md bg-[#0F0F0F] text-center"
-                      value={quantityValue}
-                      onChange={(e) => onQuantityChange(productId, sku, e.target.value)}
-                      min="1"
-                      step={hasOnlyPrice8000 ? "8000" : "1"}
-                      placeholder={hasOnlyPrice8000 ? "8000" : "Qté"}
-                    />
-                  </TableCell>
-                  <TableCell className={`py-1 text-center ${isErrorMessage ? 'text-red-500 text-xs' : ''}`}>
-                    {isErrorMessage 
-                      ? <span className="text-xs">{calculatedPrice}</span>
-                      : typeof calculatedPrice === 'number' ? formatTotalPrice(calculatedPrice) : ''}
-                  </TableCell>
-                  <TableCell className="py-1 text-right">
-                    <button
-                      onClick={() => onRemoveSKU(productId, sku)}
-                      className="text-gray-400 hover:text-red-500"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
-    );
-  }
-  
-  // Show the detailed summary view with all selected SKUs
+  const { analysisItems } = useAnalysisItems();
+
   return (
-    <div className="w-full rounded-md border border-[#272727] bg-[#161616] mb-2">
-      <div className="p-3 border-b border-[#272727]">
-        <h3 className="text-sm font-medium">Récapitulatif détaillé</h3>
-      </div>
-      <div className="p-2">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[35%]">SKU</TableHead>
-              <TableHead className="w-[25%]">Produit</TableHead>
-              <TableHead className="w-[15%] text-center">Quantité</TableHead>
-              <TableHead className="w-[15%] text-center">Prix unitaire</TableHead>
-              <TableHead className="w-[15%] text-right">Total</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {selectedSKUDetails.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-6 text-gray-500">
-                  Aucun produit sélectionné dans la simulation
-                </TableCell>
-              </TableRow>
-            ) : (
-              selectedSKUDetails.map((detail) => (
-                <TableRow key={detail.sku} className="hover:bg-[#1a1a1a]">
-                  <TableCell className="py-1 text-sm">{detail.sku}</TableCell>
-                  <TableCell className="py-1 text-sm">{detail.productName || '-'}</TableCell>
-                  <TableCell className="py-1 text-center text-sm">{detail.quantity}</TableCell>
-                  <TableCell className="py-1 text-center text-sm">{formatPrice(detail.unitPrice)}</TableCell>
-                  <TableCell className="py-1 text-right text-sm">{formatTotalPrice(detail.totalPrice)}</TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+    <div className="space-y-2 pb-2">
+      <div className="text-xs text-gray-400 mb-2">SKUs sélectionnés:</div>
+      <div className="space-y-2">
+        {skus.map((sku) => {
+          // Find SKU details from analysis items
+          const skuDetails = analysisItems.find(item => item.sku_code === sku);
+          const skuLabel = skuDetails?.sku_label || sku;
+          
+          // Get current quantity for this SKU (or empty string if not set)
+          const currentQuantity = quantities[sku] || '';
+          
+          // Get the calculated price for this SKU
+          const calculatedPrice = calculatedPrices[sku];
+          
+          return (
+            <div key={sku} className="flex items-center space-x-3 pl-3 py-1 bg-[#1A1A1A] rounded-sm">
+              <div className="flex-1 flex items-center space-x-2">
+                <span className="text-xs font-medium text-gray-300">{sku}</span>
+                {skuLabel !== sku && (
+                  <span className="text-xs text-gray-400">({skuLabel})</span>
+                )}
+              </div>
+              
+              {showQuantityInputs && (
+                <>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-gray-400">Quantité:</span>
+                    <Input
+                      type="number"
+                      min="1"
+                      step={hasOnlyPrice8000 ? "8000" : "1000"}
+                      value={currentQuantity}
+                      onChange={(e) => onQuantityChange(productId, sku, e.target.value)}
+                      className="w-24 h-7 text-xs bg-[#161616] border-[#272727]"
+                      placeholder={hasOnlyPrice8000 ? "8000" : "1000+"}
+                    />
+                  </div>
+                  
+                  {calculatedPrice !== undefined && calculatedPrice !== 0 && (
+                    <div className="text-xs text-gray-300">
+                      {typeof calculatedPrice === 'number'
+                        ? `$${calculatedPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        : calculatedPrice}
+                    </div>
+                  )}
+                </>
+              )}
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onRemoveSKU(productId, sku)}
+                className="h-6 w-6 p-0 text-gray-400 hover:text-gray-200"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

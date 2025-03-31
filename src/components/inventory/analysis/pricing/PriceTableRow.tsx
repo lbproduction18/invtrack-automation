@@ -24,6 +24,7 @@ interface PriceTableRowProps {
   getTotalForProduct: (productId: string) => number;
   formatPrice: (price: number | null) => React.ReactNode;
   formatTotalPrice: (price: number) => string;
+  showQuantityInputs?: boolean;
 }
 
 const PriceTableRow: React.FC<PriceTableRowProps> = ({
@@ -37,7 +38,8 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
   handleQuantityChange,
   getTotalForProduct,
   formatPrice,
-  formatTotalPrice
+  formatTotalPrice,
+  showQuantityInputs = true
 }) => {
   // Get analysis items directly from Supabase via the hook
   const { analysisItems } = useAnalysisItems();
@@ -114,7 +116,7 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
       {/* Show the list of selected SKUs */}
       {productSelectedSKUs.length > 0 && (
         <TableRow className="hover:bg-transparent border-none">
-          <TableCell colSpan={8} className="py-0 px-4">
+          <TableCell colSpan={9} className="py-0 px-4">
             <SelectedSKUsList
               productId={product.id}
               skus={productSelectedSKUs}
@@ -123,6 +125,7 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
               onQuantityChange={handleQuantityChange}
               onRemoveSKU={handleSKURemove}
               hasOnlyPrice8000={onlyHas8000}
+              showQuantityInputs={showQuantityInputs}
             />
           </TableCell>
         </TableRow>
