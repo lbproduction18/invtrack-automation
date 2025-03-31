@@ -87,8 +87,8 @@ export function usePriceState(productPrices: ProductPrice[]) {
     if (!calculatedPrices[productId]) return 0;
 
     return Object.values(calculatedPrices[productId]).reduce((total, price) => {
-      // Check if price is a number, otherwise treat it as 0
-      const numericPrice = typeof price === 'number' ? price : 0;
+      // Convert the price to a number to avoid type issues
+      const numericPrice = typeof price === 'number' ? price : Number(price) || 0;
       return total + numericPrice;
     }, 0);
   };

@@ -14,6 +14,7 @@ const BudgetSimulation: React.FC = () => {
   const { products, isLoading: isProductsLoading } = useProducts('analysis');
   const { analysisItems, isLoading: isAnalysisLoading } = useAnalysisItems();
   const { productPrices, isLoading: isPricesLoading } = useProductPrices();
+  const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
 
   const {
     selectedSKUs,
@@ -34,6 +35,24 @@ const BudgetSimulation: React.FC = () => {
 
   const hasCategoryProducts = (category: string) => {
     return getCategoryProducts(category).length > 0;
+  };
+
+  // Handle row click for product details
+  const handleRowClick = (item: any) => {
+    console.log('Product row clicked:', item);
+    // This would typically open a details drawer or modal
+  };
+
+  // Toggle note expansion
+  const toggleNoteExpansion = (e: React.MouseEvent, productId: string) => {
+    e.stopPropagation();
+    setExpandedNoteId(prev => prev === productId ? null : productId);
+  };
+
+  // Refetch analysis data
+  const refetchAnalysis = () => {
+    console.log('Refetching analysis data');
+    // This would typically call the refetch functions from the hooks
   };
 
   // Categories to display
@@ -75,8 +94,27 @@ const BudgetSimulation: React.FC = () => {
                     {getCategoryProducts(category).map((product) => (
                       <AnalysisProductRow
                         key={product.id}
-                        product={product}
-                        analysisItem={analysisItems.find(item => item.product_id === product.id)}
+                        item={{
+                          id: analysisItems.find(item => item.product_id === product.id)?.id || '',
+                          product_id: product.id,
+                          sku_code: product.SKU,
+                          sku_label: product.product_name,
+                          stock: product.current_stock,
+                          threshold: product.threshold,
+                          note: product.note,
+                          quantity_selected: analysisItems.find(item => item.product_id === product.id)?.quantity_selected || null,
+                          created_at: product.created_at,
+                          updated_at: product.updated_at,
+                          status: product.status || '',
+                          last_order_info: analysisItems.find(item => item.product_id === product.id)?.last_order_info || null,
+                          lab_status_text: analysisItems.find(item => item.product_id === product.id)?.lab_status_text || null,
+                          last_order_date: analysisItems.find(item => item.product_id === product.id)?.last_order_date || null,
+                          weeks_delivery: analysisItems.find(item => item.product_id === product.id)?.weeks_delivery || null,
+                          priority_badge: product.priority_badge
+                        }}
+                        handleRowClick={handleRowClick}
+                        toggleNoteExpansion={toggleNoteExpansion}
+                        refetchAnalysis={refetchAnalysis}
                       />
                     ))}
                   </div>
@@ -90,8 +128,27 @@ const BudgetSimulation: React.FC = () => {
               {products.map((product) => (
                 <AnalysisProductRow
                   key={product.id}
-                  product={product}
-                  analysisItem={analysisItems.find(item => item.product_id === product.id)}
+                  item={{
+                    id: analysisItems.find(item => item.product_id === product.id)?.id || '',
+                    product_id: product.id,
+                    sku_code: product.SKU,
+                    sku_label: product.product_name,
+                    stock: product.current_stock,
+                    threshold: product.threshold,
+                    note: product.note,
+                    quantity_selected: analysisItems.find(item => item.product_id === product.id)?.quantity_selected || null,
+                    created_at: product.created_at,
+                    updated_at: product.updated_at,
+                    status: product.status || '',
+                    last_order_info: analysisItems.find(item => item.product_id === product.id)?.last_order_info || null,
+                    lab_status_text: analysisItems.find(item => item.product_id === product.id)?.lab_status_text || null,
+                    last_order_date: analysisItems.find(item => item.product_id === product.id)?.last_order_date || null,
+                    weeks_delivery: analysisItems.find(item => item.product_id === product.id)?.weeks_delivery || null,
+                    priority_badge: product.priority_badge
+                  }}
+                  handleRowClick={handleRowClick}
+                  toggleNoteExpansion={toggleNoteExpansion}
+                  refetchAnalysis={refetchAnalysis}
                 />
               ))}
             </div>
