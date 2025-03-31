@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { TableCell } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 import { PriorityBadge } from './PriorityBadge';
 import { PriorityDialog } from './PriorityDialog';
 import { formatDate, getDaysSinceAdded, getAgingColor } from './utils/dateUtils';
-import { getNoteType, getNoteIconInfo } from './utils/noteUtils';
+import { getNoteType, getNoteIconInfo, type NoteType } from './utils/noteUtils';
 import { type PriorityLevel } from '@/types/product';
 
 interface CellProps {

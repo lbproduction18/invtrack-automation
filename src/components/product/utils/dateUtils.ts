@@ -1,6 +1,7 @@
 
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import type { Locale } from 'date-fns';
 
 // Get the number of days since the product was added
 export const getDaysSinceAdded = (createdDate: string): number => {
