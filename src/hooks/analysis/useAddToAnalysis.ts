@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -25,17 +26,16 @@ export const useAddToAnalysis = () => {
       // Begin preparing the analysis items to insert
       const analysisItems = products.map(product => ({
         product_id: product.id,
-        product_name: product.name,
-        sku_code: product.SKU,
-        priority_badge: product.priority_badge,
-        current_stock: product.stock,
-        stock_threshold: product.threshold,
-        note: product.note,
+        product_name: product.product_name || product.id,
+        sku_code: product.SKU || '',
+        priority_badge: product.priority_badge || '',
+        current_stock: product.current_stock || 0,
+        stock_threshold: product.threshold || 0,
+        note: product.note || '',
         date_added: new Date().toISOString(),
         status: 'pending' as AnalysisStatus,
         quantity_to_order: 0,
         price_per_unit: 0,
-        // Include any other required fields from your AnalysisItem type
       }));
 
       // Insert the analysis items
@@ -46,8 +46,6 @@ export const useAddToAnalysis = () => {
 
       if (insertError) throw insertError;
       
-      // No longer logging to analysis_log - removed that functionality
-
       return inserted;
     },
     onSuccess: (data) => {

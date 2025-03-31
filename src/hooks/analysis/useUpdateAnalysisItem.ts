@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -35,8 +36,6 @@ export const useUpdateAnalysisItem = () => {
         .select();
       
       if (error) throw error;
-      
-      // No longer logging to analysis_log - removed that functionality
 
       return data;
     },

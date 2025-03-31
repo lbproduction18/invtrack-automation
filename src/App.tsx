@@ -15,12 +15,10 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+  <QueryClientProvider client={queryClient}>
+    <BrowserRouter>
+      <React.StrictMode>
+        <TooltipProvider>
           <Routes>
             <Route path="/" element={<MainLayout><Dashboard /></MainLayout>} />
             <Route path="/process" element={<MainLayout><Index /></MainLayout>} />
@@ -28,10 +26,12 @@ const App = () => (
             <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </React.StrictMode>
+          <Toaster />
+          <Sonner />
+        </TooltipProvider>
+      </React.StrictMode>
+    </BrowserRouter>
+  </QueryClientProvider>
 );
 
 export default App;
