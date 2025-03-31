@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import OrderSimulationTable from '../OrderSimulationTable';
 import SimulationTable from './SimulationTable';
 import PricingGrid from '../PricingGrid';
-import RefreshPricesButton from './RefreshPricesButton';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { type SelectedSKU } from '@/types/product';
 import { type ProductPrice } from '@/hooks/useProductPrices';
@@ -14,7 +13,7 @@ interface SimulationTabsContainerProps {
   activeTab: string;
   onTabChange: (value: string) => void;
   isPricesLoading: boolean;
-  onRefresh: () => void | Promise<void>; // Update type to accept both void and Promise<void>
+  onRefresh: () => void | Promise<void>; 
   productPrices: ProductPrice[];
   quantityOptions: QuantityOption[];
   selectedSKUs: Record<string, SelectedSKU[]>;
@@ -33,7 +32,6 @@ const SimulationTabsContainer: React.FC<SimulationTabsContainerProps> = ({
   activeTab,
   onTabChange,
   isPricesLoading,
-  onRefresh,
   productPrices,
   quantityOptions,
   selectedSKUs,
@@ -60,11 +58,6 @@ const SimulationTabsContainer: React.FC<SimulationTabsContainerProps> = ({
             <TabsTrigger value="simulation">Simulation</TabsTrigger>
             <TabsTrigger value="prices">Grille Tarifaire</TabsTrigger>
           </TabsList>
-          
-          <RefreshPricesButton 
-            onRefresh={onRefresh} 
-            isLoading={isPricesLoading}
-          />
         </div>
         
         <CardContent className="pt-4 pb-2">
