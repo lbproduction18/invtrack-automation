@@ -41,14 +41,36 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
       if (error) {
         console.error('Error fetching updated analysis items:', error);
       } else if (data) {
-        // Handle potential missing properties in the response
-        const itemsWithDefaults = data.map(item => ({
-          ...item,
-          // Provide default values for required properties that might be missing
-          note: item.note || null,
-          priority_badge: item.priority_badge || null,
-          date_added: item.date_added || null
-        } as AnalysisItem));
+        // Convert the raw data to the AnalysisItem type with proper defaults
+        const itemsWithDefaults = data.map(item => {
+          // Create a new object with all the properties from the database
+          return {
+            id: item.id,
+            product_id: item.product_id || '',
+            quantity_selected: item.quantity_selected,
+            created_at: item.created_at || '',
+            updated_at: item.updated_at || '',
+            status: item.status || '',
+            last_order_info: item.last_order_info,
+            lab_status_text: item.lab_status_text,
+            last_order_date: item.last_order_date,
+            weeks_delivery: item.weeks_delivery,
+            sku_code: item.sku_code,
+            sku_label: item.sku_label,
+            price_1000: item.price_1000,
+            price_2000: item.price_2000,
+            price_3000: item.price_3000,
+            price_4000: item.price_4000,
+            price_5000: item.price_5000,
+            price_8000: item.price_8000,
+            stock: item.stock,
+            threshold: item.threshold,
+            // Add the missing properties with default values
+            note: null,
+            priority_badge: null,
+            date_added: null
+          } as AnalysisItem;
+        });
         
         setRefreshedAnalysisItems(itemsWithDefaults);
       }
