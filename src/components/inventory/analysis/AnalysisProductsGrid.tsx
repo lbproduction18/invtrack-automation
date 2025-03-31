@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Table, TableBody, TableCell, TableHead, 
@@ -73,7 +74,7 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     try {
       await updateAnalysisItem.mutateAsync({
         id: analysisItemId,
-        updates: { last_order_info: infoValue }
+        data: { last_order_info: infoValue }
       });
       
       toast({
@@ -109,7 +110,7 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     try {
       await updateAnalysisItem.mutateAsync({
         id: analysisItemId,
-        updates: { last_order_date: date ? date.toISOString() : null }
+        data: { last_order_date: date ? date.toISOString() : null }
       });
       
       handleInputChange(dateKey, date);
@@ -148,7 +149,7 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     try {
       await updateAnalysisItem.mutateAsync({
         id: analysisItemId,
-        updates: { lab_status_text: statusValue }
+        data: { lab_status_text: statusValue }
       });
       
       toast({
@@ -185,7 +186,7 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     try {
       await updateAnalysisItem.mutateAsync({
         id: analysisItemId,
-        updates: { weeks_delivery: weeksValue }
+        data: { weeks_delivery: weeksValue }
       });
       
       toast({

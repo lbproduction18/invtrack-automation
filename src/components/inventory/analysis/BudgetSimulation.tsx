@@ -102,7 +102,7 @@ const BudgetSimulation: React.FC = () => {
           const { updateAnalysisItem } = useAnalysisItems();
           updateAnalysisItem.mutate({
             id: analysisItem.id,
-            updates: {
+            data: {
               sku_code: sku.SKU,
               sku_label: sku.productName || ''
             }
