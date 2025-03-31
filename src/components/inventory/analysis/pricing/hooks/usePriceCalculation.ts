@@ -53,7 +53,8 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
    */
   const getUnitPrice = (productId: string, sku: string): number => {
     const quantityValue = quantities[productId]?.[sku] || '0';
-    return getUnitPriceForSKU(productId, sku, quantityValue);
+    // Fix function call to match implementation in usePriceState
+    return getUnitPriceForSKU(sku, parseInt(quantityValue, 10) || 0);
   };
 
   /**
@@ -74,7 +75,6 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
     quantities,
     calculatedPrices,
     simulationTotal,
-    setSimulationTotal,
     getQuantityForSKU,
     getPriceForSKU,
     getTotalForProduct,

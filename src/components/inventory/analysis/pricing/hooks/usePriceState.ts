@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { ProductPrice } from '@/hooks/useProductPrices';
 import { QuantityOption } from '@/components/inventory/AnalysisContent';
@@ -98,8 +99,9 @@ export function usePriceState(productPrices: ProductPrice[]) {
       const quantityValue = quantities[productId]?.[sku] || '0';
       const parsedQuantity = parseInt(quantityValue, 10) || 0;
       const unitPrice = getUnitPriceForSKU(sku, parsedQuantity);
-      const updatedTotal = parseFloat(String(prevTotal)) + parseFloat(String(parsedQuantity)) * unitPrice;
-      return Math.max(0, prevTotal - (parsedQuantity * unitPrice));
+      // Fix for the operator error - ensure we're working with numbers
+      const skuTotal = parsedQuantity * unitPrice;
+      return Math.max(0, prevTotal - skuTotal);
     });
   };
 
@@ -133,6 +135,25 @@ export function usePriceState(productPrices: ProductPrice[]) {
     calculateSimulationTotal();
   };
 
+  // Get price for a specific SKU
+  const getPriceForSKU = (productId: string, sku: string): number | string => {
+    return calculatedPrices[productId]?.[sku] || 0;
+  };
+
+  // Clear price for a specific SKU
+  const clearPriceForSKU = (productId: string, sku: string) => {
+    setCalculatedPrices(prev => {
+      const updatedPrices = { ...prev };
+      if (updatedPrices[productId]) {
+        delete updatedPrices[productId][sku];
+        if (Object.keys(updatedPrices[productId]).length === 0) {
+          delete updatedPrices[productId];
+        }
+      }
+      return updatedPrices;
+    });
+  };
+
   // Calculate total for a specific product
   const getTotalForProduct = (productId: string): number => {
     if (!calculatedPrices[productId]) return 0;
@@ -140,6 +161,22 @@ export function usePriceState(productPrices: ProductPrice[]) {
     return Object.values(calculatedPrices[productId]).reduce((sum, price) => {
       return sum + (typeof price === 'number' ? price : 0);
     }, 0);
+  };
+
+  // Calculate and set total price for a specific SKU
+  const calculateTotalPrice = (productId: string, sku: string, quantityValue: string) => {
+    const parsedQuantity = parseInt(quantityValue, 10) || 0;
+    const unitPrice = getUnitPriceForSKU(sku, parsedQuantity);
+    const totalPrice = parsedQuantity * unitPrice;
+
+    setCalculatedPrices(prev => {
+      const updatedPrices = { ...prev };
+      if (!updatedPrices[productId]) {
+        updatedPrices[productId] = {};
+      }
+      updatedPrices[productId][sku] = totalPrice;
+      return updatedPrices;
+    });
   };
 
   // Calculate total for the entire simulation
@@ -161,6 +198,12 @@ export function usePriceState(productPrices: ProductPrice[]) {
     setSimulationTotal(0);
   };
 
+  // Reset price calculations specifically
+  const resetPriceCalculations = () => {
+    setCalculatedPrices({});
+    setSimulationTotal(0);
+  };
+
   // Recalculate total whenever calculated prices change
   useEffect(() => {
     calculateSimulationTotal();
@@ -171,11 +214,16 @@ export function usePriceState(productPrices: ProductPrice[]) {
     quantities,
     calculatedPrices,
     simulationTotal,
+    setSimulationTotal,
     handleSKUSelect,
     handleSKURemove,
     handleQuantityChange,
     getTotalForProduct,
     getUnitPriceForSKU,
+    getPriceForSKU,
+    calculateTotalPrice,
+    clearPriceForSKU,
+    resetPriceCalculations,
     resetSimulation,
   };
 }
