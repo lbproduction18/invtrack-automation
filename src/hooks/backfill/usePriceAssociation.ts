@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useProducts } from '@/hooks/useProducts';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
+import { type AnalysisItem } from '@/types/analysisItem';
 
 export function usePriceAssociation() {
   const [isLoading, setIsLoading] = useState(false);
@@ -44,7 +45,8 @@ export function usePriceAssociation() {
           price_3000: product.price_3000,
           price_4000: product.price_4000,
           price_5000: product.price_5000,
-          price_8000: product.price_8000 // Support price_8000 if available
+          // Only include price_8000 if it exists on the product
+          ...(product.price_8000 !== undefined ? { price_8000: product.price_8000 } : {})
         });
         
         return {
@@ -54,7 +56,8 @@ export function usePriceAssociation() {
           price_3000: product.price_3000,
           price_4000: product.price_4000,
           price_5000: product.price_5000,
-          price_8000: product.price_8000
+          // Only include price_8000 if it exists
+          ...(product.price_8000 !== undefined ? { price_8000: product.price_8000 } : {})
         };
       }).filter(Boolean);
       
