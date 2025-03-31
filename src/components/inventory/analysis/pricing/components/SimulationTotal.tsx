@@ -14,7 +14,7 @@ const SimulationTotal: React.FC<SimulationTotalProps> = ({ simulationTotal }) =>
         Total de la simulation
       </TableCell>
       <TableCell className="py-3 text-right">
-        <span className="font-bold text-primary text-lg">
+        <span className="font-bold text-green-500 text-lg">
           {formatTotalPrice(simulationTotal)}
         </span>
       </TableCell>

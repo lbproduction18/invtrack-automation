@@ -98,28 +98,32 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
           
           <TableBody>
             {validAnalysisItems.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-gray-500">
-                  Aucun produit sélectionné dans la simulation
-                </TableCell>
-              </TableRow>
+              <>
+                <TableRow>
+                  <TableCell colSpan={5} className="h-24 text-center text-gray-500">
+                    Aucun produit sélectionné dans la simulation
+                  </TableCell>
+                </TableRow>
+                <SimulationTotal simulationTotal={simulationTotal} />
+              </>
             ) : (
-              validAnalysisItems.map(item => {
-                const details = getProductDetails(item);
-                return (
-                  <TableRow key={item.id} className="hover:bg-[#1a1a1a]">
-                    <TableCell className="py-1">{details.sku}</TableCell>
-                    <TableCell className="py-1">{details.name}</TableCell>
-                    <TableCell className="py-1 text-center">{details.quantity}</TableCell>
-                    <TableCell className="py-1 text-center">{formatPrice(details.unitPrice)}</TableCell>
-                    <TableCell className="py-1 text-right">{formatTotalPrice(details.totalPrice)}</TableCell>
-                  </TableRow>
-                );
-              })
+              <>
+                {validAnalysisItems.map(item => {
+                  const details = getProductDetails(item);
+                  return (
+                    <TableRow key={item.id} className="hover:bg-[#1a1a1a]">
+                      <TableCell className="py-1">{details.sku}</TableCell>
+                      <TableCell className="py-1">{details.name}</TableCell>
+                      <TableCell className="py-1 text-center">{details.quantity}</TableCell>
+                      <TableCell className="py-1 text-center">{formatPrice(details.unitPrice)}</TableCell>
+                      <TableCell className="py-1 text-right">{formatTotalPrice(details.totalPrice)}</TableCell>
+                    </TableRow>
+                  );
+                })}
+                
+                <SimulationTotal simulationTotal={simulationTotal} />
+              </>
             )}
-            
-            {/* Always show the total row, even when no items are selected */}
-            <SimulationTotal simulationTotal={simulationTotal} />
           </TableBody>
         </Table>
       )}
