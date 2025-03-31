@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { AnalysisLogsContent } from '@/components/logs/AnalysisLogsContent';
 import { AnalysisLogsHeader } from '@/components/logs/AnalysisLogsHeader';
-import { LogsFilter } from '@/hooks/useAnalysisLogs';
+import { LogsFilter, useAnalysisLogs } from '@/hooks/useAnalysisLogs';
 
 const AnalysisLogs: React.FC = () => {
   const [filters, setFilters] = useState<LogsFilter>({
@@ -12,10 +12,12 @@ const AnalysisLogs: React.FC = () => {
     searchTerm: null
   });
 
-  const handleRefresh = () => {
-    // This will be used to trigger a refetch in the content component
+  const { refetch } = useAnalysisLogs(filters);
+
+  const handleRefresh = useCallback(() => {
     console.log('Refreshing logs...');
-  };
+    refetch();
+  }, [refetch]);
 
   return (
     <div className="space-y-4">
