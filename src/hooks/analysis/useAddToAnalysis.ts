@@ -19,23 +19,23 @@ export function useAddToAnalysis() {
         throw productError;
       }
       
-      // Get product details to include SKU information, stock, threshold, and last_order_date
+      // Get complete product details to include all relevant information
       const { data: productDetails, error: detailsError } = await supabase
         .from('Low stock product')
-        .select('id, SKU, product_name, current_stock, threshold, last_order_date')
+        .select('id, SKU, product_name, current_stock, threshold, created_at, note, priority_badge, last_order_date, last_order_quantity')
         .in('id', productIds);
         
       if (detailsError) {
         throw detailsError;
       }
       
-      // Create analysis items with SKU information and the new required fields
+      // Create analysis items with all available information from Step 1
       const analysisItems = productIds.map(id => {
         const product = productDetails.find(p => p.id === id);
         return {
           product_id: id,
           quantity_selected: null,
-          last_order_info: null,
+          last_order_info: product?.last_order_quantity ? `${product.last_order_quantity}` : null,
           lab_status_text: null,
           sku_code: product?.SKU || null,
           sku_label: product?.product_name || null,
@@ -43,7 +43,10 @@ export function useAddToAnalysis() {
           // Add new fields from the product details
           stock: product?.current_stock || null,
           threshold: product?.threshold || null,
-          last_order_date: product?.last_order_date || null
+          last_order_date: product?.last_order_date || null,
+          note: product?.note || null,
+          priority_badge: product?.priority_badge || null,
+          date_added: product?.created_at || null
         };
       });
       

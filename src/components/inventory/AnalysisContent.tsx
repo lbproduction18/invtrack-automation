@@ -21,6 +21,9 @@ export interface AnalysisProduct extends AnalysisItem {
     estimated_delivery_date: string | null;
     last_order_date: string | null;
     last_order_quantity: number | null;
+    note: string | null;
+    priority_badge: string | null;
+    created_at: string;
   } | null;
 }
 

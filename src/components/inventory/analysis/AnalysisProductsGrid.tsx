@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Calendar as CalendarIcon, AlertCircle, RefreshCw, Trash2, Check, Loader2 } from 'lucide-react';
+import { Calendar as CalendarIcon, AlertCircle, RefreshCw, Trash2, Check, Loader2, Eye } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format, differenceInWeeks } from 'date-fns';
@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { type AnalysisProduct } from '@/components/inventory/AnalysisContent';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
+import ProductDetailDrawer from './ProductDetailDrawer';
 
 interface AnalysisProductsGridProps {
   analysisProducts: AnalysisProduct[];
@@ -33,6 +34,8 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
   const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
   const [saveSuccess, setSaveSuccess] = useState<Record<string, boolean>>({});
   const [editableValues, setEditableValues] = useState<Record<string, any>>({});
+  const [selectedProduct, setSelectedProduct] = useState<AnalysisProduct | null>(null);
+  const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
   
   // Calculate weeks since a date
   const getWeeksSince = (dateString: string | null): string => {
@@ -257,6 +260,12 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     }
   };
 
+  // Handle click on product row to show details
+  const handleRowClick = (product: AnalysisProduct) => {
+    setSelectedProduct(product);
+    setIsDetailDrawerOpen(true);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-4">
@@ -284,7 +293,7 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
               <TableHead className="text-xs font-medium text-gray-400 text-center">Date de dernière commande</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center">Étiquette labo</TableHead>
               <TableHead className="text-xs font-medium text-gray-400 text-center">Délai de livraison</TableHead>
-              <TableHead className="text-xs font-medium text-gray-400 text-center w-[10%]">Actions</TableHead>
+              <TableHead className="text-xs font-medium text-gray-400 text-center w-[12%]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -310,7 +319,11 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
               </TableRow>
             ) : (
               analysisProducts.map((item) => (
-                <TableRow key={item.id} className="hover:bg-[#161616] border-t border-[#272727]">
+                <TableRow 
+                  key={item.id} 
+                  className="hover:bg-[#161616] border-t border-[#272727] cursor-pointer"
+                  onClick={() => handleRowClick(item)}
+                >
                   <TableCell className="font-medium whitespace-nowrap pl-4">
                     <div className="flex flex-col">
                       <span>{item.productDetails?.SKU}</span>
@@ -330,7 +343,7 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                     {item.productDetails?.threshold}
                   </TableCell>
                   
-                  <TableCell className="text-center">
+                  <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-center space-x-2">
                       <Input
                         className="w-32 bg-[#121212] border-[#272727] text-center"
@@ -346,7 +359,7 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                     </div>
                   </TableCell>
                   
-                  <TableCell className="text-center">
+                  <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
                     <div className="flex flex-col items-center justify-center space-y-1">
                       <Popover>
                         <PopoverTrigger asChild>
@@ -384,7 +397,7 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                     </div>
                   </TableCell>
                   
-                  <TableCell className="text-center">
+                  <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-center space-x-2">
                       <Input
                         className="w-32 bg-[#121212] border-[#272727] text-center"
@@ -400,7 +413,7 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                     </div>
                   </TableCell>
                   
-                  <TableCell className="text-center">
+                  <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-center space-x-2">
                       <Input
                         className="w-32 bg-[#121212] border-[#272727] text-center"
@@ -416,15 +429,31 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
                     </div>
                   </TableCell>
                   
-                  <TableCell className="text-center">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="hover:bg-red-500/10 hover:text-red-500"
-                      onClick={() => removeFromAnalysis(item.id, item.product_id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-center space-x-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="hover:bg-blue-500/10 hover:text-blue-500"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRowClick(item);
+                        }}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="hover:bg-red-500/10 hover:text-red-500"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeFromAnalysis(item.id, item.product_id);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -432,6 +461,13 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
           </TableBody>
         </Table>
       </div>
+      
+      {/* Product Detail Drawer */}
+      <ProductDetailDrawer
+        isOpen={isDetailDrawerOpen}
+        onOpenChange={setIsDetailDrawerOpen}
+        product={selectedProduct}
+      />
     </div>
   );
 };
