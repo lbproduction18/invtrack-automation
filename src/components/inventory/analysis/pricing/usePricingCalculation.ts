@@ -32,7 +32,9 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
   // Calculate the total simulation amount whenever calculatedPrices change
   useEffect(() => {
     const total = calculateSimulationTotal(calculatedPrices);
-    setSimulationTotal(total);
+    if (setSimulationTotal && typeof setSimulationTotal === 'function') {
+      setSimulationTotal(total);
+    }
   }, [calculatedPrices, setSimulationTotal]);
 
   // Enhanced SKU removal handler that also clears price data

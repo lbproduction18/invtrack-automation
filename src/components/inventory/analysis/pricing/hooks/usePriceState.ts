@@ -6,6 +6,8 @@ import { type ProductPrice } from '@/hooks/useProductPrices';
 export const usePriceState = (productPrices: ProductPrice[]) => {
   // Initialize state for calculated prices
   const [calculatedPrices, setCalculatedPrices] = useState<Record<string, number>>({});
+  // Add state for the simulation total
+  const [simulationTotal, setSimulationTotal] = useState<number>(0);
   
   // Function to calculate and update the price for a specific SKU and quantity
   const calculatePrice = useCallback((SKU: string, quantity: number) => {
@@ -63,6 +65,7 @@ export const usePriceState = (productPrices: ProductPrice[]) => {
   // Function to reset all calculated prices
   const resetPrices = useCallback(() => {
     setCalculatedPrices({});
+    setSimulationTotal(0);
   }, []);
   
   // Return the state and functions
@@ -70,6 +73,8 @@ export const usePriceState = (productPrices: ProductPrice[]) => {
     calculatedPrices,
     calculatePrice,
     getTotalPrice,
-    resetPrices
+    resetPrices,
+    simulationTotal,
+    setSimulationTotal
   };
 };
