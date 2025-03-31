@@ -38,7 +38,7 @@ export function useBudgetSimulation(onCreateOrder: () => void) {
   const standardQuantities: QuantityOption[] = [1000, 2000, 3000, 4000, 5000, 8000];
   
   // Calculate budget metrics
-  const totalBudget = budgetSettings?.total_budget || 0;
+  const totalBudget = budgetSettings?.total_budget || 300000;
   const depositPercentage = budgetSettings?.deposit_percentage || 50;
   const depositAmount = (simulationTotal * depositPercentage) / 100;
   const remainingBudget = totalBudget - simulationTotal;

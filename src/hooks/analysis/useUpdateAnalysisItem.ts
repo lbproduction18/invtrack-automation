@@ -1,62 +1,79 @@
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { type AnalysisItem } from "@/types/analysis";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { AnalysisItem } from '@/types/analysisItem';
 
-export const useUpdateAnalysisItem = () => {
-  const queryClient = useQueryClient();
+export function useUpdateAnalysisItem() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({ 
-      id, 
-      data: updates 
-    }: { 
-      id: string; 
-      data: Partial<AnalysisItem>;
-    }) => {
-      // Make sure we don't try to update the id itself
-      const { id: _, ...updateData } = updates;
+  const updateAnalysisItem = useMutation({
+    mutationFn: async (params: { id: string, data: Partial<AnalysisItem> }) => {
+      const { id, data } = params;
       
-      // Get the current state of the item before updating
+      // Get the current state of the analysis item before update
       const { data: currentItem, error: fetchError } = await supabase
         .from('analysis_items')
-        .select()
+        .select('*')
         .eq('id', id)
         .single();
+        
+      if (fetchError) {
+        throw fetchError;
+      }
       
-      if (fetchError) throw fetchError;
-      
-      // Perform the update
-      const { data, error } = await supabase
+      // Update the analysis item
+      const { data: updatedItem, error: updateError } = await supabase
         .from('analysis_items')
-        .update(updateData)
+        .update(data)
         .eq('id', id)
-        .select();
+        .select()
+        .single();
+        
+      if (updateError) {
+        throw updateError;
+      }
       
-      if (error) throw error;
-
-      return data;
+      // Create a log entry if stock, threshold, or last_order_date are being updated
+      if (data.stock !== undefined || data.threshold !== undefined || data.last_order_date !== undefined) {
+        const logEntry = {
+          sku_code: updatedItem.sku_code,
+          stock: data.stock ?? currentItem.stock,
+          threshold: data.threshold ?? currentItem.threshold,
+          last_order_date: data.last_order_date ?? currentItem.last_order_date
+        };
+        
+        const { error: logError } = await supabase
+          .from('analysis_log')
+          .insert(logEntry);
+          
+        if (logError) {
+          console.error('Error creating log entry:', logError);
+          // Don't throw here - we'll still return the updated item even if logging fails
+        }
+      }
+      
+      return updatedItem;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['analysisItems'] });
-      
       toast({
         title: "Produit mis à jour",
         description: "Les modifications ont été enregistrées avec succès."
       });
+      
+      // Invalidate the analysisItems query to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['analysisItems'] });
     },
     onError: (error) => {
       console.error('Error updating analysis item:', error);
-      
       toast({
-        variant: "destructive",
         title: "Erreur",
-        description: error instanceof Error 
-          ? error.message 
-          : "Une erreur est survenue lors de la mise à jour du produit."
+        description: "Impossible de mettre à jour le produit. Veuillez réessayer.",
+        variant: "destructive"
       });
     }
   });
-};
+
+  return { updateAnalysisItem };
+}
