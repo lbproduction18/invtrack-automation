@@ -33,7 +33,7 @@ const AnalysisMethodSection: React.FC = () => {
             </CardHeader>
             <CardContent className="p-4">
               <p className="text-gray-400 text-center py-8">
-                Interface d'analyse AI sera disponible dans la prochaine étape
+                AI analysis output will be generated in the next step, including recommendations and data visualizations.
               </p>
             </CardContent>
           </Card>
