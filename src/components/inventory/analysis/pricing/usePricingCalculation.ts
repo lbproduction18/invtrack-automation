@@ -6,7 +6,7 @@ import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { useSKUSelection } from './hooks/useSKUSelection';
 import { usePriceCalculation } from './hooks/usePriceCalculation';
 import { useQuantityManagement } from './hooks/useQuantityManagement';
-import { getUnitPriceForSKU, calculateSKUTotalPrice } from './hooks/utils/priceUtils';
+import { getUnitPriceForSKU, calculateTotalPrice } from '@/hooks/simulation/skuPriceHelpers';
 
 export function usePricingCalculation(productPrices: ProductPrice[]) {
   const { toast } = useToast();
@@ -36,11 +36,6 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     getTotalForProduct
   } = usePriceCalculation();
 
-  // Get the price for a SKU based on its quantity
-  const getUnitPriceForSKUWrapper = (sku: string, quantity: number): number => {
-    return getUnitPriceForSKU(productPrices, sku, quantity);
-  };
-
   // Handle quantity change for a selected SKU with price calculation
   const handleQuantityChangeWithPrice = (productId: string, sku: string, quantityValue: string) => {
     // Update the quantity
@@ -50,13 +45,15 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     const parsedQuantity = parseInt(quantityValue, 10) || 0;
     
     // Get the unit price for this SKU and quantity
-    const unitPrice = getUnitPriceForSKUWrapper(sku, parsedQuantity);
+    const unitPrice = getUnitPriceForSKU(productPrices, sku, parsedQuantity);
     
     // Calculate the total price for this SKU
-    const totalPrice = parsedQuantity * unitPrice;
+    const totalPrice = calculateTotalPrice(unitPrice, parsedQuantity);
     
     // Update the calculated price for this SKU
     setCalculatedPrice(productId, sku, totalPrice);
+    
+    console.log(`Updated price for ${sku}: ${unitPrice} x ${parsedQuantity} = ${totalPrice}`);
     
     return quantityValue;
   };
@@ -69,6 +66,26 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     // Clean up price and quantity data
     clearPriceForSKU(productId, sku);
     clearQuantityForSKU(productId, sku);
+  };
+
+  // Handle SKU selection with initial price calculation
+  const handleSKUSelectWithPrice = (productId: string, sku: string) => {
+    // Add the SKU to selections
+    handleSKUSelect(productId, sku);
+    
+    // Set initial quantity to 1000
+    const initialQuantity = "1000";
+    handleQuantityChange(productId, sku, initialQuantity);
+    
+    // Calculate the initial price
+    const parsedQuantity = parseInt(initialQuantity, 10);
+    const unitPrice = getUnitPriceForSKU(productPrices, sku, parsedQuantity);
+    const totalPrice = calculateTotalPrice(unitPrice, parsedQuantity);
+    
+    // Set the calculated price
+    setCalculatedPrice(productId, sku, totalPrice);
+    
+    console.log(`Initial price for ${sku}: ${unitPrice} x ${parsedQuantity} = ${totalPrice}`);
   };
 
   // Reset the entire simulation
@@ -88,11 +105,11 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     quantities,
     calculatedPrices,
     simulationTotal,
-    handleSKUSelect,
+    handleSKUSelect: handleSKUSelectWithPrice,
     handleSKURemove: handleSKURemoveWithCleanup,
     handleQuantityChange: handleQuantityChangeWithPrice,
     getTotalForProduct,
-    getUnitPriceForSKU: getUnitPriceForSKUWrapper,
+    getUnitPriceForSKU: (sku: string, quantity: number) => getUnitPriceForSKU(productPrices, sku, quantity),
     resetSimulation,
   };
 }

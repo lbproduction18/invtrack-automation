@@ -1,7 +1,7 @@
 
 import { useBudgetSettings } from '@/hooks/useBudgetSettings';
 import { useSimulationState } from '@/hooks/useSimulationState';
-import { getUnitPriceForSKU } from '@/components/inventory/analysis/pricing/hooks/utils/priceUtils';
+import { getUnitPriceForSKU } from '@/hooks/simulation/skuPriceHelpers';
 import { ProductPrice } from '@/hooks/useProductPrices';
 
 /**

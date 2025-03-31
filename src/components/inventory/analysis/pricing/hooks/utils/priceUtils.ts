@@ -1,6 +1,6 @@
 
 import { ProductPrice } from '@/hooks/useProductPrices';
-import { getUnitPriceForSKU, calculateTotalPrice } from '@/hooks/simulation/skuPriceHelpers';
+import { getUnitPriceForSKU as skuPriceHelperGetUnitPrice, calculateTotalPrice } from '@/hooks/simulation/skuPriceHelpers';
 
 /**
  * Calculate total price for a product from its SKUs
@@ -31,4 +31,16 @@ export const calculateSKUTotalPrice = (
 ): number => {
   const unitPrice = getUnitPriceForSKU(productPrices, sku, quantity);
   return calculateTotalPrice(unitPrice, quantity);
+};
+
+/**
+ * Re-export the getUnitPriceForSKU function from skuPriceHelpers
+ * to maintain the same interface for components using this module
+ */
+export const getUnitPriceForSKU = (
+  productPrices: ProductPrice[], 
+  sku: string, 
+  quantity: number
+): number => {
+  return skuPriceHelperGetUnitPrice(productPrices, sku, quantity);
 };

@@ -75,7 +75,7 @@ export function usePriceState(productPrices: ProductPrice[]) {
     const totalPrice = calculateSKUTotalPrice(
       sku, 
       parsedQuantity, 
-      getUnitPriceForSKUWrapper
+      productPrices  // Pass the productPrices array directly
     );
 
     setCalculatedPrice(productId, sku, totalPrice);
