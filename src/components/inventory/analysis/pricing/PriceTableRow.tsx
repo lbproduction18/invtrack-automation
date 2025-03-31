@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { ProductPrice } from '@/hooks/useProductPrices';
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import SelectedSKUsList from './SelectedSKUsList';
 import { formatTotalPrice } from './PriceFormatter';
+import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 
 interface PriceTableRowProps {
   product: ProductPrice;
@@ -39,6 +40,9 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
   formatPrice,
   formatTotalPrice
 }) => {
+  // Get analysis items directly from Supabase via the hook
+  const { analysisItems } = useAnalysisItems();
+  
   // Check if this product only has price_8000 defined
   const onlyHas8000 = 
     (!product.price_1000 || product.price_1000 === 0) && 
@@ -54,10 +58,32 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
   // Get all selected SKUs across the entire table
   const allSelectedSKUs = Object.values(selectedSKUs).flat();
   
-  // Filter out already selected SKUs from the dropdown options (globally across the entire table)
-  const availableSKUs = analysisProductSKUs.filter(
-    skuItem => !allSelectedSKUs.includes(skuItem.SKU)
-  );
+  // Filter SKUs from analysisItems that match the current product category
+  const availableSKUsFromAnalysis = useMemo(() => {
+    // Get product name/category in lowercase for comparison
+    const productCategory = product.product_name.toLowerCase().trim();
+    
+    // Get all SKUs from analysis_items that aren't already selected
+    return analysisItems
+      .filter(item => item.sku_code && !allSelectedSKUs.includes(item.sku_code))
+      .map(item => ({
+        id: item.product_id || '',
+        SKU: item.sku_code || '',
+        productName: item.sku_label
+      }))
+      .filter(skuItem => {
+        // Skip empty SKUs
+        if (!skuItem.SKU) return false;
+        
+        // Extract category from SKU (e.g. "COLLAGENE" from "COLLAGENE-LOTUS")
+        const skuCategory = skuItem.SKU.split('-')[0].toLowerCase();
+        
+        // Match if the SKU category includes the product name or vice versa
+        return skuCategory.includes(productCategory) || 
+               productCategory.includes(skuCategory);
+      })
+      .sort((a, b) => a.SKU.localeCompare(b.SKU)); // Sort alphabetically
+  }, [analysisItems, allSelectedSKUs, product.product_name]);
 
   // Get the total price for all SKUs in this product row
   const rowTotal = getTotalForProduct(product.id);
@@ -73,13 +99,13 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
         <TableCell className="text-center">{formatPrice(product.price_5000)}</TableCell>
         <TableCell className="text-center">{formatPrice(product.price_8000)}</TableCell>
         <TableCell className="text-center">
-          {availableSKUs.length > 0 ? (
+          {availableSKUsFromAnalysis.length > 0 ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="w-full px-3 py-1 text-sm border border-input rounded-md bg-[#161616] hover:bg-[#272727]">
                 Ajouter SKU
               </DropdownMenuTrigger>
               <DropdownMenuContent className="max-h-[200px] overflow-y-auto bg-[#161616] border-[#272727] z-[100]">
-                {availableSKUs.map((skuItem) => (
+                {availableSKUsFromAnalysis.map((skuItem) => (
                   <DropdownMenuItem 
                     key={skuItem.SKU}
                     onClick={() => handleSKUSelect(product.id, skuItem.SKU)}

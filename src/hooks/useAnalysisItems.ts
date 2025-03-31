@@ -14,6 +14,9 @@ export function useAnalysisItems() {
   const { addToAnalysis } = useAddToAnalysis();
   const { updateAnalysisItem } = useUpdateAnalysisItem();
   const { updateSKUPrices } = useUpdateSKUPrices();
+  
+  // Track if an item is currently being deleted
+  const [isDeletingItem, setIsDeletingItem] = useState(false);
 
   return { 
     analysisItems, 
@@ -22,6 +25,8 @@ export function useAnalysisItems() {
     refetch,
     addToAnalysis,
     updateAnalysisItem,
-    updateSKUPrices
+    updateSKUPrices,
+    isDeletingItem,
+    setIsDeletingItem
   };
 }
