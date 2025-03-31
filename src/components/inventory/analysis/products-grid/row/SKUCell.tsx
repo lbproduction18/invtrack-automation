@@ -11,7 +11,7 @@ const SKUCell: React.FC<SKUCellProps> = ({ skuCode, skuLabel }) => {
   return (
     <TableCell className="font-medium whitespace-nowrap pl-4">
       <div className="flex flex-col">
-        <span>{skuCode}</span>
+        <span>{skuCode || '-'}</span>
         {skuLabel && (
           <span className="text-xs text-gray-400">{skuLabel}</span>
         )}
