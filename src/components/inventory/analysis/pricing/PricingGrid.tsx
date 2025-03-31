@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -13,6 +14,7 @@ import PriceTable from '@/components/inventory/analysis/pricing/PriceTable';
 import SimulationSummary from '@/components/inventory/analysis/pricing/SimulationSummary';
 import UpdatePricesButton from '@/components/inventory/analysis/pricing/UpdatePricesButton';
 import RefreshPriceGridButton from '@/components/inventory/analysis/pricing/RefreshPriceGridButton';
+import AnalysisModeSelector from '@/components/inventory/analysis/pricing/AnalysisModeSelector';
 import { Loader2, RefreshCw, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -46,6 +48,14 @@ const PricingGrid: React.FC = () => {
       refetchPrices(),
       refetchAnalysis()
     ]);
+  };
+
+  const handleManualAnalysis = () => {
+    console.log('Manual Analysis selected');
+  };
+
+  const handleAIAnalysis = () => {
+    console.log('AI Analysis selected');
   };
 
   useEffect(() => {
@@ -108,6 +118,11 @@ const PricingGrid: React.FC = () => {
             />
           )}
         </div>
+        
+        <AnalysisModeSelector 
+          onManualAnalysis={handleManualAnalysis}
+          onAIAnalysis={handleAIAnalysis}
+        />
         
         <SimulationSummary 
           analysisItems={analysisItems}

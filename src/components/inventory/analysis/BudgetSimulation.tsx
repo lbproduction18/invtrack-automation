@@ -1,175 +1,174 @@
 
 import React, { useState, useEffect } from 'react';
-import { useProducts } from '@/hooks/useProducts';
-import { useAnalysisItems, type AnalysisItem } from '@/hooks/useAnalysisItems';
-import { AnalysisProduct } from '@/components/inventory/AnalysisContent';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AnalysisProductRow from './products-grid/AnalysisProductRow';
-import { Loader2 } from 'lucide-react';
+import SimulationSummary from './pricing/SimulationSummary';
+import { useProducts } from '@/hooks/useProducts';
+import { useAnalysisItems } from '@/hooks/useAnalysisItems';
+import { useProductPrices } from '@/hooks/useProductPrices';
+import { usePricingCalculation } from './pricing/usePricingCalculation';
 
-// Fix for TypeScript errors by extending the AnalysisItem to match AnalysisProduct requirements
-const mapToAnalysisProduct = (analysisItem: AnalysisItem, products: any[]): AnalysisProduct => {
-  // Find the matching product details
-  const product = products.find(p => p.id === analysisItem.product_id);
-  
-  return {
-    ...analysisItem,
-    productDetails: product || null,
-    // Add any missing properties to match AnalysisProduct interface
-    price_1000: analysisItem.price_1000 || null,
-    price_2000: analysisItem.price_2000 || null,
-    price_3000: analysisItem.price_3000 || null,
-    price_4000: analysisItem.price_4000 || null,
-    price_5000: analysisItem.price_5000 || null,
-    price_8000: analysisItem.price_8000 || null
-  };
-};
-
-interface BudgetSimulationProps {
-  budgetAmount: number;
-  onProductsSelected?: (products: AnalysisItem[]) => void;
-}
-
-const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ 
-  budgetAmount,
-  onProductsSelected 
-}) => {
-  const { products, isLoading: isProductsLoading } = useProducts('all');
+const BudgetSimulation: React.FC = () => {
+  const [selectedTab, setSelectedTab] = useState('tab1');
+  const { products, isLoading: isProductsLoading } = useProducts('analysis');
   const { analysisItems, isLoading: isAnalysisLoading } = useAnalysisItems();
-  
-  const [selectedProducts, setSelectedProducts] = useState<AnalysisItem[]>([]);
-  const [remainingBudget, setRemainingBudget] = useState<number>(budgetAmount);
-  
-  // Handles selection and deselection of products
-  const toggleProductSelection = (product: AnalysisItem) => {
-    if (selectedProducts.some(p => p.id === product.id)) {
-      setSelectedProducts(prev => prev.filter(p => p.id !== product.id));
-    } else {
-      setSelectedProducts(prev => [...prev, product]);
-    }
+  const { productPrices, isLoading: isPricesLoading } = useProductPrices();
+  const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
+
+  const {
+    selectedSKUs,
+    quantities,
+    calculatedPrices,
+    simulationTotal,
+    getUnitPriceForSKU
+  } = usePricingCalculation(productPrices);
+
+  const isLoading = isProductsLoading || isAnalysisLoading || isPricesLoading;
+
+  const getCategoryProducts = (category: string) => {
+    return products.filter(product => {
+      const skuCategory = product.SKU ? product.SKU.split('-')[0] : '';
+      return skuCategory.toLowerCase() === category.toLowerCase();
+    });
   };
-  
-  // Calculate remaining budget when selected products change
-  useEffect(() => {
-    const calculateBudget = () => {
-      let totalCost = 0;
-      selectedProducts.forEach(product => {
-        // Assuming a default price if none is available
-        const price = product.price_1000 || 50;
-        totalCost += price;
-      });
-      setRemainingBudget(budgetAmount - totalCost);
-    };
-    
-    calculateBudget();
-  }, [selectedProducts, budgetAmount]);
-  
-  // Notify parent component when selected products change
-  useEffect(() => {
-    if (onProductsSelected) {
-      onProductsSelected(selectedProducts);
-    }
-  }, [selectedProducts, onProductsSelected]);
-  
-  // Filter products based on priority badge
-  const priorityProducts = analysisItems
-    .filter(item => item.priority_badge === 'prioritaire');
-  
-  const mediumProducts = analysisItems
-    .filter(item => item.priority_badge === 'moyen');
-  
-  const standardProducts = analysisItems
-    .filter(item => item.priority_badge === 'standard');
-  
-  // Show loading state if data is still being fetched
-  if (isProductsLoading || isAnalysisLoading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="animate-spin h-8 w-8 text-primary mr-2" />
-        <span>Chargement des produits...</span>
-      </div>
-    );
-  }
-  
-  // Dummy function for toggle expand since we're not using it
-  const handleToggleExpand = () => {};
-  
+
+  const hasCategoryProducts = (category: string) => {
+    return getCategoryProducts(category).length > 0;
+  };
+
+  // Handle row click for product details
+  const handleRowClick = (item: any) => {
+    console.log('Product row clicked:', item);
+    // This would typically open a details drawer or modal
+  };
+
+  // Toggle note expansion
+  const toggleNoteExpansion = (e: React.MouseEvent, productId: string) => {
+    e.stopPropagation();
+    setExpandedNoteId(prev => prev === productId ? null : productId);
+  };
+
+  // Refetch analysis data
+  const refetchAnalysis = () => {
+    console.log('Refetching analysis data');
+    // This would typically call the refetch functions from the hooks
+  };
+
+  // Categories to display
+  const categories = ["BNT", "CLO", "BLC", "BAN", "PNF", "CAR", "AAA"];
+
   return (
-    <div className="space-y-6">
-      <div className="bg-[#161616] border border-[#272727] rounded-md p-4">
-        <h3 className="text-sm font-medium mb-4">Produits prioritaires</h3>
-        {priorityProducts.length > 0 ? (
-          <div className="space-y-2">
-            {priorityProducts.map(item => (
-              <AnalysisProductRow
-                key={item.id}
-                item={mapToAnalysisProduct(item, products)}
-                handleRowClick={() => toggleProductSelection(item)}
-                toggleNoteExpansion={(e) => {
-                  e.stopPropagation();
-                  handleToggleExpand();
-                }}
-                refetchAnalysis={() => {}}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500 text-sm">Aucun produit prioritaire</p>
-        )}
-      </div>
+    <Card className="border border-[#272727] bg-[#131313]">
+      <CardHeader className="px-4 py-3 border-b border-[#272727]">
+        <CardTitle className="text-sm font-medium">Simulateur de Budget</CardTitle>
+      </CardHeader>
       
-      <div className="bg-[#161616] border border-[#272727] rounded-md p-4">
-        <h3 className="text-sm font-medium mb-4">Produits de priorité moyenne</h3>
-        {mediumProducts.length > 0 ? (
-          <div className="space-y-2">
-            {mediumProducts.map(item => (
-              <AnalysisProductRow
-                key={item.id}
-                item={mapToAnalysisProduct(item, products)}
-                handleRowClick={() => toggleProductSelection(item)}
-                toggleNoteExpansion={(e) => {
-                  e.stopPropagation();
-                  handleToggleExpand();
-                }}
-                refetchAnalysis={() => {}}
-              />
+      <CardContent className="p-0">
+        <Tabs
+          value={selectedTab}
+          onValueChange={setSelectedTab}
+          className="w-full"
+        >
+          <TabsList className="w-full px-2 border-b border-[#272727] bg-[#131313]">
+            <TabsTrigger
+              value="tab1"
+              className={`text-xs py-2 px-4 ${selectedTab === 'tab1' ? 'border-b-2 border-primary' : ''}`}
+            >
+              Par Catégorie
+            </TabsTrigger>
+            <TabsTrigger
+              value="tab2"
+              className={`text-xs py-2 px-4 ${selectedTab === 'tab2' ? 'border-b-2 border-primary' : ''}`}
+            >
+              Par Produit
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="tab1" className="p-4">
+            {categories.map((category) => (
+              hasCategoryProducts(category) && (
+                <div key={category} className="mb-4">
+                  <h3 className="text-md font-medium mb-2">{category}</h3>
+                  <div className="space-y-2">
+                    {getCategoryProducts(category).map((product) => (
+                      <AnalysisProductRow
+                        key={product.id}
+                        item={{
+                          id: analysisItems.find(item => item.product_id === product.id)?.id || '',
+                          product_id: product.id,
+                          sku_code: product.SKU,
+                          sku_label: product.product_name,
+                          stock: product.current_stock,
+                          threshold: product.threshold,
+                          note: product.note,
+                          quantity_selected: analysisItems.find(item => item.product_id === product.id)?.quantity_selected || null,
+                          created_at: product.created_at,
+                          updated_at: product.updated_at,
+                          status: product.status || '',
+                          last_order_info: analysisItems.find(item => item.product_id === product.id)?.last_order_info || null,
+                          lab_status_text: analysisItems.find(item => item.product_id === product.id)?.lab_status_text || null,
+                          last_order_date: analysisItems.find(item => item.product_id === product.id)?.last_order_date || null,
+                          weeks_delivery: analysisItems.find(item => item.product_id === product.id)?.weeks_delivery || null,
+                          priority_badge: product.priority_badge
+                        }}
+                        handleRowClick={handleRowClick}
+                        toggleNoteExpansion={toggleNoteExpansion}
+                        refetchAnalysis={refetchAnalysis}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
             ))}
-          </div>
-        ) : (
-          <p className="text-gray-500 text-sm">Aucun produit de priorité moyenne</p>
-        )}
-      </div>
-      
-      <div className="bg-[#161616] border border-[#272727] rounded-md p-4">
-        <h3 className="text-sm font-medium mb-4">Produits standard</h3>
-        {standardProducts.length > 0 ? (
-          <div className="space-y-2">
-            {standardProducts.map(item => (
-              <AnalysisProductRow
-                key={item.id}
-                item={mapToAnalysisProduct(item, products)}
-                handleRowClick={() => toggleProductSelection(item)}
-                toggleNoteExpansion={(e) => {
-                  e.stopPropagation();
-                  handleToggleExpand();
-                }}
-                refetchAnalysis={() => {}}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500 text-sm">Aucun produit standard</p>
-        )}
-      </div>
-      
-      <div className="mt-6 p-4 bg-[#171717] border border-[#272727] rounded-md">
-        <div className="flex justify-between items-center">
-          <h3 className="text-sm font-medium">Budget restant:</h3>
-          <span className={`text-xl font-medium ${remainingBudget < 0 ? 'text-red-500' : 'text-green-500'}`}>
-            {remainingBudget.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
-          </span>
+          </TabsContent>
+
+          <TabsContent value="tab2" className="p-4">
+            <div className="space-y-2">
+              {products.map((product) => (
+                <AnalysisProductRow
+                  key={product.id}
+                  item={{
+                    id: analysisItems.find(item => item.product_id === product.id)?.id || '',
+                    product_id: product.id,
+                    sku_code: product.SKU,
+                    sku_label: product.product_name,
+                    stock: product.current_stock,
+                    threshold: product.threshold,
+                    note: product.note,
+                    quantity_selected: analysisItems.find(item => item.product_id === product.id)?.quantity_selected || null,
+                    created_at: product.created_at,
+                    updated_at: product.updated_at,
+                    status: product.status || '',
+                    last_order_info: analysisItems.find(item => item.product_id === product.id)?.last_order_info || null,
+                    lab_status_text: analysisItems.find(item => item.product_id === product.id)?.lab_status_text || null,
+                    last_order_date: analysisItems.find(item => item.product_id === product.id)?.last_order_date || null,
+                    weeks_delivery: analysisItems.find(item => item.product_id === product.id)?.weeks_delivery || null,
+                    priority_badge: product.priority_badge
+                  }}
+                  handleRowClick={handleRowClick}
+                  toggleNoteExpansion={toggleNoteExpansion}
+                  refetchAnalysis={refetchAnalysis}
+                />
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+        
+        <div className="p-4">
+          <SimulationSummary 
+            analysisItems={analysisItems}
+            products={products}
+            simulationTotal={simulationTotal}
+            selectedSKUs={selectedSKUs}
+            quantities={quantities}
+            calculatedPrices={calculatedPrices}
+            productPrices={productPrices}
+            getUnitPriceForSKU={getUnitPriceForSKU}
+          />
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
