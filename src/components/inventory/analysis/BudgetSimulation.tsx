@@ -1,237 +1,117 @@
 
-import React, { useEffect, useState } from 'react';
-import { 
-  Card, 
-  CardContent
-} from "@/components/ui/card";
-import { useProductPrices } from '@/hooks/useProductPrices'; 
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AnalysisProductRow from './products-grid/AnalysisProductRow';
+import SimulationSummary from './pricing/SimulationSummary';
 import { useProducts } from '@/hooks/useProducts';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
-import { useSimulationState } from '@/hooks/useSimulationState';
-import { useSimulationSKUs } from '@/hooks/useSimulationSKUs';
-import SimulationSummary from './pricing/SimulationSummary';
-import SimulationTabsContainer from './simulation/SimulationTabsContainer';
-import BudgetSidePanel from './budget/BudgetSidePanel';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { type QuantityOption } from '@/components/inventory/AnalysisContent';
-import { useBudgetSettings } from '@/hooks/useBudgetSettings';
+import { useProductPrices } from '@/hooks/useProductPrices';
+import { usePricingCalculation } from './pricing/usePricingCalculation';
 
 const BudgetSimulation: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('simulation');
-  
-  // Fetch data for products, prices, and analysis items
-  const { products } = useProducts('all');
-  const { productPrices, isLoading: isLoadingPrices, refetch: refetchPrices } = useProductPrices();
-  const { analysisItems, refetch: refetchAnalysis } = useAnalysisItems();
-  const { budgetSettings } = useBudgetSettings();
-  
-  // Simulation state management
-  const { 
-    simulationTotal, 
-    selectedSKUs, 
-    setSelectedSKUs,
-    calculateSKUTotal 
-  } = useSimulationState();
-  
-  // Custom hook for handling SKU selection and quantity updates
-  const { 
-    quantityOptions,
-    handleAddSKU, 
-    handleRemoveSKU,
-    handleQuantityChange
-  } = useSimulationSKUs(selectedSKUs, setSelectedSKUs, productPrices);
-  
-  // Group products by their category for the simulation
-  const groupAnalysisProductsBySKU = (): Record<string, Array<{ id: string, SKU: string, productName: string | null }>> => {
-    const products_with_analysis = products.filter(product => 
-      analysisItems.some(item => item.product_id === product.id)
-    );
-    
-    return products_with_analysis.reduce((acc, product) => {
-      // Extract the product type from the SKU (e.g., "COLLAGENE" from "COLLAGENE-LOTUS")
-      const skuParts = product.SKU.split('-');
-      const productType = skuParts[0];
-      
-      // Initialize the array if it doesn't exist yet
-      if (!acc[productType]) {
-        acc[productType] = [];
-      }
-      
-      // Add this product to the group
-      acc[productType].push({ 
-        id: product.id,
-        SKU: product.SKU,
-        productName: product.product_name
-      });
-      
-      return acc;
-    }, {} as Record<string, Array<{ id: string, SKU: string, productName: string | null }>>);
-  };
-  
-  const groupedAnalysisProducts = groupAnalysisProductsBySKU();
-  
-  // Create placeholders for order simulation tab functionality
-  const [selectedQuantities, setSelectedQuantities] = useState<Record<string, QuantityOption>>({});
-  
-  const handleOrderQuantityChange = (productId: string, quantity: QuantityOption) => {
-    setSelectedQuantities(prev => ({
-      ...prev,
-      [productId]: quantity
-    }));
-  };
-  
-  const handleSimulationTotalChange = (total: number) => {
-    // This function would be used when calculating totals from the order tab
-    console.log("Order simulation total changed:", total);
-  };
-  
-  // Refresh data when needed
-  const handleRefresh = async (): Promise<void> => {
-    await refetchPrices();
-    await refetchAnalysis();
-    return Promise.resolve();
+  const [selectedTab, setSelectedTab] = useState('tab1');
+  const { products, isLoading: isProductsLoading } = useProducts('analysis');
+  const { analysisItems, isLoading: isAnalysisLoading } = useAnalysisItems();
+  const { productPrices, isLoading: isPricesLoading } = useProductPrices();
+
+  const {
+    selectedSKUs,
+    quantities,
+    calculatedPrices,
+    simulationTotal,
+    getUnitPriceForSKU
+  } = usePricingCalculation(productPrices);
+
+  const isLoading = isProductsLoading || isAnalysisLoading || isPricesLoading;
+
+  const getCategoryProducts = (category: string) => {
+    return products.filter(product => {
+      const skuCategory = product.SKU ? product.SKU.split('-')[0] : '';
+      return skuCategory.toLowerCase() === category.toLowerCase();
+    });
   };
 
-  // Wrapper for calculateSKUTotal to match the expected signature in SimulationTabsContainer
-  const calculateSKUTotalWrapper = (productName: string, sku: { 
-    productId: string; 
-    SKU: string; 
-    productName: string | null; 
-    quantity: QuantityOption; 
-    price: number 
-  }): number => {
-    return calculateSKUTotal(sku);
+  const hasCategoryProducts = (category: string) => {
+    return getCategoryProducts(category).length > 0;
   };
 
-  // Wrapper for handleAddSKU to match expected signature
-  const handleAddSKUWrapper = (
-    productCategory: string,
-    productId: string,
-    SKU: string,
-    productName: string | null
-  ): void => {
-    handleAddSKU(productCategory, { id: productId, SKU, productName });
-  };
-
-  // Wrapper for handleQuantityChange to match expected signature
-  const handleQuantityChangeWrapper = (
-    productCategory: string,
-    productId: string,
-    quantity: QuantityOption
-  ): void => {
-    // Find the index of the SKU with this productId in the selectedSKUs array
-    const skuIndex = selectedSKUs[productCategory]?.findIndex(sku => sku.productId === productId) ?? -1;
-    if (skuIndex !== -1) {
-      handleQuantityChange(productCategory, skuIndex, quantity);
-    }
-  };
-
-  // Wrapper for handleRemoveSKU to match expected signature
-  const handleRemoveSKUWrapper = (
-    productCategory: string,
-    productId: string
-  ): void => {
-    // Find the index of the SKU with this productId in the selectedSKUs array
-    const skuIndex = selectedSKUs[productCategory]?.findIndex(sku => sku.productId === productId) ?? -1;
-    if (skuIndex !== -1) {
-      handleRemoveSKU(productCategory, skuIndex);
-    }
-  };
-
-  // Get budget values
-  const totalBudget = budgetSettings?.total_budget || 300000;
-  const depositPercentage = budgetSettings?.deposit_percentage || 50;
-  const depositAmount = simulationTotal * (depositPercentage / 100);
-  const budgetPercentage = (simulationTotal / totalBudget) * 100;
-  const remainingBudget = totalBudget - simulationTotal;
-
-  // Ensure we sync any missing SKU data with Supabase
-  useEffect(() => {
-    // Find SKUs in the UI that might not be synced with the database
-    for (const [productName, skus] of Object.entries(selectedSKUs)) {
-      for (const sku of skus) {
-        const analysisItem = analysisItems.find(item => item.product_id === sku.productId);
-        
-        if (analysisItem && (!analysisItem.sku_code || !analysisItem.sku_label)) {
-          console.log(`Syncing missing SKU data for product ${sku.productId}`);
-          // Use updateAnalysisItem from the hook
-          const { updateAnalysisItem } = useAnalysisItems();
-          if (updateAnalysisItem) {
-            updateAnalysisItem.mutate({
-              id: analysisItem.id,
-              data: {
-                sku_code: sku.SKU,
-                sku_label: sku.productName || ''
-              }
-            });
-          }
-        }
-      }
-    }
-  }, [selectedSKUs, analysisItems]);
+  // Categories to display
+  const categories = ["BNT", "CLO", "BLC", "BAN", "PNF", "CAR", "AAA"];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      <div className="lg:col-span-3 space-y-6">
-        <SimulationTabsContainer
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          isPricesLoading={isLoadingPrices}
-          onRefresh={handleRefresh}
-          productPrices={productPrices}
-          quantityOptions={quantityOptions}
-          selectedSKUs={selectedSKUs}
-          groupedAnalysisProducts={groupedAnalysisProducts}
-          simulationTotal={simulationTotal}
-          onAddSKU={handleAddSKUWrapper}
-          onQuantityChange={handleQuantityChangeWrapper}
-          onRemoveSKU={handleRemoveSKUWrapper}
-          calculateSKUTotal={calculateSKUTotalWrapper}
-          selectedQuantities={selectedQuantities}
-          onOrderQuantityChange={handleOrderQuantityChange}
-          onSimulationTotalChange={handleSimulationTotalChange}
-        />
-        
-        <Card className="bg-[#161616] border-[#272727]">
-          <CardContent className="p-0">
-            <Tabs defaultValue="summary" className="w-full">
-              <TabsList className="bg-[#121212] w-full rounded-none border-b border-[#272727]">
-                <TabsTrigger 
-                  value="summary"
-                  className="rounded-none data-[state=active]:bg-[#161616] data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none"
-                >
-                  Résumé de la simulation
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="summary" className="p-4">
-                <SimulationSummary 
-                  analysisItems={analysisItems}
-                  products={products}
-                  simulationTotal={simulationTotal}
-                />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      </div>
+    <Card className="border border-[#272727] bg-[#131313]">
+      <CardHeader className="px-4 py-3 border-b border-[#272727]">
+        <CardTitle className="text-sm font-medium">Simulateur de Budget</CardTitle>
+      </CardHeader>
       
-      <div className="lg:col-span-1">
-        <BudgetSidePanel
-          productCount={Object.keys(selectedSKUs).length}
-          totalBudget={totalBudget}
-          configuredProductCount={Object.values(selectedSKUs).flat().length}
-          totalProductCount={products.length}
-          onCreateOrder={() => console.log("Create order")}
-          isLoading={isLoadingPrices}
-          simulationTotal={simulationTotal}
-          depositAmount={depositAmount}
-          depositPercentage={depositPercentage}
-          budgetPercentage={budgetPercentage}
-          remainingBudget={remainingBudget}
-        />
-      </div>
-    </div>
+      <CardContent className="p-0">
+        <Tabs
+          value={selectedTab}
+          onValueChange={setSelectedTab}
+          className="w-full"
+        >
+          <TabsList className="w-full px-2 border-b border-[#272727] bg-[#131313]">
+            <TabsTrigger
+              value="tab1"
+              className={`text-xs py-2 px-4 ${selectedTab === 'tab1' ? 'border-b-2 border-primary' : ''}`}
+            >
+              Par Catégorie
+            </TabsTrigger>
+            <TabsTrigger
+              value="tab2"
+              className={`text-xs py-2 px-4 ${selectedTab === 'tab2' ? 'border-b-2 border-primary' : ''}`}
+            >
+              Par Produit
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="tab1" className="p-4">
+            {categories.map((category) => (
+              hasCategoryProducts(category) && (
+                <div key={category} className="mb-4">
+                  <h3 className="text-md font-medium mb-2">{category}</h3>
+                  <div className="space-y-2">
+                    {getCategoryProducts(category).map((product) => (
+                      <AnalysisProductRow
+                        key={product.id}
+                        product={product}
+                        analysisItem={analysisItems.find(item => item.product_id === product.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+            ))}
+          </TabsContent>
+
+          <TabsContent value="tab2" className="p-4">
+            <div className="space-y-2">
+              {products.map((product) => (
+                <AnalysisProductRow
+                  key={product.id}
+                  product={product}
+                  analysisItem={analysisItems.find(item => item.product_id === product.id)}
+                />
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+        
+        <div className="p-4">
+          <SimulationSummary 
+            analysisItems={analysisItems}
+            products={products}
+            simulationTotal={simulationTotal}
+            selectedSKUs={selectedSKUs}
+            quantities={quantities}
+            calculatedPrices={calculatedPrices}
+            productPrices={productPrices}
+            getUnitPriceForSKU={getUnitPriceForSKU}
+          />
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

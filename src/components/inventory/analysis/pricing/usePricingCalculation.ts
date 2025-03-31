@@ -11,7 +11,7 @@ import { calculateSimulationTotal } from './utils/priceCalculationUtils';
  */
 export function usePricingCalculation(productPrices: ProductPrice[]) {
   // Use our smaller, focused hooks
-  const { selectedSKUs, handleSKUSelect, handleSKURemove } = useSKUSelection();
+  const { selectedSKUs, handleSKUSelect, handleSKURemove, resetSKUSelection } = useSKUSelection();
   const {
     quantities,
     calculatedPrices,
@@ -22,7 +22,8 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     getTotalForProduct,
     handleQuantityChange,
     getUnitPriceForSKU,
-    clearPriceDataForSKU
+    clearPriceDataForSKU,
+    resetPriceCalculations
   } = usePriceCalculation(productPrices);
 
   // Standard quantities that match price columns
@@ -42,6 +43,16 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     handleSKURemove(productId, sku);
   };
 
+  // Reset the entire simulation
+  const resetSimulation = () => {
+    // Reset the SKU selection
+    resetSKUSelection();
+    // Reset all price calculations
+    resetPriceCalculations();
+    // Reset the simulation total
+    setSimulationTotal(0);
+  };
+
   return {
     selectedSKUs,
     quantities,
@@ -54,6 +65,7 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     handleSKUSelect,
     handleSKURemove: handleSKURemoveWithPriceCleanup,
     handleQuantityChange,
-    getUnitPriceForSKU
+    getUnitPriceForSKU,
+    resetSimulation
   };
 }

@@ -1,112 +1,126 @@
-
 import { useState } from 'react';
 import { ProductPrice } from '@/hooks/useProductPrices';
-import { calculateTotalPriceForSKU, getUnitPriceForQuantity } from '../utils/priceCalculationUtils';
 
 /**
- * Hook to manage calculated prices state
+ * Hook to manage price state and calculations
  */
 export function usePriceState(productPrices: ProductPrice[]) {
   const [calculatedPrices, setCalculatedPrices] = useState<Record<string, Record<string, number | string>>>({});
   const [simulationTotal, setSimulationTotal] = useState<number>(0);
 
   /**
-   * Calculate the total price for a specific SKU
+   * Calculate the price for a selected SKU based on quantity
    */
   const calculateTotalPrice = (productId: string, sku: string, quantityValue: string) => {
-    const quantity = parseInt(quantityValue, 10);
-    const product = productPrices.find(p => p.id === productId);
-    
-    if (!product || isNaN(quantity) || quantity <= 0) {
-      setCalculatedPrices(prev => {
-        const productPrices = prev[productId] || {};
-        return {
-          ...prev,
-          [productId]: {
-            ...productPrices,
-            [sku]: ""
-          }
-        };
-      });
-      return;
+    // Find the product price data
+    const productPrice = productPrices.find(p => p.id === productId);
+    if (!productPrice) return;
+
+    const quantity = parseInt(quantityValue);
+    if (isNaN(quantity) || quantity <= 0) return;
+
+    let unitPrice = 0;
+
+    // Determine which price to use based on quantity
+    if (quantity <= 1000) {
+      unitPrice = productPrice.price_1000 || 0;
+    } else if (quantity <= 2000) {
+      unitPrice = productPrice.price_2000 || 0;
+    } else if (quantity <= 3000) {
+      unitPrice = productPrice.price_3000 || 0;
+    } else if (quantity <= 4000) {
+      unitPrice = productPrice.price_4000 || 0;
+    } else if (quantity <= 5000) {
+      unitPrice = productPrice.price_5000 || 0;
+    } else {
+      unitPrice = productPrice.price_8000 || 0;
     }
-    
-    // Calculate the price using our utility function
-    const { price, message } = calculateTotalPriceForSKU(product, quantity);
-    
-    // Update the calculated prices state
-    setCalculatedPrices(prev => {
-      const productPrices = prev[productId] || {};
-      return {
-        ...prev,
-        [productId]: {
-          ...productPrices,
-          [sku]: price !== null ? price : message || ""
-        }
-      };
-    });
+
+    // Calculate total price
+    const totalPrice = unitPrice * quantity;
+
+    // Update calculated prices state
+    setCalculatedPrices(prev => ({
+      ...prev,
+      [productId]: {
+        ...(prev[productId] || {}),
+        [sku]: totalPrice
+      }
+    }));
+  };
+
+  /**
+   * Get the unit price for a SKU based on quantity
+   */
+  const getUnitPriceForSKU = (productId: string, sku: string, quantityStr?: string): number => {
+    const productPrice = productPrices.find(p => p.id === productId);
+    if (!productPrice) return 0;
+
+    let quantity = 0;
+    if (quantityStr) {
+      quantity = parseInt(quantityStr);
+      if (isNaN(quantity)) quantity = 0;
+    }
+
+    if (quantity <= 0) return 0;
+
+    if (quantity <= 1000) return productPrice.price_1000 || 0;
+    if (quantity <= 2000) return productPrice.price_2000 || 0;
+    if (quantity <= 3000) return productPrice.price_3000 || 0;
+    if (quantity <= 4000) return productPrice.price_4000 || 0;
+    if (quantity <= 5000) return productPrice.price_5000 || 0;
+    return productPrice.price_8000 || 0;
   };
 
   /**
    * Get the calculated price for a specific SKU
    */
-  const getPriceForSKU = (sku: string, selectedSKUs: Record<string, string[]>): number | string => {
-    // Find the product ID that has this SKU selected
-    for (const [productId, skus] of Object.entries(selectedSKUs)) {
-      if (skus.includes(sku) && calculatedPrices[productId] && typeof calculatedPrices[productId][sku] === 'number') {
-        return calculatedPrices[productId][sku] as number;
-      }
-    }
-    return '';
+  const getPriceForSKU = (productId: string, sku: string): number | string => {
+    return calculatedPrices[productId]?.[sku] || 0;
   };
 
   /**
-   * Get the unit price for a specific SKU based on the selected quantity
-   */
-  const getUnitPriceForSKU = (productId: string, sku: string, quantityValue: string): number => {
-    const product = productPrices.find(p => p.id === productId);
-    const quantity = parseInt(quantityValue, 10);
-    
-    return getUnitPriceForQuantity(product, quantity);
-  };
-
-  /**
-   * Calculate the total price for a specific product (sum of all SKUs)
+   * Get the total price for all selected SKUs of a product
    */
   const getTotalForProduct = (productId: string): number => {
-    if (!calculatedPrices[productId]) {
-      return 0;
-    }
-    
-    let total = 0;
-    
-    Object.values(calculatedPrices[productId]).forEach(price => {
-      if (typeof price === 'number') {
-        total += price;
-      }
-    });
-    
-    return total;
+    if (!calculatedPrices[productId]) return 0;
+
+    return Object.values(calculatedPrices[productId]).reduce((total, price) => {
+      return total + (typeof price === 'number' ? price : 0);
+    }, 0);
   };
 
   /**
-   * Clear price data for a specific SKU
+   * Clear the price data for a specific SKU
    */
   const clearPriceForSKU = (productId: string, sku: string) => {
     setCalculatedPrices(prev => {
-      const newPrices = { ...prev };
-      if (newPrices[productId]) {
-        const productPrices = { ...newPrices[productId] };
-        delete productPrices[sku];
-        
-        if (Object.keys(productPrices).length === 0) {
-          delete newPrices[productId];
-        } else {
-          newPrices[productId] = productPrices;
-        }
+      if (!prev[productId]) return prev;
+
+      const updatedPrices = { ...prev[productId] };
+      delete updatedPrices[sku];
+
+      // If there are no more prices for this product, remove the product entry
+      if (Object.keys(updatedPrices).length === 0) {
+        const newState = { ...prev };
+        delete newState[productId];
+        return newState;
       }
-      return newPrices;
+
+      // Otherwise, update the prices for this product
+      return {
+        ...prev,
+        [productId]: updatedPrices
+      };
     });
+  };
+
+  /**
+   * Reset all price calculations
+   */
+  const resetPriceCalculations = () => {
+    setCalculatedPrices({});
+    setSimulationTotal(0);
   };
 
   return {
@@ -117,6 +131,7 @@ export function usePriceState(productPrices: ProductPrice[]) {
     getPriceForSKU,
     getUnitPriceForSKU,
     getTotalForProduct,
-    clearPriceForSKU
+    clearPriceForSKU,
+    resetPriceCalculations
   };
 }

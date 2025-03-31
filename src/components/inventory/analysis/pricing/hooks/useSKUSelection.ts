@@ -1,49 +1,50 @@
-
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 /**
- * Hook to manage SKU selection
+ * Hook to manage SKU selection state
  */
 export function useSKUSelection() {
-  // Change from Record<string, string> to Record<string, string[]>
   const [selectedSKUs, setSelectedSKUs] = useState<Record<string, string[]>>({});
+  const { toast } = useToast();
 
   /**
-   * Add a SKU to a product's selection
+   * Add a SKU to the selection
    */
   const handleSKUSelect = (productId: string, sku: string) => {
     setSelectedSKUs(prev => {
-      // Get the current SKUs for this product or initialize an empty array
-      const currentSKUs = prev[productId] || [];
-      
-      // Check if this SKU is already in the list
-      if (currentSKUs.includes(sku)) {
+      // If this SKU is already selected for this product, don't add it again
+      if (prev[productId]?.includes(sku)) {
         return prev;
       }
-      
-      // Add the new SKU to the list
+
+      // Add the SKU to the list for this product
       return {
         ...prev,
-        [productId]: [...currentSKUs, sku]
+        [productId]: [...(prev[productId] || []), sku]
       };
     });
   };
 
   /**
-   * Remove a SKU from a product's selection
+   * Remove a SKU from the selection
    */
   const handleSKURemove = (productId: string, sku: string) => {
     setSelectedSKUs(prev => {
-      const currentSKUs = prev[productId] || [];
-      const updatedSKUs = currentSKUs.filter(s => s !== sku);
+      if (!prev[productId]) {
+        return prev;
+      }
+
+      const updatedSKUs = prev[productId].filter(s => s !== sku);
       
-      // If there are no SKUs left, remove the product from the map
+      // If there are no more SKUs for this product, remove the product entry
       if (updatedSKUs.length === 0) {
-        const newSelectedSKUs = { ...prev };
-        delete newSelectedSKUs[productId];
-        return newSelectedSKUs;
+        const updatedSelection = { ...prev };
+        delete updatedSelection[productId];
+        return updatedSelection;
       }
       
+      // Otherwise, update the SKUs for this product
       return {
         ...prev,
         [productId]: updatedSKUs
@@ -51,10 +52,21 @@ export function useSKUSelection() {
     });
   };
 
+  /**
+   * Reset all selected SKUs
+   */
+  const resetSKUSelection = () => {
+    setSelectedSKUs({});
+    toast({
+      title: "Simulation réinitialisée",
+      description: "Toutes les sélections ont été effacées.",
+    });
+  };
+
   return {
     selectedSKUs,
-    setSelectedSKUs,
     handleSKUSelect,
-    handleSKURemove
+    handleSKURemove,
+    resetSKUSelection
   };
 }

@@ -14,7 +14,8 @@ import PriceTable from '@/components/inventory/analysis/pricing/PriceTable';
 import SimulationSummary from '@/components/inventory/analysis/pricing/SimulationSummary';
 import UpdatePricesButton from '@/components/inventory/analysis/pricing/UpdatePricesButton';
 import RefreshPriceGridButton from '@/components/inventory/analysis/pricing/RefreshPriceGridButton';
-import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, RotateCw, RefreshCw } from 'lucide-react';
 import { formatTotalPrice } from '@/components/inventory/analysis/pricing/PriceFormatter';
 
 const PricingGrid: React.FC = () => {
@@ -37,6 +38,7 @@ const PricingGrid: React.FC = () => {
     handleQuantityChange,
     getTotalForProduct,
     getUnitPriceForSKU,
+    resetSimulation, // Added reset functionality
   } = usePricingCalculation(productPrices);
   
   const isLoading = isPricesLoading || isProductsLoading || isAnalysisLoading;
@@ -46,6 +48,10 @@ const PricingGrid: React.FC = () => {
       refetchPrices(),
       refetchAnalysis()
     ]);
+  };
+
+  const handleResetSimulation = () => {
+    resetSimulation(); // Call the reset function from the hook
   };
 
   useEffect(() => {
@@ -58,7 +64,24 @@ const PricingGrid: React.FC = () => {
         <div className="flex justify-between items-center">
           <CardTitle className="text-sm font-medium">Grille Tarifaire</CardTitle>
           <div className="flex space-x-2">
-            <RefreshPriceGridButton onRefresh={handleRefresh} />
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {}} // No action for now
+              className="text-xs h-8 border-[#272727] bg-[#161616] hover:bg-[#222]"
+            >
+              <RefreshCw className="mr-2 h-3 w-3" />
+              Rafraîchir
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleResetSimulation}
+              className="text-xs h-8 border-[#272727] bg-[#161616] hover:bg-[#222]"
+            >
+              <RotateCw className="mr-2 h-3 w-3" />
+              Réinitialiser
+            </Button>
             <UpdatePricesButton 
               productPrices={productPrices}
               selectedSKUs={selectedSKUs}
