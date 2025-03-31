@@ -48,15 +48,9 @@ export const calculateProductTotal = (
   // Explicitly type the initial value and result of reduce as number
   return Object.values(calculatedPrices[productId]).reduce((sum: number, price) => {
     // Handle different types properly by ensuring we're always working with numbers
-    let numericPrice = 0;
-    
-    if (typeof price === 'number') {
-      numericPrice = price;
-    } else if (typeof price === 'string') {
-      // Try to parse the string as a number, return 0 if it fails
-      const parsed = parseFloat(price);
-      numericPrice = isNaN(parsed) ? 0 : parsed;
-    }
+    const numericPrice = typeof price === 'number' 
+      ? price 
+      : (parseFloat(price) || 0); // Convert string to number or use 0 if NaN
     
     return sum + numericPrice;
   }, 0); // Initialize the accumulator as 0 (number type)
