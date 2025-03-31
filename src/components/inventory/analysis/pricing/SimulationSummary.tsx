@@ -9,7 +9,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { AnalysisItem } from '@/hooks/useAnalysisItems';
+import { AnalysisItem } from '@/types/analysisItem';
 import { formatTotalPrice } from './PriceFormatter';
 import { Product } from '@/types/product';
 import { supabase } from '@/integrations/supabase/client';
@@ -41,7 +41,16 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
       if (error) {
         console.error('Error fetching updated analysis items:', error);
       } else if (data) {
-        setRefreshedAnalysisItems(data);
+        // Handle potential missing properties in the response
+        const itemsWithDefaults = data.map(item => ({
+          ...item,
+          // Provide default values for required properties that might be missing
+          note: item.note || null,
+          priority_badge: item.priority_badge || null,
+          date_added: item.date_added || null
+        } as AnalysisItem));
+        
+        setRefreshedAnalysisItems(itemsWithDefaults);
       }
     } catch (err) {
       console.error('Exception when fetching analysis items:', err);
