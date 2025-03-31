@@ -95,6 +95,42 @@ export type Database = {
           },
         ]
       }
+      analysis_items_logs: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          id: string
+          new_values: Json | null
+          note: string | null
+          old_values: Json | null
+          product_name: string | null
+          sku_code: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          id?: string
+          new_values?: Json | null
+          note?: string | null
+          old_values?: Json | null
+          product_name?: string | null
+          sku_code?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          id?: string
+          new_values?: Json | null
+          note?: string | null
+          old_values?: Json | null
+          product_name?: string | null
+          sku_code?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       analysis_log: {
         Row: {
           created_at: string | null
