@@ -14,6 +14,7 @@ import SimulationTabsContainer from './simulation/SimulationTabsContainer';
 import BudgetSidePanel from './budget/BudgetSidePanel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
+import { useBudgetSettings } from '@/hooks/useBudgetSettings';
 
 const BudgetSimulation: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('simulation');
@@ -22,6 +23,7 @@ const BudgetSimulation: React.FC = () => {
   const { products } = useProducts('all');
   const { productPrices, isLoading: isLoadingPrices, refetch: refetchPrices } = useProductPrices();
   const { analysisItems, refetch: refetchAnalysis } = useAnalysisItems();
+  const { budgetSettings } = useBudgetSettings();
   
   // Simulation state management
   const { 
@@ -136,6 +138,13 @@ const BudgetSimulation: React.FC = () => {
     }
   };
 
+  // Get budget values
+  const totalBudget = budgetSettings?.total_budget || 300000;
+  const depositPercentage = budgetSettings?.deposit_percentage || 50;
+  const depositAmount = simulationTotal * (depositPercentage / 100);
+  const budgetPercentage = (simulationTotal / totalBudget) * 100;
+  const remainingBudget = totalBudget - simulationTotal;
+
   // Ensure we sync any missing SKU data with Supabase
   useEffect(() => {
     // Find SKUs in the UI that might not be synced with the database
@@ -145,15 +154,17 @@ const BudgetSimulation: React.FC = () => {
         
         if (analysisItem && (!analysisItem.sku_code || !analysisItem.sku_label)) {
           console.log(`Syncing missing SKU data for product ${sku.productId}`);
-          // Update the analysis item with the SKU data
+          // Use updateAnalysisItem from the hook
           const { updateAnalysisItem } = useAnalysisItems();
-          updateAnalysisItem.mutate({
-            id: analysisItem.id,
-            data: {
-              sku_code: sku.SKU,
-              sku_label: sku.productName || ''
-            }
-          });
+          if (updateAnalysisItem) {
+            updateAnalysisItem.mutate({
+              id: analysisItem.id,
+              data: {
+                sku_code: sku.SKU,
+                sku_label: sku.productName || ''
+              }
+            });
+          }
         }
       }
     }
@@ -208,16 +219,16 @@ const BudgetSimulation: React.FC = () => {
       <div className="lg:col-span-1">
         <BudgetSidePanel
           productCount={Object.keys(selectedSKUs).length}
-          totalBudget={300000} // Default budget, this could be fetched from settings
+          totalBudget={totalBudget}
           configuredProductCount={Object.values(selectedSKUs).flat().length}
           totalProductCount={products.length}
           onCreateOrder={() => console.log("Create order")}
           isLoading={isLoadingPrices}
           simulationTotal={simulationTotal}
-          depositAmount={simulationTotal * 0.5} // 50% deposit by default
-          depositPercentage={50}
-          budgetPercentage={simulationTotal / 300000 * 100}
-          remainingBudget={300000 - simulationTotal}
+          depositAmount={depositAmount}
+          depositPercentage={depositPercentage}
+          budgetPercentage={budgetPercentage}
+          remainingBudget={remainingBudget}
         />
       </div>
     </div>
