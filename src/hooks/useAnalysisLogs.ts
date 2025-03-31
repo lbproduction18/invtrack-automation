@@ -1,7 +1,19 @@
 
-import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+export interface AnalysisLogEntry {
+  id: string;
+  action_type: string;
+  sku_code: string | null;
+  product_name: string | null;
+  user_id: string | null;
+  created_at: string;
+  note: string | null;
+  old_values: Record<string, any> | null;
+  new_values: Record<string, any> | null;
+}
 
 export interface LogsFilter {
   startDate: Date | null;
@@ -10,73 +22,71 @@ export interface LogsFilter {
   searchTerm: string | null;
 }
 
-export interface AnalysisLog {
-  id: string;
-  created_at: string | null;
-  action_type: string;
-  sku_code: string | null;
-  product_name: string | null;
-  user_id: string | null;
-  old_values: any | null;
-  new_values: any | null;
-  note: string | null;
-}
-
-export function useAnalysisLogs(filters: LogsFilter = {
-  startDate: null,
-  endDate: null,
-  actionType: null,
-  searchTerm: null
+export function useAnalysisLogs(filters: LogsFilter = { 
+  startDate: null, 
+  endDate: null, 
+  actionType: null, 
+  searchTerm: null 
 }) {
-  const [logs, setLogs] = useState<AnalysisLog[]>([]);
+  const { toast } = useToast();
 
-  // Function to fetch logs
-  const fetchLogs = async (): Promise<AnalysisLog[]> => {
+  const fetchLogs = async () => {
     let query = supabase
       .from('analysis_items_logs')
       .select('*')
       .order('created_at', { ascending: false });
 
-    // Apply filters
+    // Apply date filters
     if (filters.startDate) {
       query = query.gte('created_at', filters.startDate.toISOString());
     }
     
     if (filters.endDate) {
-      query = query.lte('created_at', filters.endDate.toISOString());
+      // Add one day to include the end date fully
+      const endDate = new Date(filters.endDate);
+      endDate.setDate(endDate.getDate() + 1);
+      query = query.lt('created_at', endDate.toISOString());
     }
-    
+
+    // Apply action type filter
     if (filters.actionType) {
       query = query.eq('action_type', filters.actionType);
     }
-    
+
+    // Apply search term filter (on product_name or sku_code)
     if (filters.searchTerm) {
-      query = query.or(`sku_code.ilike.%${filters.searchTerm}%,product_name.ilike.%${filters.searchTerm}%,note.ilike.%${filters.searchTerm}%`);
+      query = query.or(`product_name.ilike.%${filters.searchTerm}%,sku_code.ilike.%${filters.searchTerm}%`);
     }
 
-    // Execute the query
     const { data, error } = await query;
-    
+
     if (error) {
       console.error('Error fetching analysis logs:', error);
-      return [];
+      toast({
+        title: 'Error fetching logs',
+        description: error.message,
+        variant: 'destructive',
+      });
+      throw error;
     }
-    
-    return data as AnalysisLog[];
+
+    return data as AnalysisLogEntry[];
   };
 
-  // Use react-query to handle the data fetching
-  const { data, isLoading, error, refetch } = useQuery({
+  const { 
+    data: logs = [], 
+    isLoading, 
+    error,
+    refetch 
+  } = useQuery({
     queryKey: ['analysisLogs', filters],
     queryFn: fetchLogs
   });
 
-  // Update logs when data changes
-  useEffect(() => {
-    if (data) {
-      setLogs(data);
-    }
-  }, [data]);
-
-  return { logs, isLoading, error, refetch };
+  return {
+    logs,
+    isLoading,
+    error,
+    refetch
+  };
 }
