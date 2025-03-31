@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { useProductPrices } from '@/hooks/useProductPrices';
 import { useProducts } from '@/hooks/useProducts';
+import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { usePricingCalculation } from './pricing/usePricingCalculation';
 import PriceTable from './pricing/PriceTable';
 import TotalSummary from './pricing/TotalSummary';
@@ -18,8 +19,9 @@ import { Loader2 } from 'lucide-react';
 import { formatTotalPrice } from './pricing/PriceFormatter';
 
 const PricingGrid: React.FC = () => {
-  const { productPrices, isLoading: isPricesLoading } = useProductPrices();
+  const { productPrices, isLoading: isPricesLoading, refetch: refetchPrices } = useProductPrices();
   const { products, isLoading: isProductsLoading } = useProducts('analysis');
+  const { analysisItems, isLoading: isAnalysisLoading, refetch: refetchAnalysis } = useAnalysisItems();
   
   // Get the SKUs of products that are in analysis
   const analysisProductSKUs = products.map(product => ({
@@ -39,8 +41,21 @@ const PricingGrid: React.FC = () => {
     getTotalForProduct,
   } = usePricingCalculation(productPrices);
   
-  const isLoading = isPricesLoading || isProductsLoading;
+  const isLoading = isPricesLoading || isProductsLoading || isAnalysisLoading;
 
+  // Refresh all data
+  const handleRefresh = async () => {
+    await Promise.all([
+      refetchPrices(),
+      refetchAnalysis()
+    ]);
+  };
+
+  // Refresh data on component mount
+  useEffect(() => {
+    handleRefresh();
+  }, []);
+  
   // Safely get all SKUs from selectedSKUs
   const getAllSelectedSKUs = () => {
     return Object.values(selectedSKUs).flat();
@@ -52,11 +67,11 @@ const PricingGrid: React.FC = () => {
         <div className="flex justify-between items-center">
           <CardTitle className="text-sm font-medium">Grille Tarifaire</CardTitle>
           <div className="flex space-x-2">
-            <RefreshPriceGridButton />
+            <RefreshPriceGridButton onRefresh={handleRefresh} />
             <UpdatePricesButton 
               productPrices={productPrices}
               selectedSKUs={selectedSKUs}
-              analysisItems={[]}
+              analysisItems={analysisItems}
             />
           </div>
         </div>
