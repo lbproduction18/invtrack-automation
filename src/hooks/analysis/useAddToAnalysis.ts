@@ -40,15 +40,24 @@ export function useAddToAnalysis() {
           sku_code: product?.SKU || null,
           sku_label: product?.product_name || null,
           weeks_delivery: null,
-          // Add new fields from the product details
+          // Add all data from Step 1 to ensure continuity
           stock: product?.current_stock || null,
           threshold: product?.threshold || null,
           last_order_date: product?.last_order_date || null,
           note: product?.note || null,
           priority_badge: product?.priority_badge || null,
-          date_added: product?.created_at || null
+          date_added: product?.created_at || null,
+          // Include price fields as null for now
+          price_1000: null,
+          price_2000: null,
+          price_3000: null,
+          price_4000: null,
+          price_5000: null,
+          price_8000: null
         };
       });
+      
+      console.log('Analysis items to insert:', analysisItems);
       
       // Insert into analysis_items
       const { data, error } = await supabase
@@ -57,6 +66,7 @@ export function useAddToAnalysis() {
         .select();
         
       if (error) {
+        console.error('Error inserting analysis items:', error);
         throw error;
       }
       
