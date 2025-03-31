@@ -17,7 +17,13 @@ import { Loader2, RefreshCw, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBudgetSimulation } from '../simulation/useBudgetSimulation';
 
-const PricingGrid: React.FC = () => {
+interface PricingGridProps {
+  showSimulationSummary?: boolean;
+}
+
+const PricingGrid: React.FC<PricingGridProps> = ({ 
+  showSimulationSummary = true 
+}) => {
   const { productPrices, isLoading: isPricesLoading, refetch: refetchPrices } = useProductPrices();
   const { products, isLoading: isProductsLoading } = useProducts('analysis');
   const { analysisItems, isLoading: isAnalysisLoading, refetch: refetchAnalysis } = useAnalysisItems();
@@ -116,18 +122,20 @@ const PricingGrid: React.FC = () => {
           )}
         </div>
         
-        <div className="mt-4">
-          <SimulationSummary 
-            analysisItems={analysisItems}
-            products={products}
-            simulationTotal={simulationTotal}
-            selectedSKUs={selectedSKUs}
-            quantities={quantities}
-            calculatedPrices={calculatedPrices}
-            productPrices={productPrices}
-            getUnitPriceForSKU={getUnitPriceForSKU}
-          />
-        </div>
+        {showSimulationSummary && (
+          <div className="mt-4">
+            <SimulationSummary 
+              analysisItems={analysisItems}
+              products={products}
+              simulationTotal={simulationTotal}
+              selectedSKUs={selectedSKUs}
+              quantities={quantities}
+              calculatedPrices={calculatedPrices}
+              productPrices={productPrices}
+              getUnitPriceForSKU={getUnitPriceForSKU}
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
   );

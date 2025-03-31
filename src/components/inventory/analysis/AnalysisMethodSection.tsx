@@ -22,7 +22,7 @@ const AnalysisMethodSection: React.FC = () => {
       
       {/* Show PricingGrid regardless of selected mode */}
       <div className="animate-fade-in">
-        <PricingGrid />
+        <PricingGrid showSimulationSummary={selectedMode === 'manual'} />
       </div>
       
       {selectedMode === 'ai' && (
