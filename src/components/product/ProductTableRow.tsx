@@ -7,12 +7,18 @@ import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { type Product } from '@/types/product';
 import { type ColumnVisibility } from './ColumnVisibilityDropdown';
-import { PriorityBadge } from './PriorityBadge';
-import { PriorityDialog } from './PriorityDialog';
 import { NoteContent } from './NoteContent';
-import { getDaysSinceAdded, getAgingColor, formatDate } from './utils/dateUtils';
-import { getNoteType, getNoteIconInfo } from './utils/noteUtils';
 import { getPriorityStyles } from './utils/priorityUtils';
+import { getNoteType } from './utils/noteUtils';
+import { 
+  SKUCell, 
+  DateCell, 
+  AgeCell, 
+  PriorityCell, 
+  StockCell, 
+  ThresholdCell, 
+  NoteCell 
+} from './CellRenderers';
 
 interface ProductTableRowProps {
   product: Product;
@@ -47,10 +53,10 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   // Determine if this product has a note to apply special styling
   const hasNote = Boolean(product.note);
   
-  // Déterminer le type de note et les styles associés
+  // Determine the note type and associated styles
   const noteType = hasNote ? getNoteType(product.note || "") : "info";
   
-  // Obtenir les styles basés sur la priorité (prioritaire au-dessus des notes)
+  // Get styles based on priority (priority takes precedence over notes)
   const priorityStyles = getPriorityStyles(product.priority_badge);
 
   return (
@@ -60,9 +66,9 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         priorityStyles.bg || (hasNote ? `bg-${noteType}/10` : ""),
         priorityStyles.hover || (hasNote ? `hover:bg-${noteType}/20` : "hover:bg-muted/30"),
         hasNote && `border-l-4 ${priorityStyles.border || `border-${noteType}`}`,
-        product.priority_badge === 'prioritaire' && "font-semibold",  // Bold text for high priority items
-        priorityStyles.text, // Add the text color class
-        isSelected && "bg-primary/5 hover:bg-primary/10" // Highlight selected rows
+        product.priority_badge === 'prioritaire' && "font-semibold",
+        priorityStyles.text,
+        isSelected && "bg-primary/5 hover:bg-primary/10"
       )}>
         <TableCell className="w-[40px] p-1 text-center">
           <Checkbox 
@@ -77,87 +83,19 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
           
           switch(column.id) {
             case 'SKU':
-              return (
-                <TableCell 
-                  key={`${product.id}-${column.id}`} 
-                  className={cn(
-                    "font-medium whitespace-nowrap p-1 text-left pl-3",
-                    priorityStyles.text || (product.priority_badge === 'prioritaire' ? "text-white" : "") // Use white text for high priority
-                  )}
-                >
-                  {product.SKU}
-                </TableCell>
-              );
+              return <SKUCell key={`${product.id}-${column.id}`} product={product} priorityStyles={priorityStyles} />;
             case 'date':
-              return (
-                <TableCell 
-                  key={`${product.id}-${column.id}`} 
-                  className={cn("whitespace-nowrap p-1 text-center", priorityStyles.text)}
-                >
-                  {formatDate(product.created_at, {
-                    month: 'short',
-                    day: 'numeric'
-                  })}
-                </TableCell>
-              );
+              return <DateCell key={`${product.id}-${column.id}`} product={product} priorityStyles={priorityStyles} />;
             case 'age':
-              return (
-                <TableCell 
-                  key={`${product.id}-${column.id}`} 
-                  className={cn(
-                    "text-center whitespace-nowrap p-1", 
-                    priorityStyles.text || getAgingColor(getDaysSinceAdded(product.created_at))
-                  )}
-                >
-                  {getDaysSinceAdded(product.created_at)} j
-                </TableCell>
-              );
+              return <AgeCell key={`${product.id}-${column.id}`} product={product} priorityStyles={priorityStyles} />;
             case 'priority':
-              return (
-                <TableCell key={`${product.id}-${column.id}`} className={cn("whitespace-nowrap p-1 text-center", priorityStyles.text)}>
-                  <PriorityDialog
-                    productId={product.id}
-                    currentPriority={product.priority_badge}
-                    onPriorityChange={(newPriority) => onPriorityChange(product.id, newPriority)}
-                  >
-                    <div className="cursor-pointer flex justify-center">
-                      <PriorityBadge priority={product.priority_badge} />
-                    </div>
-                  </PriorityDialog>
-                </TableCell>
-              );
+              return <PriorityCell key={`${product.id}-${column.id}`} product={product} priorityStyles={priorityStyles} onPriorityChange={onPriorityChange} />;
             case 'stock':
-              return (
-                <TableCell key={`${product.id}-${column.id}`} className={cn("text-center font-medium whitespace-nowrap p-1", priorityStyles.text)}>
-                  {product.current_stock}
-                </TableCell>
-              );
+              return <StockCell key={`${product.id}-${column.id}`} product={product} priorityStyles={priorityStyles} />;
             case 'threshold':
-              return (
-                <TableCell key={`${product.id}-${column.id}`} className={cn("text-center font-medium whitespace-nowrap p-1", priorityStyles.text)}>
-                  {product.threshold}
-                </TableCell>
-              );
+              return <ThresholdCell key={`${product.id}-${column.id}`} product={product} priorityStyles={priorityStyles} />;
             case 'note':
-              return (
-                <TableCell key={`${product.id}-${column.id}`} className={cn("text-center whitespace-nowrap p-1", priorityStyles.text)}>
-                  {product.note ? (
-                    <button 
-                      onClick={toggleExpand}
-                      className={cn(
-                        "inline-flex items-center justify-center rounded-full p-1 transition-colors animate-pulse",
-                        `bg-${noteType}/10 hover:bg-${noteType}/20 text-${noteType}-foreground`
-                      )}
-                      aria-label="Voir la note"
-                    >
-                      {(() => {
-                        const { icon: IconComponent, className } = getNoteIconInfo(getNoteType(product.note || ""));
-                        return <IconComponent className={className} />;
-                      })()}
-                    </button>
-                  ) : null}
-                </TableCell>
-              );
+              return <NoteCell key={`${product.id}-${column.id}`} product={product} priorityStyles={priorityStyles} toggleExpand={toggleExpand} />;
             default:
               return null;
           }

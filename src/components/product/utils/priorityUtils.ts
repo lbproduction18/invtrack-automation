@@ -1,37 +1,35 @@
 
-import { type Product } from '@/types/product';
+import { type PriorityLevel } from '@/types/product';
 
-// Get styles based on priority
-export const getPriorityStyles = (priority: Product['priority_badge']) => {
-  switch (priority) {
+export const getPriorityStyles = (priorityBadge?: PriorityLevel) => {
+  switch (priorityBadge) {
     case 'prioritaire':
       return {
-        bg: "bg-red-700/50",  // Stronger red with higher opacity
-        hover: "hover:bg-red-700/60",  // More prominent hover
-        border: "border-red-600/60",   // Brighter red border
-        text: "text-white"             // White text for better contrast on red
+        bg: "bg-red-950/30",
+        hover: "hover:bg-red-950/40",
+        border: "border-red-700",
+        text: "text-red-400"
       };
     case 'important':
       return {
-        bg: "bg-amber-600/50",  // Amber background for important
-        hover: "hover:bg-amber-600/60", 
-        border: "border-amber-500/60",  
-        text: "text-white"      // White text for better contrast on amber
+        bg: "bg-amber-950/30",
+        hover: "hover:bg-amber-950/40",
+        border: "border-amber-700",
+        text: "text-amber-400"
       };
     case 'moyen':
       return {
-        bg: "bg-orange-400/40",  // Brighter orange with good opacity
-        hover: "hover:bg-orange-400/50",
-        border: "border-orange-400/50",
-        text: "text-white"       // White text for better contrast on orange
+        bg: "bg-orange-950/30",
+        hover: "hover:bg-orange-950/40",
+        border: "border-orange-700",
+        text: "text-orange-400"
       };
-    case 'standard':
     default:
       return {
         bg: "",
-        hover: "hover:bg-muted/30",
+        hover: "",
         border: "",
-        text: ""                // Default text color for standard priority
+        text: ""
       };
   }
 };

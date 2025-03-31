@@ -1,99 +1,39 @@
 
-import { AlertTriangle, CheckCircle, Clock, InfoIcon } from 'lucide-react';
-import React from 'react';
+import { AlertCircle, AlertTriangle, HelpCircle, Info } from 'lucide-react';
 
-// Note type definition
-export type NoteType = "warning" | "info" | "success" | "pending";
-
-// Déterminer le type de note basé sur son contenu
-export const getNoteType = (noteText: string): NoteType => {
-  const lowerText = noteText.toLowerCase();
+// Determine the note type based on the note content
+export const getNoteType = (note: string): "info" | "warning" | "error" | "help" => {
+  const lowerCaseNote = note.toLowerCase();
   
-  if (lowerText.includes("urgent") || lowerText.includes("attention") || lowerText.includes("problème") || lowerText.includes("alerte")) {
+  if (lowerCaseNote.includes('error') || 
+      lowerCaseNote.includes('erreur') || 
+      lowerCaseNote.includes('urgent') || 
+      lowerCaseNote.includes('critical')) {
+    return "error";
+  } else if (lowerCaseNote.includes('warning') || 
+            lowerCaseNote.includes('attention') || 
+            lowerCaseNote.includes('avertissement')) {
     return "warning";
-  } else if (lowerText.includes("validé") || lowerText.includes("traité") || lowerText.includes("résolu") || lowerText.includes("ok")) {
-    return "success";
-  } else if (lowerText.includes("attente") || lowerText.includes("en cours") || lowerText.includes("suivi")) {
-    return "pending";
+  } else if (lowerCaseNote.includes('help') || 
+            lowerCaseNote.includes('aide') || 
+            lowerCaseNote.includes('question')) {
+    return "help";
   } else {
     return "info";
   }
 };
 
-// Define NoteIcon type to store icon information
-export type NoteIconInfo = {
-  icon: typeof AlertTriangle | typeof CheckCircle | typeof Clock | typeof InfoIcon;
-  className: string;
-};
-
-// Obtenir l'icône de la note en fonction de son type
-export const getNoteIconInfo = (type: NoteType): NoteIconInfo => {
-  switch (type) {
+// Get the appropriate icon and class based on note type
+export const getNoteIconInfo = (noteType: "info" | "warning" | "error" | "help") => {
+  switch (noteType) {
+    case "error":
+      return { icon: AlertCircle, className: "h-4 w-4 text-red-500" };
     case "warning":
-      return { icon: AlertTriangle, className: "h-5 w-5 text-warning" };
-    case "success":
-      return { icon: CheckCircle, className: "h-5 w-5 text-success" };
-    case "pending":
-      return { icon: Clock, className: "h-5 w-5 text-info" };
+      return { icon: AlertTriangle, className: "h-4 w-4 text-amber-500" };
+    case "help":
+      return { icon: HelpCircle, className: "h-4 w-4 text-blue-500" };
     case "info":
     default:
-      return { icon: InfoIcon, className: "h-5 w-5 text-info" };
+      return { icon: Info, className: "h-4 w-4 text-sky-500" };
   }
-};
-
-// Obtenir les styles de la note en fonction de son type
-export const getNoteStyles = (type: NoteType) => {
-  switch (type) {
-    case "warning":
-      return {
-        bg: "bg-warning/10",
-        hover: "hover:bg-warning/20",
-        border: "border-warning",
-        text: "text-warning-foreground",
-        cardBg: "bg-warning/15"
-      };
-    case "success":
-      return {
-        bg: "bg-success/10",
-        hover: "hover:bg-success/20",
-        border: "border-success",
-        text: "text-success-foreground",
-        cardBg: "bg-success/15"
-      };
-    case "pending":
-      return {
-        bg: "bg-info/10",
-        hover: "hover:bg-info/20",
-        border: "border-info",
-        text: "text-info-foreground",
-        cardBg: "bg-info/15"
-      };
-    case "info":
-    default:
-      return {
-        bg: "bg-primary/10",
-        hover: "hover:bg-primary/20",
-        border: "border-primary",
-        text: "text-primary-foreground",
-        cardBg: "bg-primary/15"
-      };
-  }
-};
-
-// Formater le texte de la note pour mettre en évidence certains mots clés
-export const formatNoteText = (text: string) => {
-  if (!text) return "";
-  
-  // Liste des mots-clés à mettre en gras
-  const keywords = ["urgent", "attention", "validé", "traité", "résolu", "en attente", "suivi", "ok", "problème", "alerte", "dossier"];
-  
-  // Split le texte en fragments et mettre en gras les mots-clés
-  let formattedText = text;
-  
-  keywords.forEach(keyword => {
-    const regex = new RegExp(`(${keyword})`, 'gi');
-    formattedText = formattedText.replace(regex, '<strong>$1</strong>');
-  });
-  
-  return formattedText;
 };
