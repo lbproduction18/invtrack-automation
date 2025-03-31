@@ -9,6 +9,7 @@ import MainLayout from "./components/layout/MainLayout";
 import Index from "./pages/Index";
 import Inventory from "./pages/Inventory";
 import AnalysisLogs from "./pages/AnalysisLogs";
+import SimulationPage from "./components/analysis/simulation/SimulationPage";
 import NotFound from "./pages/NotFound";
 import "./index.css";
 
@@ -27,6 +28,7 @@ const App = () => (
               <Route path="/" element={<MainLayout><Index /></MainLayout>} />
               <Route path="/inventory" element={<MainLayout><Inventory /></MainLayout>} />
               <Route path="/logs" element={<MainLayout><AnalysisLogs /></MainLayout>} />
+              <Route path="/simulation" element={<MainLayout><SimulationPage /></MainLayout>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

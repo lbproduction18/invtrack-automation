@@ -9,6 +9,24 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_analysis_notes: {
+        Row: {
+          created_at: string | null
+          id: string
+          note_text: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          note_text?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          note_text?: string | null
+        }
+        Relationships: []
+      }
       analysis_items: {
         Row: {
           created_at: string | null
@@ -160,6 +178,7 @@ export type Database = {
       }
       budget_settings: {
         Row: {
+          budget: number | null
           created_at: string | null
           deposit_percentage: number | null
           id: string
@@ -168,6 +187,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          budget?: number | null
           created_at?: string | null
           deposit_percentage?: number | null
           id?: string
@@ -176,6 +196,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          budget?: number | null
           created_at?: string | null
           deposit_percentage?: number | null
           id?: string
@@ -266,6 +287,27 @@ export type Database = {
           id?: string
           updated_at?: string
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      priority_inputs: {
+        Row: {
+          id: string
+          is_priority: boolean | null
+          sku_code: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          is_priority?: boolean | null
+          sku_code: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          is_priority?: boolean | null
+          sku_code?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
