@@ -129,7 +129,7 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
       size="sm"
       disabled={isLoading}
       onClick={handleUpdatePrices}
-      className={`text-xs border-[#272727] bg-[#161616] hover:bg-[#222] flex items-center ${className}`}
+      className={`text-xs h-8 border-[#272727] bg-[#161616] hover:bg-[#222] ${className}`}
     >
       {isLoading ? (
         <>

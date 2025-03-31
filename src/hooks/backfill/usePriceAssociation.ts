@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -7,8 +8,10 @@ import { type AnalysisItem } from '@/types/analysisItem';
 export function usePriceAssociation() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
 
-  const associatePrices = useMutation({
+  const mutation = useMutation({
     mutationFn: async ({ 
       analysisItems, 
       products 
@@ -121,6 +124,9 @@ export function usePriceAssociation() {
           title: "Prix associés avec succès",
           description: `${successCount} SKU(s) ont été mis à jour avec les prix correspondants.`,
         });
+        setIsComplete(true);
+        // Reset complete state after 3 seconds
+        setTimeout(() => setIsComplete(false), 3000);
       } else {
         toast({
           title: "Aucun prix associé",
@@ -144,5 +150,47 @@ export function usePriceAssociation() {
     }
   });
 
-  return { associatePrices };
+  // The actual function that will be called from the component
+  const associatePrices = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Fetch the necessary data
+      const { data: analysisItems, error: analysisError } = await supabase
+        .from('analysis_items')
+        .select('*');
+        
+      if (analysisError) throw analysisError;
+      
+      const { data: products, error: productsError } = await supabase
+        .from('products')
+        .select('*');
+        
+      if (productsError) throw productsError;
+      
+      // Call the mutation with the fetched data
+      await mutation.mutateAsync({ 
+        analysisItems: analysisItems as AnalysisItem[], 
+        products 
+      });
+      
+    } catch (error) {
+      console.error('Error in associatePrices function:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de l'association des prix.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { 
+    associatePrices,
+    isLoading,
+    isComplete,
+    isPriceAssociationLoading: mutation.isPending,
+    isPriceAssociationComplete: isComplete
+  };
 }
