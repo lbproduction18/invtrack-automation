@@ -94,7 +94,7 @@ const PricingGrid: React.FC = () => {
           )}
         </div>
         
-        {/* New unified simulation summary section */}
+        {/* Improved simulation summary with integrated total section */}
         <SimulationSummary 
           analysisItems={analysisItems}
           products={products}

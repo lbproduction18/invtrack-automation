@@ -1,48 +1,27 @@
 
 import { useState, useEffect } from 'react';
 import { AnalysisItem } from '@/types/analysisItem';
-import { supabase } from '@/integrations/supabase/client';
 
-export function useAnalysisItems(initialItems: AnalysisItem[] = []) {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [refreshedAnalysisItems, setRefreshedAnalysisItems] = useState<AnalysisItem[]>(initialItems);
+interface UseAnalysisItemsResult {
+  loading: boolean;
+  refreshedAnalysisItems: AnalysisItem[];
+}
+
+export function useAnalysisItems(analysisItems: AnalysisItem[]): UseAnalysisItemsResult {
+  const [loading, setLoading] = useState(false);
+  const [refreshedAnalysisItems, setRefreshedAnalysisItems] = useState<AnalysisItem[]>([]);
 
   useEffect(() => {
-    // Set initial items immediately
-    if (initialItems && initialItems.length > 0) {
-      setRefreshedAnalysisItems(initialItems);
-    }
+    // Filter analysis items that have SKU information and quantity
+    const validItems = analysisItems.filter(
+      item => item.sku_code || item.quantity_selected
+    );
     
-    // Then fetch fresh data
-    fetchAnalysisItems();
-  }, [initialItems]);
-
-  const fetchAnalysisItems = async () => {
-    try {
-      setLoading(true);
-      
-      const { data, error } = await supabase
-        .from('analysis_items')
-        .select('*');
-        
-      if (error) {
-        console.error('Error fetching analysis items:', error);
-        return;
-      }
-      
-      if (data) {
-        setRefreshedAnalysisItems(data as AnalysisItem[]);
-      }
-    } catch (err) {
-      console.error('Exception fetching analysis items:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setRefreshedAnalysisItems(validItems);
+  }, [analysisItems]);
 
   return {
     loading,
-    refreshedAnalysisItems,
-    refreshItems: fetchAnalysisItems
+    refreshedAnalysisItems
   };
 }
