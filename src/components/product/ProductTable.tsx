@@ -17,6 +17,7 @@ interface ProductTableProps {
   selectedProducts?: string[];
   onSelectProduct?: (productId: string) => void;
   showAnalysisButton?: boolean;
+  onSendToAnalysis?: (productId: string) => void;
 }
 
 export const ProductTable: React.FC<ProductTableProps> = ({
@@ -27,7 +28,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   onProductUpdate = () => {},
   selectedProducts = [],
   onSelectProduct = () => {},
-  showAnalysisButton = false
+  showAnalysisButton = false,
+  onSendToAnalysis
 }) => {
   const { toast } = useToast();
   const { addToAnalysis } = useAnalysisItems();
@@ -37,14 +39,18 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   };
 
   const handleSendToAnalysis = (productId: string) => {
-    addToAnalysis.mutate([productId], {
-      onSuccess: () => {
-        toast({
-          title: "Produit ajouté à l'analyse",
-          description: "Le produit a été transféré avec succès."
-        });
-      }
-    });
+    if (onSendToAnalysis) {
+      onSendToAnalysis(productId);
+    } else {
+      addToAnalysis.mutate([productId], {
+        onSuccess: () => {
+          toast({
+            title: "Produit ajouté à l'analyse",
+            description: "Le produit a été transféré avec succès."
+          });
+        }
+      });
+    }
   };
 
   // Calculate visible columns count for proper colSpan in loading and empty states
