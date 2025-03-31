@@ -58,11 +58,8 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
   // Get all selected SKUs across the entire table
   const allSelectedSKUs = Object.values(selectedSKUs).flat();
   
-  // Filter SKUs from analysisItems that match the current product category
+  // Get all available SKUs from analysisItems that aren't already selected elsewhere
   const availableSKUsFromAnalysis = useMemo(() => {
-    // Get product name/category in lowercase for comparison
-    const productCategory = product.product_name.toLowerCase().trim();
-    
     // Get all SKUs from analysis_items that aren't already selected
     return analysisItems
       .filter(item => item.sku_code && !allSelectedSKUs.includes(item.sku_code))
@@ -71,19 +68,8 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
         SKU: item.sku_code || '',
         productName: item.sku_label
       }))
-      .filter(skuItem => {
-        // Skip empty SKUs
-        if (!skuItem.SKU) return false;
-        
-        // Extract category from SKU (e.g. "COLLAGENE" from "COLLAGENE-LOTUS")
-        const skuCategory = skuItem.SKU.split('-')[0].toLowerCase();
-        
-        // Match if the SKU category includes the product name or vice versa
-        return skuCategory.includes(productCategory) || 
-               productCategory.includes(skuCategory);
-      })
       .sort((a, b) => a.SKU.localeCompare(b.SKU)); // Sort alphabetically
-  }, [analysisItems, allSelectedSKUs, product.product_name]);
+  }, [analysisItems, allSelectedSKUs]);
 
   // Get the total price for all SKUs in this product row
   const rowTotal = getTotalForProduct(product.id);
@@ -99,26 +85,27 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
         <TableCell className="text-center">{formatPrice(product.price_5000)}</TableCell>
         <TableCell className="text-center">{formatPrice(product.price_8000)}</TableCell>
         <TableCell className="text-center">
-          {availableSKUsFromAnalysis.length > 0 ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger className="w-full px-3 py-1 text-sm border border-input rounded-md bg-[#161616] hover:bg-[#272727]">
-                Ajouter SKU
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="max-h-[200px] overflow-y-auto bg-[#161616] border-[#272727] z-[100]">
-                {availableSKUsFromAnalysis.map((skuItem) => (
-                  <DropdownMenuItem 
-                    key={skuItem.SKU}
-                    onClick={() => handleSKUSelect(product.id, skuItem.SKU)}
-                    className="cursor-pointer hover:bg-[#272727]"
-                  >
-                    {skuItem.SKU}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <span className="text-gray-500 text-sm">Aucun SKU disponible</span>
-          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="w-full px-3 py-1 text-sm border border-input rounded-md bg-[#161616] hover:bg-[#272727]">
+              {availableSKUsFromAnalysis.length > 0 ? 'Ajouter SKU' : 'Aucun SKU disponible'}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="max-h-[200px] overflow-y-auto bg-[#161616] border-[#272727] z-[100]">
+              {availableSKUsFromAnalysis.map((skuItem) => (
+                <DropdownMenuItem 
+                  key={skuItem.SKU}
+                  onClick={() => handleSKUSelect(product.id, skuItem.SKU)}
+                  className="cursor-pointer hover:bg-[#272727]"
+                >
+                  {skuItem.SKU}
+                </DropdownMenuItem>
+              ))}
+              {availableSKUsFromAnalysis.length === 0 && (
+                <DropdownMenuItem disabled className="opacity-50">
+                  Aucun SKU disponible
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </TableCell>
         <TableCell className="text-center">
           {/* This cell is left empty as quantities are now handled for each SKU */}
