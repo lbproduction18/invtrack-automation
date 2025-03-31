@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { formatTotalPrice } from '../PriceFormatter';
+import { TableCell, TableRow } from "@/components/ui/table";
 
 interface SimulationTotalProps {
   simulationTotal: number;
@@ -8,12 +9,16 @@ interface SimulationTotalProps {
 
 const SimulationTotal: React.FC<SimulationTotalProps> = ({ simulationTotal }) => {
   return (
-    <div className="p-4 border-t border-[#272727] bg-[#161616] flex justify-between items-center">
-      <h4 className="font-medium">Total de la simulation</h4>
-      <div className="font-bold text-primary text-xl">
-        {formatTotalPrice(simulationTotal)}
-      </div>
-    </div>
+    <TableRow className="bg-[#161616] border-t border-[#272727] hover:bg-[#161616]">
+      <TableCell colSpan={4} className="py-3 font-medium text-right">
+        Total de la simulation
+      </TableCell>
+      <TableCell className="py-3 text-right">
+        <span className="font-bold text-primary text-lg">
+          {formatTotalPrice(simulationTotal)}
+        </span>
+      </TableCell>
+    </TableRow>
   );
 };
 
