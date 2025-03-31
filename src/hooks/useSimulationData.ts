@@ -39,21 +39,16 @@ export function useSimulationSessions() {
     queryKey: ['simulationSessions'],
     queryFn: async () => {
       try {
-        const { data, error } = await supabase
-          .from('simulation_sessions')
-          .select('*')
-          .order('created_at', { ascending: false });
-          
-        if (error) {
-          toast({
-            title: 'Error fetching simulation sessions',
-            description: error.message,
-            variant: 'destructive',
-          });
-          throw error;
-        }
-        
-        return data as SimulationSession[];
+        // Mock data for simulation sessions since the table doesn't exist yet
+        return [
+          {
+            id: 'mock-session-1',
+            created_at: new Date().toISOString(),
+            budget: 300000,
+            status: 'completed',
+            notes: 'Example simulation session'
+          }
+        ] as SimulationSession[];
       } catch (error) {
         console.error('Error in useSimulationSessions:', error);
         return [] as SimulationSession[];
@@ -71,22 +66,36 @@ export function useSimulationScenarios(simulationId: string | null) {
       if (!simulationId) return [];
       
       try {
-        const { data, error } = await supabase
-          .from('simulation_scenarios')
-          .select('*')
-          .eq('simulation_id', simulationId)
-          .order('created_at', { ascending: true });
-          
-        if (error) {
-          toast({
-            title: 'Error fetching simulation scenarios',
-            description: error.message,
-            variant: 'destructive',
-          });
-          throw error;
-        }
-        
-        return data as SimulationScenario[];
+        // Mock data for simulation scenarios
+        return [
+          {
+            id: 'mock-scenario-1',
+            simulation_id: simulationId,
+            name: 'Conservative',
+            total_cost: 150000,
+            total_skus: 15,
+            summary_comment: 'This conservative approach focuses on essential products with proven sales history.',
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'mock-scenario-2',
+            simulation_id: simulationId,
+            name: 'Balanced',
+            total_cost: 250000,
+            total_skus: 25,
+            summary_comment: 'A balanced approach that includes both essential products and some new promising SKUs.',
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'mock-scenario-3',
+            simulation_id: simulationId,
+            name: 'Aggressive',
+            total_cost: 300000,
+            total_skus: 35,
+            summary_comment: 'An aggressive strategy that maximizes SKU diversity and introduces several new product lines.',
+            created_at: new Date().toISOString()
+          }
+        ] as SimulationScenario[];
       } catch (error) {
         console.error('Error in useSimulationScenarios:', error);
         return [] as SimulationScenario[];
@@ -105,21 +114,39 @@ export function useSimulationResults(scenarioId: string | null) {
       if (!scenarioId) return [];
       
       try {
-        const { data, error } = await supabase
-          .from('simulation_results')
-          .select('*')
-          .eq('scenario_id', scenarioId);
-          
-        if (error) {
-          toast({
-            title: 'Error fetching simulation results',
-            description: error.message,
-            variant: 'destructive',
-          });
-          throw error;
-        }
-        
-        return data as SimulationResult[];
+        // Mock data for simulation results
+        return [
+          {
+            id: 'mock-result-1',
+            scenario_id: scenarioId,
+            sku_code: 'COLLAGENE-LOTUS',
+            product_name: 'Collagene Lotus',
+            quantity: 3000,
+            estimated_cost: 28500,
+            ai_priority: true,
+            comment: 'High margin product with consistent sales history'
+          },
+          {
+            id: 'mock-result-2',
+            scenario_id: scenarioId,
+            sku_code: 'ACIDE-CITRIQUE',
+            product_name: 'Acide Citrique',
+            quantity: 2000,
+            estimated_cost: 15750,
+            ai_priority: false,
+            comment: 'Standard restock based on historical demand'
+          },
+          {
+            id: 'mock-result-3',
+            scenario_id: scenarioId,
+            sku_code: 'VITAMINE-E',
+            product_name: 'Vitamine E',
+            quantity: 1000,
+            estimated_cost: 12800,
+            ai_priority: true,
+            comment: 'Essential ingredient with increasing demand'
+          }
+        ] as SimulationResult[];
       } catch (error) {
         console.error('Error in useSimulationResults:', error);
         return [] as SimulationResult[];
