@@ -10,7 +10,7 @@ import React from 'react';
  */
 export const formatPrice = (price: number | null): React.ReactNode => {
   if (price === null || price === 0) {
-    return <span className="text-gray-500">–</span>;
+    return <span className="text-gray-500">—</span>;
   }
   return `$${price.toFixed(2)}`;
 };

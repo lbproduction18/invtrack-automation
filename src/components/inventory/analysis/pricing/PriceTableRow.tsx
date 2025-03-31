@@ -109,7 +109,7 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
           </DropdownMenu>
         </TableCell>
         <TableCell className="text-right font-medium pr-4">
-          {rowTotal > 0 ? formatTotalPrice(rowTotal) : <span className="text-gray-500">–</span>}
+          {rowTotal > 0 ? formatTotalPrice(rowTotal) : <span className="text-gray-500">—</span>}
         </TableCell>
       </TableRow>
 

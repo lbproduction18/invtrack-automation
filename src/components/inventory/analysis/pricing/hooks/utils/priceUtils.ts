@@ -45,7 +45,7 @@ export const calculateProductTotal = (
 ): number => {
   if (!calculatedPrices[productId]) return 0;
   
-  // Explicitly type the initial value and result of reduce as number
+  // Use reduce to sum up all the prices in this product's SKUs
   return Object.values(calculatedPrices[productId]).reduce((sum: number, price) => {
     // Convert any string prices to numbers, or use 0 if conversion fails
     const numericPrice = typeof price === 'number' 
