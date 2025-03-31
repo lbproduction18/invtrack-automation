@@ -12,8 +12,7 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
   const { quantities, handleQuantityChange, getQuantityForSKU, clearQuantityForSKU, resetQuantityState } = useQuantityState();
   const { 
     calculatedPrices, 
-    simulationTotal, 
-    setSimulationTotal,
+    simulationTotal,
     calculateTotalPrice, 
     getPriceForSKU, 
     getUnitPriceForSKU, 
@@ -66,9 +65,6 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
     
     // Reset quantity state
     resetQuantityState();
-    
-    // Reset simulation total
-    setSimulationTotal(0);
   };
 
   return {

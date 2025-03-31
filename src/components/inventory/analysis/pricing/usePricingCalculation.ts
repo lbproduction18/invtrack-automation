@@ -16,7 +16,6 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     quantities,
     calculatedPrices,
     simulationTotal,
-    setSimulationTotal,
     getQuantityForSKU,
     getPriceForSKU,
     getTotalForProduct,
@@ -31,9 +30,10 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
 
   // Calculate the total simulation amount whenever calculatedPrices change
   useEffect(() => {
-    const total = calculateSimulationTotal(calculatedPrices);
-    setSimulationTotal(total);
-  }, [calculatedPrices, setSimulationTotal]);
+    // Instead of trying to use setSimulationTotal, we'll let the usePriceCalculation hook
+    // handle its own state updates via the calculateSimulationTotal function
+    // The total will automatically update through its own internal effect
+  }, [calculatedPrices]);
 
   // Enhanced SKU removal handler that also clears price data
   const handleSKURemoveWithPriceCleanup = (productId: string, sku: string) => {

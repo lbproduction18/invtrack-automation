@@ -159,7 +159,9 @@ export function usePriceState(productPrices: ProductPrice[]) {
     if (!calculatedPrices[productId]) return 0;
     
     return Object.values(calculatedPrices[productId]).reduce((sum, price) => {
-      return sum + (typeof price === 'number' ? price : 0);
+      // Ensure we're adding numbers
+      const numericPrice = typeof price === 'number' ? price : parseFloat(String(price)) || 0;
+      return sum + numericPrice;
     }, 0);
   };
 
