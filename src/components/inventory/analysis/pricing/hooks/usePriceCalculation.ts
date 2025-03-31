@@ -149,6 +149,23 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
     }
     return '';
   };
+  
+  /**
+   * Get the unit price for a specific SKU based on the selected quantity
+   */
+  const getUnitPriceForSKU = (productId: string, sku: string): number => {
+    const product = productPrices.find(p => p.id === productId);
+    const quantityValue = quantities[productId]?.[sku] || '0';
+    const quantity = parseInt(quantityValue, 10);
+    
+    if (!product || isNaN(quantity) || quantity <= 0) {
+      return 0;
+    }
+    
+    // Find the appropriate price tier
+    const { tierPrice } = findPriceTierForQuantity(product, quantity);
+    return tierPrice;
+  };
 
   /**
    * Calculate the total price for a specific product (sum of all SKUs in that product row)
@@ -178,6 +195,7 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
     getPriceForSKU,
     getTotalForProduct,
     handleQuantityChange,
-    calculateTotalPrice
+    calculateTotalPrice,
+    getUnitPriceForSKU
   };
 }

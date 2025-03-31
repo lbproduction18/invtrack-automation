@@ -9,14 +9,14 @@ import {
 import { useProductPrices } from '@/hooks/useProductPrices';
 import { useProducts } from '@/hooks/useProducts';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
-import { usePricingCalculation } from './pricing/usePricingCalculation';
-import PriceTable from './pricing/PriceTable';
-import TotalSummary from './pricing/TotalSummary';
-import SelectedSKUsList from './pricing/SelectedSKUsList';
-import UpdatePricesButton from './pricing/UpdatePricesButton';
-import RefreshPriceGridButton from './pricing/RefreshPriceGridButton';
+import { usePricingCalculation } from '@/components/inventory/analysis/pricing/usePricingCalculation';
+import PriceTable from '@/components/inventory/analysis/pricing/PriceTable';
+import TotalSummary from '@/components/inventory/analysis/pricing/TotalSummary';
+import SelectedSKUsList from '@/components/inventory/analysis/pricing/SelectedSKUsList';
+import UpdatePricesButton from '@/components/inventory/analysis/pricing/UpdatePricesButton';
+import RefreshPriceGridButton from '@/components/inventory/analysis/pricing/RefreshPriceGridButton';
 import { Loader2 } from 'lucide-react';
-import { formatTotalPrice } from './pricing/PriceFormatter';
+import { formatTotalPrice } from '@/components/inventory/analysis/pricing/PriceFormatter';
 
 const PricingGrid: React.FC = () => {
   const { productPrices, isLoading: isPricesLoading, refetch: refetchPrices } = useProductPrices();
@@ -39,6 +39,7 @@ const PricingGrid: React.FC = () => {
     handleSKURemove,
     handleQuantityChange,
     getTotalForProduct,
+    getUnitPriceForSKU,
   } = usePricingCalculation(productPrices);
   
   const isLoading = isPricesLoading || isProductsLoading || isAnalysisLoading;
@@ -56,9 +57,40 @@ const PricingGrid: React.FC = () => {
     handleRefresh();
   }, []);
   
-  // Safely get all SKUs from selectedSKUs
-  const getAllSelectedSKUs = () => {
-    return Object.values(selectedSKUs).flat();
+  // Prepare detailed SKU information for summary
+  const prepareSelectedSKUDetails = () => {
+    const details: Array<{
+      sku: string;
+      quantity: string;
+      unitPrice: number;
+      totalPrice: number;
+      productName?: string;
+    }> = [];
+    
+    // For each product with selected SKUs
+    Object.entries(selectedSKUs).forEach(([productId, skus]) => {
+      // For each selected SKU in this product
+      skus.forEach(sku => {
+        const quantity = quantities[productId]?.[sku] || '0';
+        const totalPrice = typeof calculatedPrices[productId]?.[sku] === 'number' 
+          ? calculatedPrices[productId]?.[sku] as number 
+          : 0;
+        const unitPrice = getUnitPriceForSKU(productId, sku);
+        
+        // Find the product name for this product ID
+        const product = productPrices.find(p => p.id === productId);
+        
+        details.push({
+          sku,
+          quantity,
+          unitPrice,
+          totalPrice,
+          productName: product?.product_name || '-'
+        });
+      });
+    });
+    
+    return details;
   };
 
   return (
@@ -105,11 +137,13 @@ const PricingGrid: React.FC = () => {
           <div className="md:col-span-2">
             <SelectedSKUsList
               productId=""
-              skus={getAllSelectedSKUs()}
+              skus={[]}
               quantities={{}}
               calculatedPrices={{}}
               onQuantityChange={() => {}}
               onRemoveSKU={() => {}}
+              showDetailedSummary={true}
+              selectedSKUDetails={prepareSelectedSKUDetails()}
             />
           </div>
           <div>

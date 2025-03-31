@@ -19,7 +19,8 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     getQuantityForSKU,
     getPriceForSKU,
     getTotalForProduct,
-    handleQuantityChange
+    handleQuantityChange,
+    getUnitPriceForSKU
   } = usePriceCalculation(productPrices);
 
   // Standard quantities that match price columns
@@ -52,6 +53,7 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     getTotalForProduct,
     handleSKUSelect,
     handleSKURemove,
-    handleQuantityChange
+    handleQuantityChange,
+    getUnitPriceForSKU
   };
 }
