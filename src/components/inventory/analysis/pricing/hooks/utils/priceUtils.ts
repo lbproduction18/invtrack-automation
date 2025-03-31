@@ -58,7 +58,7 @@ export const calculateProductTotal = (
     }
     
     return sum + numericPrice;
-  }, 0);
+  }, 0); // Initialize the accumulator as 0 (number type)
 };
 
 /**
