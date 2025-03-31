@@ -3,11 +3,13 @@ import { useState } from 'react';
 import { ProductPrice } from '@/hooks/useProductPrices';
 import { hasOnlyPrice8000, findPriceTierForQuantity } from '../utils/pricingUtils';
 import { useQuantityUpdate } from './useQuantityUpdate';
+import { useToast } from '@/hooks/use-toast';
 
 /**
  * Hook to manage price calculations
  */
 export function usePriceCalculation(productPrices: ProductPrice[]) {
+  const { toast } = useToast();
   // Change to store quantities per SKU
   const [quantities, setQuantities] = useState<Record<string, Record<string, string>>>({});
   // Change to store calculated prices per SKU
@@ -97,6 +99,50 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
         };
       });
     }
+  };
+
+  /**
+   * Clear price data for a specific SKU
+   */
+  const clearPriceDataForSKU = (productId: string, sku: string) => {
+    // Clear quantity data
+    setQuantities(prev => {
+      const newQuantities = { ...prev };
+      if (newQuantities[productId]) {
+        const productQuantities = { ...newQuantities[productId] };
+        delete productQuantities[sku];
+        
+        if (Object.keys(productQuantities).length === 0) {
+          delete newQuantities[productId];
+        } else {
+          newQuantities[productId] = productQuantities;
+        }
+      }
+      return newQuantities;
+    });
+    
+    // Clear calculated price data
+    setCalculatedPrices(prev => {
+      const newPrices = { ...prev };
+      if (newPrices[productId]) {
+        const productPrices = { ...newPrices[productId] };
+        delete productPrices[sku];
+        
+        if (Object.keys(productPrices).length === 0) {
+          delete newPrices[productId];
+        } else {
+          newPrices[productId] = productPrices;
+        }
+      }
+      return newPrices;
+    });
+    
+    // Notify the user
+    toast({
+      title: "Produit supprimé",
+      description: `${sku} a été retiré de la simulation.`,
+      variant: "default"
+    });
   };
 
   /**
@@ -196,6 +242,7 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
     getTotalForProduct,
     handleQuantityChange,
     calculateTotalPrice,
-    getUnitPriceForSKU
+    getUnitPriceForSKU,
+    clearPriceDataForSKU
   };
 }

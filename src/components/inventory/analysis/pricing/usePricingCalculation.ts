@@ -20,7 +20,8 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     getPriceForSKU,
     getTotalForProduct,
     handleQuantityChange,
-    getUnitPriceForSKU
+    getUnitPriceForSKU,
+    clearPriceDataForSKU
   } = usePriceCalculation(productPrices);
 
   // Standard quantities that match price columns
@@ -42,6 +43,14 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     setSimulationTotal(total);
   }, [calculatedPrices, setSimulationTotal]);
 
+  // Enhanced SKU removal handler that also clears price data
+  const handleSKURemoveWithPriceCleanup = (productId: string, sku: string) => {
+    // First clear the price data for this SKU
+    clearPriceDataForSKU(productId, sku);
+    // Then remove the SKU from the selection
+    handleSKURemove(productId, sku);
+  };
+
   return {
     selectedSKUs,
     quantities,
@@ -52,7 +61,7 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     getPriceForSKU,
     getTotalForProduct,
     handleSKUSelect,
-    handleSKURemove,
+    handleSKURemove: handleSKURemoveWithPriceCleanup,
     handleQuantityChange,
     getUnitPriceForSKU
   };
