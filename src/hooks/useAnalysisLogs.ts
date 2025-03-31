@@ -43,7 +43,10 @@ export function useAnalysisLogs(filters: LogsFilter = {
     }
     
     if (filters.endDate) {
-      query = query.lte('created_at', filters.endDate.toISOString());
+      // Add one day to include the end date fully
+      const nextDay = new Date(filters.endDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      query = query.lte('created_at', nextDay.toISOString());
     }
     
     if (filters.actionType) {

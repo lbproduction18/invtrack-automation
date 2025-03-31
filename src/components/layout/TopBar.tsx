@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Bell, Settings, Search, Home, Calculator } from 'lucide-react';
+import { Bell, Settings, Search, Home, Calculator, ClipboardList } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import UserMenu from './UserMenu';
@@ -18,6 +18,10 @@ const TopBar: React.FC = () => {
           <Link to="/simulation" className="flex items-center gap-2 text-gray-200 hover:text-white">
             <Calculator className="h-5 w-5" />
             <span className="font-medium hidden md:block">Simulation</span>
+          </Link>
+          <Link to="/logs" className="flex items-center gap-2 text-gray-200 hover:text-white">
+            <ClipboardList className="h-5 w-5" />
+            <span className="font-medium hidden md:block">Logs</span>
           </Link>
           <div className="relative max-w-md w-full hidden md:block">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
