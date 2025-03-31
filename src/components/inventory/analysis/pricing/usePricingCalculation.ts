@@ -6,7 +6,7 @@ import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { useSKUSelection } from './hooks/useSKUSelection';
 import { usePriceCalculation } from './hooks/usePriceCalculation';
 import { useQuantityManagement } from './hooks/useQuantityManagement';
-import { getUnitPriceForSKU } from './hooks/utils/priceUtils';
+import { getUnitPriceForSKU, calculateSKUTotalPrice } from './hooks/utils/priceUtils';
 
 export function usePricingCalculation(productPrices: ProductPrice[]) {
   const { toast } = useToast();
@@ -48,7 +48,11 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     
     // Calculate the price for this quantity
     const parsedQuantity = parseInt(quantityValue, 10) || 0;
+    
+    // Get the unit price for this SKU and quantity
     const unitPrice = getUnitPriceForSKUWrapper(sku, parsedQuantity);
+    
+    // Calculate the total price for this SKU
     const totalPrice = parsedQuantity * unitPrice;
     
     // Update the calculated price for this SKU

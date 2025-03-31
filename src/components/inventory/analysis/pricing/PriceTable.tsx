@@ -6,7 +6,8 @@ import {
   TableCell, 
   TableHead, 
   TableHeader, 
-  TableRow 
+  TableRow,
+  TableFooter
 } from "@/components/ui/table";
 import { ProductPrice } from '@/hooks/useProductPrices';
 import { formatPrice } from './PriceFormatter';
@@ -26,6 +27,7 @@ interface PriceTableProps {
   getTotalForProduct: (productId: string) => number;
   formatTotalPrice: (price: number) => string;
   showQuantityInputs?: boolean;
+  simulationTotal?: number;
 }
 
 const PriceTable: React.FC<PriceTableProps> = ({
@@ -40,7 +42,8 @@ const PriceTable: React.FC<PriceTableProps> = ({
   handleQuantityChange,
   getTotalForProduct,
   formatTotalPrice,
-  showQuantityInputs = true
+  showQuantityInputs = true,
+  simulationTotal = 0
 }) => {
   if (isLoading) {
     return (
@@ -116,6 +119,19 @@ const PriceTable: React.FC<PriceTableProps> = ({
           ))
         )}
       </TableBody>
+      
+      {showQuantityInputs && simulationTotal > 0 && (
+        <TableFooter className="bg-[#161616]">
+          <TableRow className="border-t border-[#272727]">
+            <TableCell colSpan={8} className="text-right font-semibold pr-4">
+              Total Général (CAD)
+            </TableCell>
+            <TableCell className="text-right font-bold pr-4 text-primary">
+              {formatTotalPrice(simulationTotal)}
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      )}
     </Table>
   );
 };

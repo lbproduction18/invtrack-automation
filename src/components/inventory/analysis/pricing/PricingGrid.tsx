@@ -16,6 +16,7 @@ import UpdatePricesButton from './UpdatePricesButton';
 import { Loader2, RefreshCw, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBudgetSimulation } from '../simulation/useBudgetSimulation';
+import { formatTotalPrice } from './PriceFormatter';
 
 interface PricingGridProps {
   showSimulationSummary?: boolean;
@@ -117,8 +118,9 @@ const PricingGrid: React.FC<PricingGridProps> = ({
               handleSKURemove={handleSKURemove}
               handleQuantityChange={handleQuantityChange}
               getTotalForProduct={getTotalForProduct}
-              formatTotalPrice={(price) => `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-              showQuantityInputs={showSimulationSummary} // Only show quantity inputs in manual mode
+              formatTotalPrice={formatTotalPrice}
+              showQuantityInputs={showSimulationSummary}
+              simulationTotal={simulationTotal}
             />
           )}
         </div>
