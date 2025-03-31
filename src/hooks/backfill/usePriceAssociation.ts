@@ -162,8 +162,9 @@ export function usePriceAssociation() {
         
       if (analysisError) throw analysisError;
       
+      // Fix: Use the correct table name "Low stock product" instead of "products"
       const { data: products, error: productsError } = await supabase
-        .from('products')
+        .from('Low stock product')
         .select('*');
         
       if (productsError) throw productsError;
