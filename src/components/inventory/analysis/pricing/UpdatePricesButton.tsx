@@ -5,6 +5,7 @@ import { RefreshCw, Check, Tag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAnalysisItems, type AnalysisItem } from '@/hooks/useAnalysisItems';
 import { ProductPrice } from '@/hooks/useProductPrices';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UpdatePricesButtonProps {
   productPrices: ProductPrice[];
@@ -94,7 +95,26 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
       
       // Update all the prices at once
       if (updateList.length > 0) {
-        await updateSKUPrices.mutateAsync(updateList);
+        // Use the Supabase client directly to update the records
+        for (const item of updateList) {
+          const { error } = await supabase
+            .from('analysis_items')
+            .update({
+              price_1000: item.price_1000,
+              price_2000: item.price_2000,
+              price_3000: item.price_3000,
+              price_4000: item.price_4000,
+              price_5000: item.price_5000,
+              price_8000: item.price_8000
+            })
+            .eq('id', item.id);
+            
+          if (error) {
+            console.error(`Error updating prices for item ${item.id}:`, error);
+            throw error;
+          }
+        }
+        
         setIsComplete(true);
         
         toast({
