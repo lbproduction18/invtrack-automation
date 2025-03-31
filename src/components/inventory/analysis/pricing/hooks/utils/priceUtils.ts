@@ -45,6 +45,7 @@ export const calculateProductTotal = (
 ): number => {
   if (!calculatedPrices[productId]) return 0;
   
+  // Explicitly type the initial value and result of reduce as number
   return Object.values(calculatedPrices[productId]).reduce((sum: number, price) => {
     // Handle different types properly by ensuring we're always working with numbers
     let numericPrice = 0;
