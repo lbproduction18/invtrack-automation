@@ -15,7 +15,8 @@ import SimulationSummary from '@/components/inventory/analysis/pricing/Simulatio
 import UpdatePricesButton from '@/components/inventory/analysis/pricing/UpdatePricesButton';
 import RefreshPriceGridButton from '@/components/inventory/analysis/pricing/RefreshPriceGridButton';
 import AnalysisModeSelector from '@/components/inventory/analysis/pricing/AnalysisModeSelector';
-import { Loader2 } from 'lucide-react';
+import { Loader2, RefreshCw, RotateCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const PricingGrid: React.FC = () => {
   const { productPrices, isLoading: isPricesLoading, refetch: refetchPrices } = useProductPrices();
@@ -36,6 +37,8 @@ const PricingGrid: React.FC = () => {
     handleSKURemove,
     handleQuantityChange,
     getTotalForProduct,
+    getUnitPriceForSKU,
+    resetSimulation,
   } = usePricingCalculation(productPrices);
   
   const isLoading = isPricesLoading || isProductsLoading || isAnalysisLoading;
@@ -65,7 +68,24 @@ const PricingGrid: React.FC = () => {
         <div className="flex justify-between items-center">
           <CardTitle className="text-sm font-medium">Grille Tarifaire</CardTitle>
           <div className="flex space-x-2">
-            <RefreshPriceGridButton onRefresh={handleRefresh} />
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleRefresh}
+              className="text-xs h-8 border-[#272727] bg-[#161616] hover:bg-[#222]"
+            >
+              <RefreshCw className="mr-2 h-3 w-3" />
+              Rafraîchir
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={resetSimulation}
+              className="text-xs h-8 border-[#272727] bg-[#161616] hover:bg-[#222]"
+            >
+              <RotateCw className="mr-2 h-3 w-3" />
+              Réinitialiser
+            </Button>
             <UpdatePricesButton 
               productPrices={productPrices}
               selectedSKUs={selectedSKUs}
@@ -108,6 +128,11 @@ const PricingGrid: React.FC = () => {
           analysisItems={analysisItems}
           products={products}
           simulationTotal={simulationTotal}
+          selectedSKUs={selectedSKUs}
+          quantities={quantities}
+          calculatedPrices={calculatedPrices}
+          productPrices={productPrices}
+          getUnitPriceForSKU={getUnitPriceForSKU}
         />
       </CardContent>
     </Card>

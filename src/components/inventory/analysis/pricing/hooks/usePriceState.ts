@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { ProductPrice } from '@/hooks/useProductPrices';
 
@@ -86,7 +87,9 @@ export function usePriceState(productPrices: ProductPrice[]) {
     if (!calculatedPrices[productId]) return 0;
 
     return Object.values(calculatedPrices[productId]).reduce((total, price) => {
-      return total + (typeof price === 'number' ? price : 0);
+      // Check if price is a number, otherwise treat it as 0
+      const numericPrice = typeof price === 'number' ? price : 0;
+      return total + numericPrice;
     }, 0);
   };
 

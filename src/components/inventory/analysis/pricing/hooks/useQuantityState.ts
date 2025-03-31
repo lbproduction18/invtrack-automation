@@ -67,10 +67,18 @@ export function useQuantityState() {
     });
   };
 
+  /**
+   * Reset all quantity data
+   */
+  const resetQuantityState = () => {
+    setQuantities({});
+  };
+
   return {
     quantities,
     handleQuantityChange,
     getQuantityForSKU,
-    clearQuantityForSKU
+    clearQuantityForSKU,
+    resetQuantityState
   };
 }

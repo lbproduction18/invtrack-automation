@@ -9,7 +9,7 @@ import { useNotifications } from './useNotifications';
  */
 export function usePriceCalculation(productPrices: ProductPrice[]) {
   // Use our smaller, focused hooks
-  const { quantities, handleQuantityChange, getQuantityForSKU, clearQuantityForSKU } = useQuantityState();
+  const { quantities, handleQuantityChange, getQuantityForSKU, clearQuantityForSKU, resetQuantityState } = useQuantityState();
   const { 
     calculatedPrices, 
     simulationTotal, 
@@ -18,7 +18,8 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
     getPriceForSKU, 
     getUnitPriceForSKU, 
     getTotalForProduct,
-    clearPriceForSKU
+    clearPriceForSKU,
+    resetPriceCalculations
   } = usePriceState(productPrices);
   const { notifyProductRemoved } = useNotifications();
 
@@ -55,6 +56,20 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
     return getUnitPriceForSKU(productId, sku, quantityValue);
   };
 
+  /**
+   * Reset all price calculations
+   */
+  const resetCalculations = () => {
+    // Reset price calculations
+    resetPriceCalculations();
+    
+    // Reset quantity state
+    resetQuantityState();
+    
+    // Reset simulation total
+    setSimulationTotal(0);
+  };
+
   return {
     quantities,
     calculatedPrices,
@@ -65,6 +80,7 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
     getTotalForProduct,
     handleQuantityChange: handleQuantityUpdate,
     getUnitPriceForSKU: getUnitPrice,
-    clearPriceDataForSKU
+    clearPriceDataForSKU,
+    resetPriceCalculations: resetCalculations
   };
 }

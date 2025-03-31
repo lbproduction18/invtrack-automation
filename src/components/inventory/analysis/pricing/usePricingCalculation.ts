@@ -47,10 +47,8 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
   const resetSimulation = () => {
     // Reset the SKU selection
     resetSKUSelection();
-    // Reset all price calculations
+    // Reset all price calculations (which also resets quantities and the simulation total)
     resetPriceCalculations();
-    // Reset the simulation total
-    setSimulationTotal(0);
   };
 
   return {
