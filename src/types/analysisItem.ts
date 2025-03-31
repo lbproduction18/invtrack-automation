@@ -18,4 +18,6 @@ export interface AnalysisItem {
   price_4000: number | null;
   price_5000: number | null;
   price_8000: number | null;
+  stock: number | null;
+  threshold: number | null;
 }

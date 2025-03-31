@@ -27,6 +27,8 @@ export type Database = {
           sku_code: string | null
           sku_label: string | null
           status: string | null
+          stock: number | null
+          threshold: number | null
           updated_at: string | null
           weeks_delivery: string | null
         }
@@ -47,6 +49,8 @@ export type Database = {
           sku_code?: string | null
           sku_label?: string | null
           status?: string | null
+          stock?: number | null
+          threshold?: number | null
           updated_at?: string | null
           weeks_delivery?: string | null
         }
@@ -67,6 +71,8 @@ export type Database = {
           sku_code?: string | null
           sku_label?: string | null
           status?: string | null
+          stock?: number | null
+          threshold?: number | null
           updated_at?: string | null
           weeks_delivery?: string | null
         }
@@ -79,6 +85,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      analysis_log: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_order_date: string | null
+          sku_code: string | null
+          stock: number | null
+          threshold: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_order_date?: string | null
+          sku_code?: string | null
+          stock?: number | null
+          threshold?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_order_date?: string | null
+          sku_code?: string | null
+          stock?: number | null
+          threshold?: number | null
+        }
+        Relationships: []
       }
       budget_settings: {
         Row: {
