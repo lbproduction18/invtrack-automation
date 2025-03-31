@@ -13,7 +13,7 @@ const AnalysisLogs: React.FC = () => {
   });
 
   const handleRefresh = () => {
-    // This will trigger a refetch when the refetch function is passed to the content component
+    // This will be used to trigger a refetch in the content component
     console.log('Refreshing logs...');
   };
 
