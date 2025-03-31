@@ -144,7 +144,7 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
       ) : (
         <>
           <Tag className="mr-2 h-3 w-3" />
-          Mettre à jour les prix
+          Associer les prix
         </>
       )}
     </Button>
