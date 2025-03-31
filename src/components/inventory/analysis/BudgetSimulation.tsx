@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useProducts } from '@/hooks/useProducts';
 import { useAnalysisItems, type AnalysisItem } from '@/hooks/useAnalysisItems';
@@ -89,6 +90,9 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({
     );
   }
   
+  // Dummy function for toggle expand since we're not using it
+  const handleToggleExpand = () => {};
+  
   return (
     <div className="space-y-6">
       <div className="bg-[#161616] border border-[#272727] rounded-md p-4">
@@ -98,11 +102,13 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({
             {priorityProducts.map(item => (
               <AnalysisProductRow
                 key={item.id}
-                analysisProduct={mapToAnalysisProduct(item, products)}
-                isSelected={selectedProducts.some(p => p.id === item.id)}
-                onSelect={() => toggleProductSelection(item)}
-                showExpandedView={false}
-                onToggleExpand={() => {}}
+                item={mapToAnalysisProduct(item, products)}
+                handleRowClick={() => toggleProductSelection(item)}
+                toggleNoteExpansion={(e) => {
+                  e.stopPropagation();
+                  handleToggleExpand();
+                }}
+                refetchAnalysis={() => {}}
               />
             ))}
           </div>
@@ -118,11 +124,13 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({
             {mediumProducts.map(item => (
               <AnalysisProductRow
                 key={item.id}
-                analysisProduct={mapToAnalysisProduct(item, products)}
-                isSelected={selectedProducts.some(p => p.id === item.id)}
-                onSelect={() => toggleProductSelection(item)}
-                showExpandedView={false}
-                onToggleExpand={() => {}}
+                item={mapToAnalysisProduct(item, products)}
+                handleRowClick={() => toggleProductSelection(item)}
+                toggleNoteExpansion={(e) => {
+                  e.stopPropagation();
+                  handleToggleExpand();
+                }}
+                refetchAnalysis={() => {}}
               />
             ))}
           </div>
@@ -138,11 +146,13 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({
             {standardProducts.map(item => (
               <AnalysisProductRow
                 key={item.id}
-                analysisProduct={mapToAnalysisProduct(item, products)}
-                isSelected={selectedProducts.some(p => p.id === item.id)}
-                onSelect={() => toggleProductSelection(item)}
-                showExpandedView={false}
-                onToggleExpand={() => {}}
+                item={mapToAnalysisProduct(item, products)}
+                handleRowClick={() => toggleProductSelection(item)}
+                toggleNoteExpansion={(e) => {
+                  e.stopPropagation();
+                  handleToggleExpand();
+                }}
+                refetchAnalysis={() => {}}
               />
             ))}
           </div>

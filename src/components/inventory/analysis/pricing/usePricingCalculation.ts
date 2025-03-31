@@ -31,9 +31,11 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
 
   // Calculate the total simulation amount whenever calculatedPrices change
   useEffect(() => {
-    const total = calculateSimulationTotal(calculatedPrices);
-    if (setSimulationTotal && typeof setSimulationTotal === 'function') {
-      setSimulationTotal(total);
+    if (calculatedPrices) {
+      const total = calculateSimulationTotal(calculatedPrices);
+      if (setSimulationTotal && typeof setSimulationTotal === 'function') {
+        setSimulationTotal(total);
+      }
     }
   }, [calculatedPrices, setSimulationTotal]);
 

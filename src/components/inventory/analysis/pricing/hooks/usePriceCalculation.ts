@@ -22,7 +22,7 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
   const { notifyProductRemoved } = useNotifications();
 
   // Initialize local state for storing detailed price data per product/SKU
-  const [detailedPrices, setDetailedPrices] = useState<Record<string, Record<string, number | string>>>({});
+  const [detailedPrices, setDetailedPrices] = useState<Record<string, Record<string, number>>>({});
 
   /**
    * Calculate price for a specific SKU
@@ -40,6 +40,7 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
     
     // Get the unit price based on quantity
     const unitPrice = getUnitPriceForProduct(product, quantity);
+    // Ensure we're dealing with numeric values for multiplication
     const totalPrice = unitPrice * quantity;
     
     // Store the calculated price
@@ -104,8 +105,9 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
   const getTotalForProduct = (productId: string) => {
     const productPrices = detailedPrices[productId] || {};
     return Object.values(productPrices).reduce((total, price) => {
-      const numericPrice = typeof price === 'number' ? price : parseFloat(price.toString());
-      return total + (isNaN(numericPrice) ? 0 : numericPrice);
+      // Ensure we're dealing with numeric values for addition
+      const numericPrice = typeof price === 'number' ? price : 0;
+      return total + numericPrice;
     }, 0);
   };
 
@@ -163,8 +165,8 @@ export function usePriceCalculation(productPrices: ProductPrice[]) {
   const updateSimulationTotal = () => {
     const total = Object.values(detailedPrices).reduce((sum, productPrices) => {
       return sum + Object.values(productPrices).reduce((productSum, price) => {
-        const numericPrice = typeof price === 'number' ? price : parseFloat(price.toString());
-        return productSum + (isNaN(numericPrice) ? 0 : numericPrice);
+        // Ensure we're dealing with numeric values
+        return productSum + price;
       }, 0);
     }, 0);
     
