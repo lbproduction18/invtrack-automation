@@ -33,7 +33,7 @@ export const getUnitPriceForSKU = (productPrices: ProductPrice[], sku: string, q
   }
 
   // Return the price or 0 if not available
-  return productPrice[priceField] as number || 0;
+  return (productPrice[priceField] as number) || 0;
 };
 
 /**
