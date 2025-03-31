@@ -78,45 +78,15 @@ export function useBackfillAnalysisItems() {
     }
   };
 
-  // Function to associate prices with existing SKUs based on exact SKU mapping per product row
+  // Function to associate prices with existing SKUs based on the product_id of each analysis item
   const associatePrices = async () => {
     setIsPriceAssociationLoading(true);
     let updatedCount = 0;
     
     try {
-      // Build a mapping of SKUs to product_id for all analysis items with SKU data
-      const skuToProductMapping: Record<string, string> = {};
-      analysisItems.forEach(item => {
-        if (item.sku_code && item.product_id) {
-          skuToProductMapping[item.sku_code] = item.product_id;
-        }
-      });
-      
-      console.log('SKU to product mapping:', skuToProductMapping);
-      
-      // Create a mapping of product_id to product_price
-      const productIdToPriceMapping: Record<string, any> = {};
-      products.forEach(product => {
-        // For each product, find the corresponding product price where names are similar
-        const skuParts = product.SKU.split('-');
-        const productCategory = skuParts[0];
-        
-        const matchingProductPrice = productPrices.find(p => {
-          const normalizedProductName = p.product_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-          const normalizedCategory = productCategory.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-          return normalizedProductName.includes(normalizedCategory) || normalizedCategory.includes(normalizedProductName);
-        });
-        
-        if (matchingProductPrice) {
-          productIdToPriceMapping[product.id] = matchingProductPrice;
-        }
-      });
-      
-      console.log('Product ID to price mapping:', productIdToPriceMapping);
-      
-      // Loop through all items with SKUs
+      // Get items with SKUs but without prices
       const itemsToUpdate = analysisItems.filter(item => 
-        item.sku_code && 
+        item.sku_code && item.product_id && 
         (!item.price_1000 && !item.price_2000 && !item.price_3000 && 
         !item.price_4000 && !item.price_5000 && !item.price_8000)
       );
@@ -125,43 +95,36 @@ export function useBackfillAnalysisItems() {
       
       // Prepare the updates list
       const updateList = itemsToUpdate.map(item => {
-        if (!item.sku_code || !item.id) return null;
+        if (!item.product_id || !item.id) return null;
         
-        const productId = item.product_id;
-        if (!productId) {
-          console.warn(`No product ID found for SKU ${item.sku_code}`);
+        // Find the product price data for this specific product ID
+        const product = products.find(p => p.id === item.product_id);
+        if (!product) {
+          console.warn(`No product found for ID ${item.product_id}`);
           return null;
         }
         
-        const priceInfo = productIdToPriceMapping[productId];
-        if (!priceInfo) {
-          console.warn(`No price information found for product ID ${productId} (SKU ${item.sku_code})`);
-          return null;
-        }
-        
-        console.log(`Updating SKU ${item.sku_code} with prices from product ${priceInfo.product_name}:`, {
-          price_1000: priceInfo.price_1000,
-          price_2000: priceInfo.price_2000,
-          price_3000: priceInfo.price_3000,
-          price_4000: priceInfo.price_4000,
-          price_5000: priceInfo.price_5000,
-          price_8000: priceInfo.price_8000
+        console.log(`Updating SKU ${item.sku_code} with prices from product ${product.product_name}:`, {
+          price_1000: product.price_1000,
+          price_2000: product.price_2000,
+          price_3000: product.price_3000,
+          price_4000: product.price_4000,
+          price_5000: product.price_5000
         });
         
         return {
           id: item.id,
-          price_1000: priceInfo.price_1000,
-          price_2000: priceInfo.price_2000,
-          price_3000: priceInfo.price_3000,
-          price_4000: priceInfo.price_4000,
-          price_5000: priceInfo.price_5000,
-          price_8000: priceInfo.price_8000
+          price_1000: product.price_1000,
+          price_2000: product.price_2000,
+          price_3000: product.price_3000,
+          price_4000: product.price_4000,
+          price_5000: product.price_5000
         };
       }).filter(Boolean);
       
       console.log('Price updates to be applied:', updateList);
       
-      // Update all the prices at once using the updateSKUPrices mutation
+      // Update all the prices at once
       if (updateList.length > 0) {
         // @ts-ignore - TypeScript may complain about the filter
         await updateSKUPrices.mutateAsync(updateList);
@@ -179,7 +142,7 @@ export function useBackfillAnalysisItems() {
         toast({
           title: "Aucune mise à jour effectuée",
           description: "Aucun SKU nécessitant une mise à jour de prix n'a été trouvé.",
-          variant: "warning"
+          variant: "default"
         });
       }
     } catch (error) {
