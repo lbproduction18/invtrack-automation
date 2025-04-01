@@ -7,8 +7,22 @@ import SimulationTabsContainer from './simulation/SimulationTabsContainer';
 import { useBudgetSimulation } from './simulation/useBudgetSimulation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { QuantityOption } from '@/components/inventory/AnalysisContent';
 
-const BudgetSimulation: React.FC = () => {
+interface BudgetSimulationProps {
+  simulation?: {
+    simulation_id?: string;
+    simulation_name?: string;
+    budget_max?: number;
+    ai_notes?: string;
+  };
+  onBack?: () => void;
+}
+
+const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ simulation, onBack }) => {
+  // Use budget max from simulation if provided
+  const initialBudget = simulation?.budget_max || 300000;
+  
   // Use the useBudgetSimulation hook
   const {
     products,
@@ -19,7 +33,7 @@ const BudgetSimulation: React.FC = () => {
     simulationTotal,
     activeTab,
     setActiveTab,
-    totalBudget,
+    totalBudget: defaultTotalBudget,
     depositPercentage,
     depositAmount,
     remainingBudget,
@@ -39,6 +53,9 @@ const BudgetSimulation: React.FC = () => {
     console.log("Create order callback");
   });
 
+  // Override the total budget with the simulation's budget if provided
+  const totalBudget = simulation?.budget_max || defaultTotalBudget;
+
   // Count configured products
   const configuredProductCount = Object.keys(selectedSKUs).length;
   const totalProductCount = products.length;
@@ -48,8 +65,58 @@ const BudgetSimulation: React.FC = () => {
     return <BudgetLoadingState />;
   }
 
+  // Create wrapper functions to adapt to the expected types in SimulationTabsContainer
+  const handleAddSKUWrapper = (productCategory: string, productId: string, SKU: string, productName: string) => {
+    handleAddSKU(productCategory, { id: productId, SKU, productName });
+  };
+
+  const handleQuantityChangeWrapper = (productCategory: string, productId: string, quantity: QuantityOption) => {
+    // Find the index of the selected SKU
+    const skuList = selectedSKUs[productCategory] || [];
+    const skuIndex = skuList.findIndex(sku => sku.productId === productId);
+    if (skuIndex !== -1) {
+      handleQuantityChange(productCategory, skuIndex, quantity);
+    }
+  };
+
+  const handleRemoveSKUWrapper = (productCategory: string, productId: string) => {
+    // Find the index of the selected SKU
+    const skuList = selectedSKUs[productCategory] || [];
+    const skuIndex = skuList.findIndex(sku => sku.productId === productId);
+    if (skuIndex !== -1) {
+      handleRemoveSKU(productCategory, skuIndex);
+    }
+  };
+
+  const calculateSKUTotalWrapper = (productName: string, sku: { productId: string; SKU: string; productName: string; quantity: QuantityOption; price: number; }) => {
+    return sku.quantity * sku.price;
+  };
+
   return (
     <div className="space-y-4">
+      {onBack && (
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={onBack}
+          className="mb-4"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Retour aux simulations
+        </Button>
+      )}
+      
+      {simulation && (
+        <div className="mb-4">
+          <h2 className="text-2xl font-bold">
+            {simulation.simulation_name || 'Simulation sans nom'}
+          </h2>
+          {simulation.ai_notes && (
+            <p className="text-gray-400 mt-1">{simulation.ai_notes}</p>
+          )}
+        </div>
+      )}
+      
       <BudgetSimulationLayout 
         tabsContent={
           <SimulationTabsContainer
@@ -65,10 +132,10 @@ const BudgetSimulation: React.FC = () => {
             selectedSKUs={selectedSKUs}
             groupedAnalysisProducts={groupedAnalysisProducts}
             simulationTotal={simulationTotal}
-            onAddSKU={handleAddSKU}
-            onQuantityChange={handleQuantityChange}
-            onRemoveSKU={handleRemoveSKU}
-            calculateSKUTotal={calculateSKUTotal}
+            onAddSKU={handleAddSKUWrapper}
+            onQuantityChange={handleQuantityChangeWrapper}
+            onRemoveSKU={handleRemoveSKUWrapper}
+            calculateSKUTotal={calculateSKUTotalWrapper}
           />
         }
         sidePanel={
@@ -86,6 +153,7 @@ const BudgetSimulation: React.FC = () => {
             remainingBudget={remainingBudget}
           />
         }
+        notes={simulation?.ai_notes || null}
       />
     </div>
   );

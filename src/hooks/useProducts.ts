@@ -40,7 +40,8 @@ export function useProducts(statusFilter: string = 'low_stock') {
             last_order_date,
             lab_status,
             estimated_delivery_date,
-            status
+            status,
+            weeks_delivery
           `)
           .order('SKU');
           
@@ -67,8 +68,10 @@ export function useProducts(statusFilter: string = 'low_stock') {
           
           return {
             ...item,
-            priority_badge: priorityBadge
-          };
+            priority_badge: priorityBadge,
+            // Set default value for weeks_delivery if it's missing
+            weeks_delivery: item.weeks_delivery || null
+          } as Product;
         });
         
         return typedData;

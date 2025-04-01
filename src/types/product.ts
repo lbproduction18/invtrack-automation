@@ -26,7 +26,7 @@ export interface Product {
   lab_status: string | null;
   estimated_delivery_date: string | null;
   status: string | null;
-  weeks_delivery: string | null; // Added this field to match what's being used
+  weeks_delivery?: string | null; // Made this optional
 }
 
 // Define type for SKU selection
