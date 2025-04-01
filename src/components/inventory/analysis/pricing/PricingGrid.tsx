@@ -87,7 +87,8 @@ const PricingGrid: React.FC<PricingGridProps> = ({
   // Create a wrapper for getUnitPriceForSKU to make the types compatible with PricingGridContent
   const getUnitPriceWrapper = (productId: string, sku: string, quantity?: string): number => {
     const numericQuantity = quantity ? parseInt(quantity, 10) : 1000;
-    return getUnitPriceForSKU(sku, numericQuantity);
+    // Use the string version of the SKU directly, as the function now expects a string
+    return getUnitPriceForSKU(productId, sku, quantity);
   };
 
   useEffect(() => {
