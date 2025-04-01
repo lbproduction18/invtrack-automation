@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_simulation_metadata: {
+        Row: {
+          ai_notes: string | null
+          budget_max: number
+          created_at: string
+          id: string
+          simulation_name: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          ai_notes?: string | null
+          budget_max?: number
+          created_at?: string
+          id?: string
+          simulation_name?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          ai_notes?: string | null
+          budget_max?: number
+          created_at?: string
+          id?: string
+          simulation_name?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       analysis_items: {
         Row: {
           created_at: string | null
@@ -27,6 +60,7 @@ export type Database = {
           priority_badge: string | null
           product_id: string | null
           quantity_selected: number | null
+          simulation_id: string | null
           sku_code: string | null
           sku_label: string | null
           status: string | null
@@ -52,6 +86,7 @@ export type Database = {
           priority_badge?: string | null
           product_id?: string | null
           quantity_selected?: number | null
+          simulation_id?: string | null
           sku_code?: string | null
           sku_label?: string | null
           status?: string | null
@@ -77,6 +112,7 @@ export type Database = {
           priority_badge?: string | null
           product_id?: string | null
           quantity_selected?: number | null
+          simulation_id?: string | null
           sku_code?: string | null
           sku_label?: string | null
           status?: string | null
@@ -91,6 +127,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "Low stock product"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analysis_items_simulation_id_fkey"
+            columns: ["simulation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_simulation_metadata"
             referencedColumns: ["id"]
           },
         ]
