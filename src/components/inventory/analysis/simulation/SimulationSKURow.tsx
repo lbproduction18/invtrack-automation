@@ -17,8 +17,8 @@ interface SimulationSKURowProps {
   productName: string;
   index: number;
   quantityOptions: QuantityOption[];
-  onQuantityChange: (productName: string, skuIndex: number, quantity: QuantityOption) => void;
-  onRemoveSKU: (productName: string, skuIndex: number) => void;
+  onQuantityChange: (quantity: QuantityOption) => void;
+  onRemoveSKU: () => void;
   calculateSKUTotal: (sku: SelectedSKU) => number;
 }
 
@@ -41,7 +41,7 @@ const SimulationSKURow: React.FC<SimulationSKURowProps> = ({
       </td>
       
       {/* Quantity column with highlighted price */}
-      {quantityOptions.map(qty => (
+      {quantityOptions.map((qty) => (
         <td key={qty} className="text-center py-2 border-t border-[#272727]">
           {qty === sku.quantity ? (
             <span className="text-white font-medium">{price.toLocaleString()} $</span>
@@ -54,13 +54,17 @@ const SimulationSKURow: React.FC<SimulationSKURowProps> = ({
         <div className="flex items-center justify-end space-x-2">
           <Select
             value={sku.quantity.toString()}
-            onValueChange={(value) => onQuantityChange(productName, index, parseInt(value) as QuantityOption)}
+            onValueChange={(value) => {
+              // Convert string to number and then to QuantityOption
+              const qty = parseInt(value) as QuantityOption;
+              onQuantityChange(qty);
+            }}
           >
             <SelectTrigger className="w-28 h-8 bg-[#161616] border-[#272727] z-[1]">
               <SelectValue placeholder="Quantité" />
             </SelectTrigger>
             <SelectContent className="bg-[#161616] border-[#272727] z-[100]">
-              {quantityOptions.map(qty => (
+              {quantityOptions.map((qty) => (
                 <SelectItem key={qty} value={qty.toString()}>
                   {qty.toLocaleString()}
                 </SelectItem>
@@ -76,7 +80,7 @@ const SimulationSKURow: React.FC<SimulationSKURowProps> = ({
             variant="ghost"
             size="icon"
             className="h-8 w-8 text-gray-400 hover:text-red-400"
-            onClick={() => onRemoveSKU(productName, index)}
+            onClick={onRemoveSKU}
           >
             <MinusCircle className="h-4 w-4" />
           </Button>

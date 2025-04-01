@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Loader2, ChevronDown, ChevronUp, PlusSquare, Trash } from "lucide-react";
@@ -49,7 +50,7 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
             <div className="flex items-center justify-around">
               {quantityOptions.map((quantityOption, index) => {
                 const totalForQuantity = skusForProduct.reduce((sum, sku) => {
-                  if (sku.quantityOption.value === quantityOption.value) {
+                  if (sku.quantity === quantityOption) {
                     return sum + calculateSKUTotal(sku);
                   }
                   return sum;
@@ -87,6 +88,7 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
           key={sku.SKU}
           sku={sku}
           productName={productName}
+          index={index}
           quantityOptions={quantityOptions}
           onQuantityChange={(quantity) => onQuantityChange(productName, index, quantity)}
           onRemoveSKU={() => onRemoveSKU(productName, index)}
