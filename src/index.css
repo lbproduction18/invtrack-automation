@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -58,6 +57,8 @@
     
     --main-container-left: 0px;
     --main-container-right: 0px;
+
+    --highlighted-column: 0;
   }
 
   .dark {
@@ -246,5 +247,56 @@
   .carousel-arrow:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  /* Nouvelles classes pour l'effet de survol dans les tableaux */
+  .hover-highlight-table {
+    counter-reset: column;
+  }
+
+  .hover-highlight-table th,
+  .hover-highlight-table td {
+    position: relative;
+  }
+
+  .hover-highlight-table thead th {
+    counter-increment: column;
+  }
+
+  .hover-highlight-table thead th::after {
+    content: counter(column);
+    display: none;
+  }
+
+  .hover-highlight-table tbody td {
+    counter-increment: row;
+  }
+
+  .hover-highlight-table tbody td:hover {
+    --highlighted-column: attr(data-column-index);
+  }
+  
+  .hover-highlight-table td:hover::before {
+    content: "";
+    position: absolute;
+    background-color: hsl(var(--primary) / 0.05);
+    left: 0;
+    top: -5000px;
+    height: 10000px;
+    width: 100%;
+    z-index: -1;
+    pointer-events: none;
+  }
+  
+  .hover-highlight-table td:hover::after {
+    content: "";
+    position: absolute;
+    background-color: hsl(var(--primary) / 0.05);
+    top: 0;
+    left: -5000px;
+    width: 10000px;
+    height: 100%;
+    z-index: -2;
+    pointer-events: none;
   }
 }
