@@ -95,13 +95,22 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ simulation, onBack 
   // Transform the grouped products to the expected format
   const transformedGroupedProducts: Record<string, { id: string; SKU: string; productName: string; }[]> = {};
   
-  Object.entries(groupedAnalysisProducts).forEach(([category, products]) => {
-    transformedGroupedProducts[category] = products.map(product => ({
-      id: product.id,
-      SKU: product.SKU,
-      productName: product.product_name || ''
-    }));
-  });
+  // Fix type error: Make sure we check if groupedAnalysisProducts is an object before using Object.entries
+  if (groupedAnalysisProducts && typeof groupedAnalysisProducts === 'object') {
+    Object.entries(groupedAnalysisProducts).forEach(([category, products]) => {
+      // Check if products is an array before using map
+      if (Array.isArray(products)) {
+        transformedGroupedProducts[category] = products.map(product => ({
+          id: product.id,
+          SKU: product.SKU,
+          productName: product.product_name || ''
+        }));
+      } else {
+        // Initialize as empty array if products is not an array
+        transformedGroupedProducts[category] = [];
+      }
+    });
+  }
 
   return (
     <div className="space-y-4">
