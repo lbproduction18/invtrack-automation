@@ -14,6 +14,7 @@ export function useResetAnalysisItems() {
     mutationFn: async () => {
       console.log('Resetting all price and quantity data in analysis_items table...');
       
+      // Instead of using .is(), we'll use .eq() to compare the status column with 'analysis'
       const { data, error } = await supabase
         .from('analysis_items')
         .update({
@@ -27,7 +28,7 @@ export function useResetAnalysisItems() {
           sku_code: null,
           sku_label: null
         })
-        .is('status', 'analysis');
+        .eq('status', 'analysis');
       
       if (error) {
         console.error('Error resetting analysis items:', error);
