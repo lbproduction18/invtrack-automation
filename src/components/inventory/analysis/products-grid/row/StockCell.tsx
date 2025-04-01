@@ -11,7 +11,7 @@ const StockCell: React.FC<StockCellProps> = ({ stock, threshold }) => {
   const isLowStock = stock !== null && threshold !== null && stock < threshold;
   
   return (
-    <TableCell className="text-center">
+    <TableCell className="text-center relative">
       <span className={isLowStock ? "text-red-500 font-medium" : ""}>
         {stock !== null ? stock : '-'}
       </span>
