@@ -42,24 +42,44 @@
   color: #888;
 }
 
-/* Table hover highlight styles */
+/* Ajout des styles pour le highlight croisé des tableaux */
 table {
   position: relative;
   border-collapse: collapse;
 }
 
-/* Style for row hover */
+/* Style de l'effet hover sur les lignes */
 table tr:hover {
   background-color: rgba(155, 255, 200, 0.08);
 }
 
-/* Store the current hovered position in CSS variables */
-table {
-  --hovered-row-index: -1;
-  --hovered-column-index: -1;
+/* Style de l'effet hover sur les colonnes */
+table td:hover::after,
+table th:hover::after {
+  content: "";
+  position: absolute;
+  background-color: rgba(155, 255, 200, 0.08);
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  z-index: -1;
 }
 
-/* Apply highlight to all cells in the hovered row */
+/* Effet pour la colonne entière */
+tbody tr td:hover::before,
+thead tr th:hover::before {
+  content: "";
+  position: absolute;
+  background-color: rgba(155, 255, 200, 0.08);
+  left: 0;
+  top: -10000px;
+  height: 20000px;
+  width: 100%;
+  z-index: -1;
+}
+
+/* Effet pour la ligne entière */
 tr:hover td::after {
   content: "";
   position: absolute;
@@ -71,24 +91,8 @@ tr:hover td::after {
   z-index: -2;
 }
 
-/* For column hover - only apply to cells above and including the hovered cell */
-td.column-hovered {
-  position: relative;
-}
-
-td.column-hovered::before {
-  content: "";
-  position: absolute;
-  background-color: rgba(155, 255, 200, 0.08);
-  left: 0;
-  top: -10000px;
-  height: 10000px; /* This ensures it covers from the top to current row */
-  width: 100%;
-  z-index: -1;
-}
-
-/* Active cell (intersection) highlight */
-tr:hover td.column-hovered {
+/* Effet croisé - cellule en surbrillance */
+tr:hover td:hover {
   background-color: rgba(155, 255, 200, 0.15);
   position: relative;
   z-index: 1;
