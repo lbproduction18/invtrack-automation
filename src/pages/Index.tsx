@@ -8,6 +8,8 @@ import {
 import { ProgressSteps } from '@/components/carousel/ProgressSteps';
 import { CarouselNavigationArrows } from '@/components/carousel/CarouselNavigationArrows';
 import { InventoryCarouselContent } from '@/components/carousel/InventoryCarouselContent';
+import { Button } from '@/components/ui/button';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -73,6 +75,38 @@ const Index = () => {
         totalSteps={totalSteps}
         carouselApi={carouselApi}
       />
+
+      {/* Navigation pagination au bas de la page */}
+      <div className="fixed bottom-8 left-0 right-0">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => currentStep > 0 && handleStepClick(currentStep - 1)}
+                className={currentStep === 0 ? "pointer-events-none opacity-50" : ""}
+              />
+            </PaginationItem>
+            
+            {steps.map((step, index) => (
+              <PaginationItem key={index}>
+                <PaginationLink 
+                  isActive={currentStep === index}
+                  onClick={() => handleStepClick(index)}
+                >
+                  {index + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => currentStep < totalSteps - 1 && handleStepClick(currentStep + 1)}
+                className={currentStep === totalSteps - 1 ? "pointer-events-none opacity-50" : ""}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
     </div>
   );
 };
