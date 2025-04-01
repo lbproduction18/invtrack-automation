@@ -6,7 +6,8 @@ import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { useSKUSelection } from './hooks/useSKUSelection';
 import { usePriceCalculation } from './hooks/usePriceCalculation';
 import { useQuantityManagement } from './hooks/useQuantityManagement';
-import { getUnitPriceForSKU, calculateTotalPrice } from './hooks/utils/priceUtils';
+import { getUnitPriceForSKU } from './hooks/utils/priceUtils';
+import { calculateTotalPrice } from '@/hooks/simulation/skuPriceHelpers';
 
 export function usePricingCalculation(productPrices: ProductPrice[]) {
   const { toast } = useToast();
