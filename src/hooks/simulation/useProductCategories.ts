@@ -17,6 +17,7 @@ export function useProductCategories() {
   const groupedAnalysisProducts = useMemo(() => {
     if (!analysisItems) return [];
     
+    // Ensure we return an array of products transformed from analysisItems
     return analysisItems.map(item => ({
       id: item.id,
       product_name: item.sku_label || 'Unknown Product',
