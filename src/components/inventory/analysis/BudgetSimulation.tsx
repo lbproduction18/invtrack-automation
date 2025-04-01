@@ -95,13 +95,18 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ simulation, onBack 
   // Transform the grouped products to the expected format
   const transformedGroupedProducts: Record<string, { id: string; SKU: string; productName: string; }[]> = {};
   
-  Object.entries(groupedAnalysisProducts).forEach(([category, products]) => {
-    transformedGroupedProducts[category] = products.map(product => ({
+  // Ensure groupedAnalysisProducts is treated as an array
+  const analysisProductsArray = Array.isArray(groupedAnalysisProducts) ? 
+    groupedAnalysisProducts : [groupedAnalysisProducts].filter(Boolean);
+  
+  // Create a single category for all analysis products
+  if (analysisProductsArray.length > 0) {
+    transformedGroupedProducts["analysis"] = analysisProductsArray.map(product => ({
       id: product.id,
-      SKU: product.SKU,
-      productName: product.product_name || ''
+      SKU: product.sku || "",
+      productName: product.product_name || ""
     }));
-  });
+  }
 
   return (
     <div className="space-y-4">
