@@ -28,7 +28,7 @@ interface PricingGridContentProps {
   handleQuantityChange: (productId: string, sku: string, quantityValue: string) => void;
   handleLaunchAIAnalysis: () => void;
   getTotalForProduct: (productId: string) => number;
-  getUnitPriceForSKU: (sku: string, quantity: number) => number;
+  getUnitPriceForSKU: (productId: string, sku: string, quantity?: string) => number;
 }
 
 const PricingGridContent: React.FC<PricingGridContentProps> = ({

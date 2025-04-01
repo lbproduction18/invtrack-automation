@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AnalysisItem } from '@/types/analysisItem';
 import { Product } from '@/types/product';
