@@ -10,7 +10,7 @@ const Table = React.forwardRef<
   <div className="relative w-full overflow-auto">
     <table
       ref={ref}
-      className={cn("w-full caption-bottom text-sm border-collapse hover-highlight-table", className)}
+      className={cn("w-full caption-bottom text-sm border-collapse", className)}
       {...props}
     />
   </div>
@@ -60,7 +60,6 @@ const TableRow = React.forwardRef<
     ref={ref}
     className={cn(
       "border-b border-border/20 transition-colors hover:bg-muted/40 data-[state=selected]:bg-muted/60",
-      "has-[td:hover]:bg-primary/10",
       className
     )}
     {...props}
@@ -76,7 +75,6 @@ const TableHead = React.forwardRef<
     ref={ref}
     className={cn(
       "h-10 px-0 text-left align-middle text-xs font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 border-r border-[#403E43] last:border-r-0 bg-inherit",
-      "group-hover:[&:nth-of-type(--highlighted-column)]:bg-primary/10",
       className
     )}
     {...props}
@@ -90,11 +88,7 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn(
-      "px-0 py-1 align-middle [&:has([role=checkbox])]:pr-0 border-r border-[#403E43] last:border-r-0", 
-      "hover:bg-primary/10 hover:z-[1] group-hover:[&:nth-of-type(--highlighted-column)]:bg-primary/10",
-      className
-    )}
+    className={cn("px-0 py-1 align-middle [&:has([role=checkbox])]:pr-0 border-r border-[#403E43] last:border-r-0", className)}
     {...props}
   />
 ))

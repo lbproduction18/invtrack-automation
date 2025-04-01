@@ -1,4 +1,3 @@
-
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -40,60 +39,4 @@
 
 .read-the-docs {
   color: #888;
-}
-
-/* Ajout des styles pour le highlight croisé des tableaux */
-table {
-  position: relative;
-  border-collapse: collapse;
-}
-
-/* Style de l'effet hover sur les lignes */
-table tr:hover {
-  background-color: rgba(155, 255, 200, 0.08);
-}
-
-/* Style de l'effet hover sur les colonnes */
-table td:hover::after,
-table th:hover::after {
-  content: "";
-  position: absolute;
-  background-color: rgba(155, 255, 200, 0.08);
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  z-index: -1;
-}
-
-/* Effet pour la colonne entière */
-tbody tr td:hover::before,
-thead tr th:hover::before {
-  content: "";
-  position: absolute;
-  background-color: rgba(155, 255, 200, 0.08);
-  left: 0;
-  top: -10000px;
-  height: 20000px;
-  width: 100%;
-  z-index: -1;
-}
-
-/* Effet pour la ligne entière */
-tr:hover td::after {
-  content: "";
-  position: absolute;
-  background-color: rgba(155, 255, 200, 0.08);
-  left: -10000px;
-  top: 0;
-  height: 100%;
-  width: 20000px;
-  z-index: -2;
-}
-
-/* Effet croisé - cellule en surbrillance */
-tr:hover td:hover {
-  background-color: rgba(155, 255, 200, 0.15);
-  position: relative;
-  z-index: 1;
 }
