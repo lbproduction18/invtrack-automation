@@ -68,7 +68,7 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
         });
       }
       
-      // Also save to AI simulation metadata
+      // Also save to AI simulation metadata - will update existing record
       await saveSimulationSettings({
         budget_max: totalBudget,
         ai_note: notes

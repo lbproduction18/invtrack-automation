@@ -1,12 +1,9 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from './use-toast';
-// Replace the old import with a nanoid generation function
 import { nanoid } from 'nanoid';
 
-// Define interface for AISimulationMetadata
 interface AISimulationMetadata {
   id?: string;
   budget_max: number;
@@ -17,7 +14,6 @@ interface AISimulationMetadata {
   updated_at?: string;
 }
 
-// Default metadata values
 const DEFAULT_METADATA: AISimulationMetadata = {
   budget_max: 500000,
   ai_note: '',
@@ -30,7 +26,6 @@ export function useAISimulationMetadata() {
   const queryClient = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
 
-  // Fetch the latest simulation metadata
   const { data: metadata, isLoading, error, refetch } = useQuery({
     queryKey: ['aiSimulationMetadata'],
     queryFn: async () => {
@@ -46,7 +41,6 @@ export function useAISimulationMetadata() {
           throw error;
         }
 
-        // Return the first record or default values if no records found
         return data && data.length > 0 ? data[0] as AISimulationMetadata : DEFAULT_METADATA;
       } catch (err) {
         console.error('Exception when fetching AI simulation metadata:', err);
@@ -55,7 +49,6 @@ export function useAISimulationMetadata() {
     }
   });
 
-  // Create new simulation metadata
   const createMetadata = useMutation({
     mutationFn: async (newMetadata: Partial<AISimulationMetadata>) => {
       setIsCreating(true);
@@ -105,30 +98,58 @@ export function useAISimulationMetadata() {
     }
   });
 
-  // Update existing simulation metadata
   const updateMetadata = useMutation({
     mutationFn: async (updatedMetadata: Partial<AISimulationMetadata>) => {
-      if (!metadata?.id) {
-        // If no record exists yet, create one instead
-        return createMetadata.mutateAsync(updatedMetadata);
-      }
-
       try {
-        const { data, error } = await supabase
-          .from('ai_simulation_metadata')
-          .update({
-            ...updatedMetadata,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', metadata.id)
-          .select();
+        if (metadata?.id) {
+          const { data, error } = await supabase
+            .from('ai_simulation_metadata')
+            .update({
+              ...updatedMetadata,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', metadata.id)
+            .select();
 
-        if (error) {
-          console.error('Error updating AI simulation metadata:', error);
-          throw error;
+          if (error) {
+            console.error('Error updating AI simulation metadata:', error);
+            throw error;
+          }
+
+          return data?.[0] as AISimulationMetadata;
+        } else {
+          const { data: latestData, error: fetchError } = await supabase
+            .from('ai_simulation_metadata')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+          if (fetchError) {
+            console.error('Error fetching latest AI simulation metadata:', fetchError);
+            throw fetchError;
+          }
+
+          if (latestData && latestData.length > 0) {
+            const latestRecord = latestData[0];
+            const { data, error } = await supabase
+              .from('ai_simulation_metadata')
+              .update({
+                ...updatedMetadata,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', latestRecord.id)
+              .select();
+
+            if (error) {
+              console.error('Error updating AI simulation metadata:', error);
+              throw error;
+            }
+
+            return data?.[0] as AISimulationMetadata;
+          } else {
+            return createMetadata.mutateAsync(updatedMetadata);
+          }
         }
-
-        return data?.[0] as AISimulationMetadata;
       } catch (err) {
         console.error('Exception when updating AI simulation metadata:', err);
         throw err;
@@ -153,13 +174,8 @@ export function useAISimulationMetadata() {
     }
   });
 
-  // Save metadata (create or update)
-  const saveMetadata = async (data: Partial<AISimulationMetadata>) => {
-    if (!metadata?.id) {
-      return createMetadata.mutateAsync(data);
-    } else {
-      return updateMetadata.mutateAsync(data);
-    }
+  const saveSimulationSettings = async (data: Partial<AISimulationMetadata>) => {
+    return updateMetadata.mutateAsync(data);
   };
 
   return {
@@ -167,7 +183,7 @@ export function useAISimulationMetadata() {
     isLoading,
     isCreating,
     error,
-    saveMetadata,
+    saveSimulationSettings,
     refetch
   };
 }

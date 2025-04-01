@@ -57,6 +57,7 @@ const AIAnalysisInputs: React.FC<AIAnalysisInputsProps> = ({
     onNotesChange(e.target.value);
   };
 
+  // Updated save handler to always update the existing record
   const handleSave = async () => {
     setIsSaving(true);
     try {
