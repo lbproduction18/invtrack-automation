@@ -101,4 +101,4 @@ export const getUnitPriceForSKU = (
  * Export the getUnitPriceForSKU function from skuPriceHelpers
  * to maintain the same interface for components using this module
  */
-export { skuPriceHelperGetUnitPrice };
+export { skuPriceHelperGetUnitPrice, calculateTotalPrice };

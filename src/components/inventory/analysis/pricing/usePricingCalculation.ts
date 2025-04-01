@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { type ProductPrice } from '@/hooks/useProductPrices';
@@ -6,7 +5,7 @@ import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { useSKUSelection } from './hooks/useSKUSelection';
 import { usePriceCalculation } from './hooks/usePriceCalculation';
 import { useQuantityManagement } from './hooks/useQuantityManagement';
-import { getUnitPriceForSKU, calculateTotalPrice } from './hooks/utils/priceUtils';
+import { getUnitPriceForSKU, calculateSKUTotalPrice as calculateTotalPrice } from './hooks/utils/priceUtils';
 
 export function usePricingCalculation(productPrices: ProductPrice[]) {
   const { toast } = useToast();
