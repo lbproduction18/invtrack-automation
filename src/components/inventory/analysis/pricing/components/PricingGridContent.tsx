@@ -1,13 +1,15 @@
 
 import React from 'react';
-import { Loader2 } from "lucide-react";
+import { Loader2, RotateCw } from "lucide-react";
 import PriceTable from '../PriceTable';
 import BudgetSlider from './BudgetSlider';
 import SimulationSummary from '../SimulationSummary';
+import { Button } from '@/components/ui/button';
 import { ProductPrice } from '@/hooks/useProductPrices';
 import { AnalysisItem } from '@/hooks/useAnalysisItems';
 import { Product } from '@/types/product';
 import { formatTotalPrice } from '../PriceFormatter';
+import UpdatePricesButton from '../UpdatePricesButton';
 
 interface PricingGridContentProps {
   analysisMode: 'manual' | 'ai';
@@ -22,10 +24,12 @@ interface PricingGridContentProps {
   analysisProductSKUs: Array<{ id: string, SKU: string }>;
   analysisItems: AnalysisItem[];
   products: Product[];
+  isResetting: boolean;
   handleSKUSelect: (productId: string, sku: string) => void;
   handleSKURemove: (productId: string, sku: string) => void;
   handleQuantityChange: (productId: string, sku: string, quantityValue: string) => void;
   handleLaunchAIAnalysis: () => void;
+  handleResetSimulation: () => void;
   getTotalForProduct: (productId: string) => number;
   getUnitPriceForSKU: (productId: string, sku: string, quantity?: string) => number;
 }
@@ -43,10 +47,12 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
   analysisProductSKUs,
   analysisItems,
   products,
+  isResetting,
   handleSKUSelect,
   handleSKURemove,
   handleQuantityChange,
   handleLaunchAIAnalysis,
+  handleResetSimulation,
   getTotalForProduct,
   getUnitPriceForSKU
 }) => {
@@ -83,6 +89,41 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
             simulationTotal={analysisMode === 'manual' ? simulationTotal : 0}
             analysisMode={analysisMode}
             analysisItems={analysisItems}
+          />
+        )}
+      </div>
+      
+      {/* Buttons container - Always visible but content changes based on mode */}
+      <div className="mt-6 flex justify-center items-center gap-4">
+        {/* For AI mode, we show both buttons side by side */}
+        {analysisMode === 'ai' && (
+          <>
+            <UpdatePricesButton 
+              productPrices={productPrices}
+              selectedSKUs={selectedSKUs}
+              analysisItems={analysisItems}
+              className="min-w-40"
+            />
+            <Button 
+              variant="outline" 
+              size="lg"
+              onClick={handleResetSimulation}
+              disabled={isResetting}
+              className="font-medium px-6 py-2 min-w-28"
+            >
+              <RotateCw className="mr-2 h-4 w-4" />
+              {isResetting ? 'Réinitialisation...' : 'Réinitialiser'}
+            </Button>
+          </>
+        )}
+        
+        {/* For manual mode, we only show the UpdatePricesButton here */}
+        {analysisMode === 'manual' && (
+          <UpdatePricesButton 
+            productPrices={productPrices}
+            selectedSKUs={selectedSKUs}
+            analysisItems={analysisItems}
+            className="min-w-40"
           />
         )}
       </div>

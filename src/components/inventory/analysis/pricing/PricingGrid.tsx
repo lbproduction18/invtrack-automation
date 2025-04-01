@@ -124,10 +124,12 @@ const PricingGrid: React.FC<PricingGridProps> = ({
           analysisProductSKUs={analysisProductSKUs}
           analysisItems={analysisItems}
           products={products}
+          isResetting={isResetting}
           handleSKUSelect={handleSKUSelect}
           handleSKURemove={handleSKURemove}
           handleQuantityChange={handleQuantityChange}
           handleLaunchAIAnalysis={handleLaunchAIAnalysis}
+          handleResetSimulation={handleResetSimulation}
           getTotalForProduct={getTotalForProduct}
           getUnitPriceForSKU={getUnitPriceWrapper}
         />
