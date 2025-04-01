@@ -50,8 +50,7 @@ export function useBudgetSimulation(onCreateOrder: () => void) {
     getUnitPriceWrapper
   } = useBudgetMetrics(simulationTotal);
   
-  // Sync SKUs from analysis items - fixed the issue with setSelectedQuantities
-  // We need to ensure handleOrderQuantityChange is properly cast to accept a QuantityOption
+  // Sync SKUs from analysis items
   const adaptedHandleOrderQuantityChange = (productId: string, quantityValue: string) => {
     // Convert string to QuantityOption
     const qty = Number(quantityValue) as QuantityOption;
@@ -90,6 +89,6 @@ export function useBudgetSimulation(onCreateOrder: () => void) {
     handleOrderQuantityChange,
     handleRefresh,
     calculateSKUTotal,
-    getUnitPriceForSKU: getUnitPriceWrapper // Using the wrapper function
+    getUnitPriceForSKU: getUnitPriceWrapper
   };
 }
