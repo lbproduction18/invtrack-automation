@@ -93,18 +93,14 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ simulation, onBack 
   };
   
   // Transform the grouped products to the expected format
-  const transformedGroupedProducts: Record<string, Array<{ id: string; SKU: string; productName: string; }>> = {};
+  const transformedGroupedProducts: Record<string, { id: string; SKU: string; productName: string; }[]> = {};
   
   Object.entries(groupedAnalysisProducts).forEach(([category, products]) => {
-    if (Array.isArray(products)) {
-      transformedGroupedProducts[category] = products.map(product => ({
-        id: product.id || '',
-        SKU: product.SKU || '',
-        productName: product.product_name || ''
-      }));
-    } else {
-      transformedGroupedProducts[category] = [];
-    }
+    transformedGroupedProducts[category] = products.map(product => ({
+      id: product.id,
+      SKU: product.SKU,
+      productName: product.product_name || ''
+    }));
   });
 
   return (
