@@ -27,7 +27,8 @@ const PricingGrid: React.FC<PricingGridProps> = ({
   const { products, isLoading: isProductsLoading } = useProducts('analysis');
   const { analysisItems, isLoading: isAnalysisLoading, refetch: refetchAnalysis } = useAnalysisItems();
   
-  const { getUnitPriceForSKU } = useBudgetSimulation();
+  // Use the budget simulation hook to get the wrapper function
+  const { getUnitPriceForSKU } = useBudgetSimulation(() => {});
   
   const analysisProductSKUs = products.map(product => ({
     id: product.id,
@@ -49,6 +50,7 @@ const PricingGrid: React.FC<PricingGridProps> = ({
   const isLoading = isPricesLoading || isProductsLoading || isAnalysisLoading;
   const [isResetting, setIsResetting] = useState(false);
 
+  // Use the custom hook to check if all products have SKUs assigned
   const { allProductsHaveSKUs } = useSKUAssignmentCheck(
     analysisMode,
     isLoading,
@@ -66,6 +68,7 @@ const PricingGrid: React.FC<PricingGridProps> = ({
   const handleResetSimulation = async () => {
     setIsResetting(true);
     try {
+      // Call the reset function from the hook that now includes database reset
       await resetSimulation();
     } catch (error) {
       console.error("Error during reset:", error);
@@ -74,12 +77,18 @@ const PricingGrid: React.FC<PricingGridProps> = ({
     }
   };
 
+  // Handler for the "Lancer l'analyse AI" button
   const handleLaunchAIAnalysis = () => {
+    // This function would trigger the AI analysis process
     console.log("Launching AI Analysis...");
+    // Add the actual implementation for launching AI analysis here
   };
 
+  // Create a wrapper for getUnitPriceForSKU to make the types compatible with PricingGridContent
   const getUnitPriceWrapper = (productId: string, sku: string, quantity?: string): number => {
+    // If quantity is undefined or empty, use a default value of "1000"
     const quantityStr = quantity || "1000";
+    // No need to convert to number here, the function will handle the conversion internally
     return getUnitPriceForSKU(productId, sku, quantityStr);
   };
 
@@ -121,8 +130,6 @@ const PricingGrid: React.FC<PricingGridProps> = ({
           handleLaunchAIAnalysis={handleLaunchAIAnalysis}
           getTotalForProduct={getTotalForProduct}
           getUnitPriceForSKU={getUnitPriceWrapper}
-          handleResetSimulation={handleResetSimulation}
-          isResetting={isResetting}
         />
       </CardContent>
     </Card>

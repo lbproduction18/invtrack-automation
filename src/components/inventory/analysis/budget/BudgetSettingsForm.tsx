@@ -29,7 +29,7 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
   const { 
     metadata: aiMetadata, 
     isLoading: isLoadingAI,
-    saveMetadata
+    saveSimulationSettings
   } = useAISimulationMetadata();
 
   // Initialize form with existing settings
@@ -69,7 +69,7 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
       }
       
       // Also save to AI simulation metadata
-      await saveMetadata({
+      await saveSimulationSettings({
         budget_max: totalBudget,
         ai_note: notes
       });

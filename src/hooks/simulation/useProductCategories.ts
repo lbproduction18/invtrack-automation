@@ -1,24 +1,34 @@
+import { useProducts } from '@/hooks/useProducts';
 
-import { useMemo } from 'react';
-import { Product } from '@/types/product';
-
-export function useProductCategories(products: Product[]) {
-  const categories = useMemo(() => {
-    const categorizedProducts: Record<string, Product[]> = {};
+/**
+ * Hook to group analysis products by category
+ */
+export function useProductCategories() {
+  const { products } = useProducts('analysis');
+  
+  // Group analysis products by category
+  const groupedAnalysisProducts = products.reduce((acc, product) => {
+    // Extract category from SKU (e.g., "COLLAGENE" from "COLLAGENE-LOTUS")
+    const skuParts = product.SKU.split('-');
+    const category = skuParts[0] || 'Other';
     
-    products.forEach(product => {
-      // Extract category from product name (first word)
-      const category = product.product_name?.split(' ')[0] || 'Other';
-      
-      if (!categorizedProducts[category]) {
-        categorizedProducts[category] = [];
-      }
-      
-      categorizedProducts[category].push(product);
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    
+    acc[category].push({
+      id: product.id,
+      SKU: product.SKU,
+      productName: product.product_name, // Using product_name from product
+      // Other properties that might be needed
+      ...product
     });
     
-    return categorizedProducts;
-  }, [products]);
+    return acc;
+  }, {} as Record<string, typeof products>);
   
-  return { categories };
+  return {
+    products,
+    groupedAnalysisProducts
+  };
 }
