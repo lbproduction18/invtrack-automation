@@ -6,13 +6,16 @@ import { ProductPrice } from '@/hooks/useProductPrices';
 
 /**
  * Hook to calculate budget metrics based on the simulation total
+ * @param simulationTotal - The total amount of the simulation
+ * @param aiMetadataBudget - Optional budget from AI metadata to override the default
  */
-export function useBudgetMetrics(simulationTotal: number) {
+export function useBudgetMetrics(simulationTotal: number, aiMetadataBudget?: number) {
   const { budgetSettings } = useBudgetSettings();
   const { calculateBudgetPercentage } = useSimulationState();
   
   // Calculate budget metrics
-  const totalBudget = budgetSettings?.total_budget || 300000;
+  // Use AI metadata budget if available, otherwise fallback to budgetSettings or default
+  const totalBudget = aiMetadataBudget || budgetSettings?.total_budget || 300000;
   const depositPercentage = budgetSettings?.deposit_percentage || 50;
   const depositAmount = (simulationTotal * depositPercentage) / 100;
   const remainingBudget = totalBudget - simulationTotal;

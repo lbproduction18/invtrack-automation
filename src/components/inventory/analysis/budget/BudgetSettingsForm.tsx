@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Save, Loader2 } from "lucide-react";
+import { Save, Loader2, Brain } from "lucide-react";
 import { BudgetSettings } from '@/hooks/useBudgetSettings';
 import { useAISimulationMetadata } from '@/hooks/useAISimulationMetadata';
 
@@ -108,15 +108,27 @@ const BudgetSettingsForm: React.FC<BudgetSettingsFormProps> = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="notes" className="text-sm text-gray-300">Notes</Label>
+              <Label 
+                htmlFor="notes" 
+                className="flex items-center gap-2 text-sm text-gray-300"
+              >
+                <Brain className="h-4 w-4 text-primary" />
+                Notes pour l'analyse AI
+              </Label>
               <Textarea
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={4}
-                placeholder="Notes importantes concernant cette simulation..."
+                placeholder="Ex: Favoriser les formats économiques. Éviter les produits à base de caféine."
                 className="bg-[#121212] border-[#272727] resize-none"
               />
+              
+              {aiMetadata?.simulation_label && (
+                <div className="text-xs text-primary mt-1">
+                  Simulation active: {aiMetadata.simulation_label}
+                </div>
+              )}
             </div>
           </div>
           
