@@ -26,37 +26,39 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
   const { updateSKUPrices } = useAnalysisItems();
 
   // Function to trigger webhook with SKU and price data
-  const triggerWebhook = (sku: string, priceData: Record<string, number | null>) => {
-    // Format price data for webhook
-    const prices: Record<string, number> = {};
+  const triggerWebhook = async (associatedSkus: Array<{ sku: string, prices: Record<string, number> }>) => {
+    const webhookUrl = 'https://hook.us2.make.com/kzlm2ott3k34x2hn9mrmt9jngmuk9a5f';
     
-    // Only include non-null price values in the payload
-    if (priceData.price_1000 !== null) prices['1000'] = priceData.price_1000 as number;
-    if (priceData.price_2000 !== null) prices['2000'] = priceData.price_2000 as number;
-    if (priceData.price_3000 !== null) prices['3000'] = priceData.price_3000 as number;
-    if (priceData.price_4000 !== null) prices['4000'] = priceData.price_4000 as number;
-    if (priceData.price_5000 !== null) prices['5000'] = priceData.price_5000 as number;
-    if (priceData.price_8000 !== null) prices['8000'] = priceData.price_8000 as number;
-    
-    // Create payload
-    const payload = {
-      sku,
-      prices
-    };
-    
-    console.log(`Sending webhook for SKU ${sku}:`, payload);
-    
-    // Asynchronously call the webhook
-    fetch('https://hook.us2.make.com/kzlm2ott3k34x2hn9mrmt9jngmuk9a5f', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    }).catch(error => {
-      // Log error but don't interrupt the flow
-      console.error(`Error calling webhook for SKU ${sku}:`, error);
-    });
+    try {
+      // Format the payload based on how many SKUs we have
+      const payload = associatedSkus.length === 1 ? associatedSkus[0] : associatedSkus;
+      
+      console.log('Sending webhook payload:', payload);
+      
+      // Make the webhook call asynchronously
+      fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+        mode: 'no-cors' // Use no-cors mode to avoid CORS issues
+      })
+      .then(() => {
+        console.log('Webhook triggered successfully');
+        toast({
+          title: "Webhook déclenché",
+          description: `Données envoyées pour ${associatedSkus.length} SKU(s).`,
+          variant: "default"
+        });
+      })
+      .catch(error => {
+        console.error('Error triggering webhook:', error);
+        // Just log the error, don't interrupt flow
+      });
+    } catch (error) {
+      console.error('Error preparing webhook payload:', error);
+    }
   };
 
   const handleUpdatePrices = async () => {
@@ -80,6 +82,7 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
       
       // For each selected SKU, find the corresponding analysis item and update its prices
       const updateList: Partial<AnalysisItem>[] = [];
+      const webhookData: Array<{ sku: string, prices: Record<string, number> }> = [];
       
       // Loop through each product ID in the selectedSKUs record
       for (const productId of Object.keys(selectedSKUs)) {
@@ -119,6 +122,20 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
               price_5000: productPrice.price_5000,
               price_8000: productPrice.price_8000
             });
+            
+            // Prepare webhook data for this SKU
+            const prices: Record<string, number> = {};
+            if (productPrice.price_1000) prices['1000'] = productPrice.price_1000;
+            if (productPrice.price_2000) prices['2000'] = productPrice.price_2000;
+            if (productPrice.price_3000) prices['3000'] = productPrice.price_3000;
+            if (productPrice.price_4000) prices['4000'] = productPrice.price_4000;
+            if (productPrice.price_5000) prices['5000'] = productPrice.price_5000;
+            if (productPrice.price_8000) prices['8000'] = productPrice.price_8000;
+            
+            webhookData.push({
+              sku: sku,
+              prices: prices
+            });
           } else {
             console.warn(`No analysis item found for SKU ${sku}`);
           }
@@ -149,14 +166,11 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
             console.error(`Error updating prices for item ${item.id}:`, error);
             throw error;
           }
-          
-          // After successful database update, trigger the webhook
-          // Find the corresponding SKU for this item
-          const analysisItem = analysisItems.find(ai => ai.id === item.id);
-          if (analysisItem && analysisItem.sku_code) {
-            // Trigger webhook asynchronously for each updated SKU
-            triggerWebhook(analysisItem.sku_code, priceData);
-          }
+        }
+        
+        // After successful DB update, trigger the webhook
+        if (webhookData.length > 0) {
+          triggerWebhook(webhookData);
         }
         
         setIsComplete(true);

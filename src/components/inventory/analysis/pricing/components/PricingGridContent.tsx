@@ -50,9 +50,6 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
   getTotalForProduct,
   getUnitPriceForSKU
 }) => {
-  // Check if any SKUs are selected to determine if we should show the AI analysis button
-  const hasSelectedSKUs = Object.values(selectedSKUs).some(skuArray => skuArray.length > 0);
-  
   return (
     <>
       {/* Budget Slider - Only visible in manual mode */}
