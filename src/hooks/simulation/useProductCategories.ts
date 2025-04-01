@@ -19,7 +19,7 @@ export function useProductCategories() {
     acc[category].push({
       id: product.id,
       SKU: product.SKU,
-      productName: product.product_name, // Using product_name from product
+      product_name: product.product_name, // Using product_name from product
       // Other properties that might be needed
       ...product
     });
