@@ -51,6 +51,9 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
   getTotalForProduct,
   getUnitPriceForSKU
 }) => {
+  // Check if any SKUs are selected to determine if we should show the AI analysis button
+  const hasSelectedSKUs = Object.values(selectedSKUs).some(skuArray => skuArray.length > 0);
+  
   return (
     <>
       {/* Budget Slider - Only visible in manual mode */}
@@ -60,10 +63,19 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
         </div>
       )}
     
-      {/* Conditional rendering for AI Analysis mode based on SKU assignment status */}
-      {analysisMode === 'ai' && allProductsHaveSKUs ? (
-        <AIAnalysisButton onLaunchAIAnalysis={handleLaunchAIAnalysis} />
-      ) : (
+      {/* Conditional rendering for AI Analysis mode */}
+      {analysisMode === 'ai' && (
+        <div className="mt-4">
+          {/* Always show AIAnalysisButton in AI mode */}
+          <AIAnalysisButton 
+            onLaunchAIAnalysis={handleLaunchAIAnalysis} 
+            className="w-full bg-primary hover:bg-primary/90"
+          />
+        </div>
+      )}
+      
+      {/* Price table - Always show in manual mode, or in AI mode when not all products have SKUs */}
+      {(analysisMode === 'manual' || (analysisMode === 'ai' && !allProductsHaveSKUs)) && (
         <div className="rounded-md border border-[#272727] overflow-hidden mt-4">
           {isLoading ? (
             <div className="flex justify-center items-center p-8">
