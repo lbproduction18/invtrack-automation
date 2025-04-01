@@ -1,7 +1,8 @@
+
 import React from 'react';
-import { BudgetLoadingState } from '../BudgetLoadingState';
-import BudgetSimulationLayout from './BudgetSimulationLayout';
-import BudgetSidePanel from './BudgetSidePanel';
+import { BudgetLoadingState } from './budget/BudgetLoadingState';
+import BudgetSimulationLayout from './simulation/BudgetSimulationLayout';
+import BudgetSidePanel from './budget/BudgetSidePanel';
 import SimulationTabsContainer from './simulation/SimulationTabsContainer';
 import { useBudgetSimulation } from './simulation/useBudgetSimulation';
 

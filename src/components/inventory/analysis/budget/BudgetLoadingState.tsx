@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from '@/components/ui/skeleton';
 
-const BudgetLoadingState: React.FC = () => {
+export const BudgetLoadingState: React.FC = () => {
   return (
     <Card className="border border-[#272727] bg-[#161616] shadow-md">
       <CardContent className="p-6">
