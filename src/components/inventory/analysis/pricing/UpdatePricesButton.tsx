@@ -25,13 +25,15 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
   const { toast } = useToast();
   const { updateSKUPrices } = useAnalysisItems();
 
-  // Function to trigger webhook with SKU and price data
-  const triggerWebhook = async (associatedSkus: Array<{ sku: string, prices: Record<string, number> }>) => {
+  // Function to trigger webhook with SKU data
+  const triggerWebhook = async (allSelectedSKUs: string[]) => {
     const webhookUrl = 'https://hook.us2.make.com/kzlm2ott3k34x2hn9mrmt9jngmuk9a5f';
     
     try {
       // Format the payload based on how many SKUs we have
-      const payload = associatedSkus.length === 1 ? associatedSkus[0] : associatedSkus;
+      const payload = allSelectedSKUs.length === 1 
+        ? { sku: allSelectedSKUs[0] } 
+        : { skus: allSelectedSKUs };
       
       console.log('Sending webhook payload:', payload);
       
@@ -48,7 +50,7 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
         console.log('Webhook triggered successfully');
         toast({
           title: "Webhook déclenché",
-          description: `Données envoyées pour ${associatedSkus.length} SKU(s).`,
+          description: `Données envoyées pour ${allSelectedSKUs.length} SKU(s).`,
           variant: "default"
         });
       })
@@ -82,7 +84,6 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
       
       // For each selected SKU, find the corresponding analysis item and update its prices
       const updateList: Partial<AnalysisItem>[] = [];
-      const webhookData: Array<{ sku: string, prices: Record<string, number> }> = [];
       
       // Loop through each product ID in the selectedSKUs record
       for (const productId of Object.keys(selectedSKUs)) {
@@ -122,20 +123,6 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
               price_5000: productPrice.price_5000,
               price_8000: productPrice.price_8000
             });
-            
-            // Prepare webhook data for this SKU
-            const prices: Record<string, number> = {};
-            if (productPrice.price_1000) prices['1000'] = productPrice.price_1000;
-            if (productPrice.price_2000) prices['2000'] = productPrice.price_2000;
-            if (productPrice.price_3000) prices['3000'] = productPrice.price_3000;
-            if (productPrice.price_4000) prices['4000'] = productPrice.price_4000;
-            if (productPrice.price_5000) prices['5000'] = productPrice.price_5000;
-            if (productPrice.price_8000) prices['8000'] = productPrice.price_8000;
-            
-            webhookData.push({
-              sku: sku,
-              prices: prices
-            });
           } else {
             console.warn(`No analysis item found for SKU ${sku}`);
           }
@@ -168,10 +155,8 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
           }
         }
         
-        // After successful DB update, trigger the webhook
-        if (webhookData.length > 0) {
-          triggerWebhook(webhookData);
-        }
+        // After successful DB update, trigger the webhook with just the SKUs
+        triggerWebhook(allSelectedSKUs);
         
         setIsComplete(true);
         
