@@ -25,47 +25,6 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
   const { toast } = useToast();
   const { updateSKUPrices } = useAnalysisItems();
 
-  // Webhook endpoint
-  const webhookUrl = 'https://hook.us2.make.com/kzlm2ott3k34x2hn9mrmt9jngmuk9a5f';
-
-  // Function to trigger the webhook
-  const triggerWebhook = async (sku: string, priceData: Record<string, any>) => {
-    try {
-      const payload = {
-        sku,
-        prices: {
-          "1000": priceData.price_1000,
-          "2000": priceData.price_2000,
-          "3000": priceData.price_3000,
-          "4000": priceData.price_4000,
-          "5000": priceData.price_5000,
-          "8000": priceData.price_8000
-        }
-      };
-
-      console.log(`Sending webhook for SKU ${sku}:`, payload);
-      
-      // Make the webhook request asynchronously
-      fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-        mode: 'no-cors', // Use no-cors mode to avoid CORS issues
-      })
-      .then(response => {
-        console.log(`Webhook triggered for SKU ${sku}`);
-      })
-      .catch(error => {
-        console.error(`Error triggering webhook for SKU ${sku}:`, error);
-        // Don't show an error toast - we don't want to interrupt the user experience if the webhook fails
-      });
-    } catch (error) {
-      console.error(`Error preparing webhook for SKU ${sku}:`, error);
-    }
-  };
-
   const handleUpdatePrices = async () => {
     setIsLoading(true);
     
@@ -138,32 +97,21 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
       if (updateList.length > 0) {
         // Use the Supabase client directly to update the records
         for (const item of updateList) {
-          // Build the price data object
-          const priceData = {
-            price_1000: item.price_1000,
-            price_2000: item.price_2000,
-            price_3000: item.price_3000,
-            price_4000: item.price_4000,
-            price_5000: item.price_5000,
-            price_8000: item.price_8000
-          };
-          
-          // Update the database
           const { error } = await supabase
             .from('analysis_items')
-            .update(priceData)
+            .update({
+              price_1000: item.price_1000,
+              price_2000: item.price_2000,
+              price_3000: item.price_3000,
+              price_4000: item.price_4000,
+              price_5000: item.price_5000,
+              price_8000: item.price_8000
+            })
             .eq('id', item.id);
             
           if (error) {
             console.error(`Error updating prices for item ${item.id}:`, error);
             throw error;
-          }
-          
-          // Find the associated SKU for this item
-          const analysisItem = analysisItems.find(ai => ai.id === item.id);
-          if (analysisItem && analysisItem.sku_code) {
-            // Trigger the webhook asynchronously for this SKU
-            triggerWebhook(analysisItem.sku_code, priceData);
           }
         }
         

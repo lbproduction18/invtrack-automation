@@ -3,6 +3,7 @@ import React from 'react';
 import { Loader2 } from "lucide-react";
 import PriceTable from '../PriceTable';
 import BudgetSlider from './BudgetSlider';
+import AIAnalysisButton from './AIAnalysisButton';
 import SimulationSummary from '../SimulationSummary';
 import { ProductPrice } from '@/hooks/useProductPrices';
 import { AnalysisItem } from '@/hooks/useAnalysisItems';
@@ -61,33 +62,46 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
           <BudgetSlider simulationTotal={simulationTotal} />
         </div>
       )}
-      
-      {/* Price table - Always show in manual mode, or in AI mode */}
-      <div className="rounded-md border border-[#272727] overflow-hidden mt-4">
-        {isLoading ? (
-          <div className="flex justify-center items-center p-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2">Chargement des données...</span>
-          </div>
-        ) : (
-          <PriceTable
-            productPrices={productPrices}
-            isLoading={isLoading}
-            selectedSKUs={selectedSKUs}
-            quantities={quantities}
-            calculatedPrices={calculatedPrices}
-            analysisProductSKUs={analysisProductSKUs}
-            handleSKUSelect={handleSKUSelect}
-            handleSKURemove={handleSKURemove}
-            handleQuantityChange={handleQuantityChange}
-            getTotalForProduct={getTotalForProduct}
-            formatTotalPrice={formatTotalPrice}
-            showQuantityInputs={analysisMode === 'manual'}
-            simulationTotal={analysisMode === 'manual' ? simulationTotal : 0}
-            analysisMode={analysisMode}
+    
+      {/* Conditional rendering for AI Analysis mode */}
+      {analysisMode === 'ai' && (
+        <div className="mt-4">
+          {/* Always show AIAnalysisButton in AI mode */}
+          <AIAnalysisButton 
+            onLaunchAIAnalysis={handleLaunchAIAnalysis} 
+            className="w-full bg-primary hover:bg-primary/90"
           />
-        )}
-      </div>
+        </div>
+      )}
+      
+      {/* Price table - Always show in manual mode, or in AI mode when not all products have SKUs */}
+      {(analysisMode === 'manual' || (analysisMode === 'ai' && !allProductsHaveSKUs)) && (
+        <div className="rounded-md border border-[#272727] overflow-hidden mt-4">
+          {isLoading ? (
+            <div className="flex justify-center items-center p-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2">Chargement des données...</span>
+            </div>
+          ) : (
+            <PriceTable
+              productPrices={productPrices}
+              isLoading={isLoading}
+              selectedSKUs={selectedSKUs}
+              quantities={quantities}
+              calculatedPrices={calculatedPrices}
+              analysisProductSKUs={analysisProductSKUs}
+              handleSKUSelect={handleSKUSelect}
+              handleSKURemove={handleSKURemove}
+              handleQuantityChange={handleQuantityChange}
+              getTotalForProduct={getTotalForProduct}
+              formatTotalPrice={formatTotalPrice}
+              showQuantityInputs={analysisMode === 'manual'}
+              simulationTotal={analysisMode === 'manual' ? simulationTotal : 0}
+              analysisMode={analysisMode}
+            />
+          )}
+        </div>
+      )}
       
       {/* Only show simulation summary in manual mode */}
       {showSimulationSummary && analysisMode === 'manual' && (
