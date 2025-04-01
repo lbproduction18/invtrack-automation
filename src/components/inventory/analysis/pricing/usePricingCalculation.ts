@@ -9,10 +9,12 @@ import { useQuantityManagement } from './hooks/useQuantityManagement';
 import { getUnitPriceForSKU } from './hooks/utils/priceUtils';
 import { calculateTotalPrice } from '@/hooks/simulation/skuPriceHelpers';
 import { useResetAnalysisItems } from '@/hooks/analysis/useResetAnalysisItems';
+import { useAISimulationMetadata } from '@/hooks/useAISimulationMetadata';
 
 export function usePricingCalculation(productPrices: ProductPrice[]) {
   const { toast } = useToast();
   const { resetAnalysisItems } = useResetAnalysisItems();
+  const { deleteMetadata } = useAISimulationMetadata();
   
   // Use our custom hooks for SKU selection, price calculation, and quantity management
   const { 
@@ -108,13 +110,17 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     // We will not reset SKU selections in AI mode
     // The SKU associations are preserved while price/quantity data is reset
     
-    // Now reset database values
     try {
+      // 1. Reset database values for analysis items (existing behavior)
       await resetAnalysisItems.mutateAsync();
-      console.log("Database reset completed successfully");
+      
+      // 2. NEW: Delete the latest AI simulation metadata row
+      await deleteMetadata.mutateAsync();
+      
+      console.log("Simulation reset completed successfully");
     } catch (error) {
-      console.error("Error during database reset:", error);
-      // UI notification already handled by the mutation hook
+      console.error("Error during simulation reset:", error);
+      // UI notification already handled by the mutation hooks
     }
   };
 
