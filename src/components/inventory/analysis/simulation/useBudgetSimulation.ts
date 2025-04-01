@@ -10,13 +10,11 @@ import { useSimulationTabs } from '@/hooks/simulation/useSimulationTabs';
 import { useBudgetMetrics } from '@/hooks/simulation/useBudgetMetrics';
 import { useProductCategories } from '@/hooks/simulation/useProductCategories';
 import { useSyncSkuFromAnalysis } from '@/hooks/simulation/useSyncSkuFromAnalysis';
-import { useAISimulationMetadata } from '@/hooks/useAISimulationMetadata';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 
 export function useBudgetSimulation(onCreateOrder: () => void) {
   const { productPrices, productPricesByName, isLoading: isPricesLoading, refetch } = useProductPrices();
   const { budgetSettings, isLoading: isBudgetLoading } = useBudgetSettings();
-  const { metadata: aiMetadata, isLoading: isAIMetadataLoading } = useAISimulationMetadata();
   
   // Use our custom hooks for simulation state and management
   const { activeTab, setActiveTab } = useSimulationTabs();
@@ -42,7 +40,7 @@ export function useBudgetSimulation(onCreateOrder: () => void) {
   // Use our quantity selection hook
   const { selectedQuantities, handleOrderQuantityChange } = useQuantitySelection();
   
-  // Use our budget metrics hook with AI metadata override
+  // Use our budget metrics hook
   const {
     totalBudget,
     depositPercentage,
@@ -50,9 +48,10 @@ export function useBudgetSimulation(onCreateOrder: () => void) {
     remainingBudget,
     budgetPercentage,
     getUnitPriceWrapper
-  } = useBudgetMetrics(simulationTotal, aiMetadata?.budget_max);
+  } = useBudgetMetrics(simulationTotal);
   
-  // Sync SKUs from analysis items
+  // Sync SKUs from analysis items - fixed the issue with setSelectedQuantities
+  // We need to ensure handleOrderQuantityChange is properly cast to accept a QuantityOption
   const adaptedHandleOrderQuantityChange = (productId: string, quantityValue: string) => {
     // Convert string to QuantityOption
     const qty = Number(quantityValue) as QuantityOption;
@@ -69,10 +68,8 @@ export function useBudgetSimulation(onCreateOrder: () => void) {
   return {
     products,
     budgetSettings,
-    aiMetadata,
     isPricesLoading,
     isBudgetLoading,
-    isAIMetadataLoading,
     selectedQuantities,
     simulationTotal,
     setSimulationTotal: (value: number) => simulationTotal,
@@ -93,6 +90,6 @@ export function useBudgetSimulation(onCreateOrder: () => void) {
     handleOrderQuantityChange,
     handleRefresh,
     calculateSKUTotal,
-    getUnitPriceForSKU: getUnitPriceWrapper
+    getUnitPriceForSKU: getUnitPriceWrapper // Using the wrapper function
   };
 }

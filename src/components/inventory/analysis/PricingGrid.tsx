@@ -25,7 +25,6 @@ const PricingGrid: React.FC = () => {
   const { analysisItems, isLoading: isAnalysisLoading, refetch: refetchAnalysis } = useAnalysisItems();
   
   // Use the budget simulation hook to get the wrapper function
-  // Pass an empty function as we don't need to create an order here
   const { getUnitPriceForSKU } = useBudgetSimulation(() => {});
   
   const analysisProductSKUs = products.map(product => ({
