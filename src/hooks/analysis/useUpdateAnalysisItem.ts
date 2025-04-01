@@ -12,6 +12,8 @@ export function useUpdateAnalysisItem() {
     mutationFn: async (params: { id: string, data: Partial<AnalysisItem> }) => {
       const { id, data } = params;
       
+      console.log('Updating analysis item with data:', data);
+      
       // Get the current state of the analysis item before update
       const { data: currentItem, error: fetchError } = await supabase
         .from('analysis_items')
@@ -35,15 +37,24 @@ export function useUpdateAnalysisItem() {
         throw updateError;
       }
       
-      // Note: We've removed the analysis_log code as that table does not exist anymore
-      
       return updatedItem;
     },
-    onSuccess: () => {
-      toast({
-        title: "Produit mis à jour",
-        description: "Les modifications ont été enregistrées avec succès."
-      });
+    onSuccess: (data, variables) => {
+      // Check if the update was for a note
+      const isNoteUpdate = 'note' in variables.data;
+      
+      // Show different toast messages depending on what was updated
+      if (isNoteUpdate) {
+        toast({
+          title: "Note mise à jour",
+          description: "La note a été enregistrée avec succès."
+        });
+      } else {
+        toast({
+          title: "Produit mis à jour",
+          description: "Les modifications ont été enregistrées avec succès."
+        });
+      }
       
       // Invalidate the analysisItems query to refresh the data
       queryClient.invalidateQueries({ queryKey: ['analysisItems'] });

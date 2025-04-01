@@ -19,6 +19,8 @@ import {
   ThresholdCell, 
   NoteCell 
 } from './CellRenderers';
+import NoteEditor from '@/components/notes/NoteEditor';
+import { useNoteEditor } from '@/hooks/useNoteEditor';
 
 interface ProductTableRowProps {
   product: Product;
@@ -39,22 +41,40 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
   showAnalysisButton = false,
   onSendToAnalysis = () => {}
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isNoteExpanded, setIsNoteExpanded] = useState(false);
+  
+  const {
+    note,
+    isEditing: isEditingNote,
+    isUpdating: isUpdatingNote,
+    noteType,
+    handleEdit: handleEditNote,
+    handleCancel: handleCancelNote,
+    handleSave: handleSaveNote
+  } = useNoteEditor({
+    itemId: product.id,
+    initialNote: product.note || null,
+    tableType: 'Low stock product'
+  });
   
   // Sort columns by order
   const sortedColumns = [...columnVisibility].sort((a, b) => a.order - b.order);
 
-  const toggleExpand = () => {
-    if (product.note) {
-      setIsExpanded(!isExpanded);
+  const toggleExpandNote = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    
+    setIsNoteExpanded(!isNoteExpanded);
+    
+    // If opening and no note exists, go straight to edit mode
+    if (!isNoteExpanded && !isEditingNote && !note) {
+      handleEditNote();
     }
   };
 
   // Determine if this product has a note to apply special styling
-  const hasNote = Boolean(product.note);
-  
-  // Determine the note type and associated styles
-  const noteType = hasNote ? getNoteType(product.note || "") : "info";
+  const hasNote = Boolean(note);
   
   // Get styles based on priority (priority takes precedence over notes)
   const priorityStyles = getPriorityStyles(product.priority_badge);
@@ -95,7 +115,31 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
             case 'threshold':
               return <ThresholdCell key={`${product.id}-${column.id}`} product={product} priorityStyles={priorityStyles} />;
             case 'note':
-              return <NoteCell key={`${product.id}-${column.id}`} product={product} priorityStyles={priorityStyles} toggleExpand={toggleExpand} />;
+              return (
+                <TableCell key={`${product.id}-${column.id}`} className={cn("text-center whitespace-nowrap p-1", priorityStyles.text)}>
+                  <div className="flex justify-center">
+                    <Button 
+                      onClick={toggleExpandNote}
+                      className={cn(
+                        "inline-flex items-center justify-center rounded-full p-1 transition-colors",
+                        hasNote ? (noteType === 'info' ? "bg-sky-500/10 hover:bg-sky-500/20" : "bg-amber-500/10 hover:bg-amber-500/20") : "hover:bg-gray-500/20"
+                      )}
+                      variant="ghost"
+                      size="sm"
+                    >
+                      {hasNote ? (
+                        noteType === 'info' ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-sky-500"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                        )
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                      )}
+                    </Button>
+                  </div>
+                </TableCell>
+              );
             default:
               return null;
           }
@@ -115,17 +159,27 @@ export const ProductTableRow: React.FC<ProductTableRowProps> = ({
         </TableCell>
       </TableRow>
       
-      {isExpanded && product.note && (
+      {isNoteExpanded && (
         <TableRow className={cn(
           priorityStyles.bg || `bg-${noteType}/10`,
           priorityStyles.text,
           "border-t-0",
           `border-l-4 ${priorityStyles.border || `border-${noteType}`}`
         )}>
-          <TableCell colSpan={sortedColumns.filter(col => col.isVisible).length + 2} className="p-0">
-            <NoteContent 
-              noteText={product.note}
+          <TableCell colSpan={sortedColumns.filter(col => col.isVisible).length + 2} className="p-4">
+            <NoteEditor 
+              note={note}
+              isEditing={isEditingNote}
+              isUpdating={isUpdatingNote}
               noteType={noteType}
+              onEdit={handleEditNote}
+              onCancel={() => {
+                handleCancelNote();
+                if (!note) {
+                  setIsNoteExpanded(false);
+                }
+              }}
+              onSave={handleSaveNote}
               createdAt={product.created_at}
             />
           </TableCell>

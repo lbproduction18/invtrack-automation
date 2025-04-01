@@ -1,29 +1,24 @@
 
 import React from 'react';
 import { TableCell } from "@/components/ui/table";
-import { Info } from 'lucide-react';
+import NoteIconButton from '@/components/notes/NoteIconButton';
 
 interface NoteCellProps {
   note: string | null;
+  noteType: 'info' | 'warning';
   toggleNoteExpansion: (e: React.MouseEvent) => void;
 }
 
-const NoteCell: React.FC<NoteCellProps> = ({ note, toggleNoteExpansion }) => {
+const NoteCell: React.FC<NoteCellProps> = ({ note, noteType, toggleNoteExpansion }) => {
   return (
     <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
-      {note ? (
-        <div className="flex justify-center">
-          <button 
-            onClick={toggleNoteExpansion}
-            className="inline-flex items-center justify-center rounded-full p-1 transition-colors bg-sky-500/10 hover:bg-sky-500/20 text-sky-500"
-            aria-label="Voir la note"
-          >
-            <Info className="h-4 w-4 text-sky-500" />
-          </button>
-        </div>
-      ) : (
-        <span className="text-gray-500">-</span>
-      )}
+      <div className="flex justify-center">
+        <NoteIconButton
+          hasNote={!!note}
+          noteType={noteType}
+          onClick={toggleNoteExpansion}
+        />
+      </div>
     </TableCell>
   );
 };
