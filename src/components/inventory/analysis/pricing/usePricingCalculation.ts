@@ -6,7 +6,7 @@ import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { useSKUSelection } from './hooks/useSKUSelection';
 import { usePriceCalculation } from './hooks/usePriceCalculation';
 import { useQuantityManagement } from './hooks/useQuantityManagement';
-import { getUnitPriceForSKU, calculateTotalPrice } from '@/hooks/simulation/skuPriceHelpers';
+import { getUnitPriceForSKU, calculateTotalPrice } from './hooks/utils/priceUtils';
 
 export function usePricingCalculation(productPrices: ProductPrice[]) {
   const { toast } = useToast();
@@ -38,13 +38,21 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
 
   // Handle quantity change for a selected SKU with price calculation
   const handleQuantityChangeWithPrice = (productId: string, sku: string, quantityValue: string) => {
+    // Validate the quantity value
+    const parsedQuantity = parseInt(quantityValue, 10) || 0;
+    if (parsedQuantity <= 0) {
+      toast({
+        title: "Quantité invalide",
+        description: "La quantité doit être supérieure à zéro.",
+        variant: "destructive"
+      });
+      return quantityValue;
+    }
+    
     // Update the quantity
     handleQuantityChange(productId, sku, quantityValue);
     
-    // Calculate the price for this quantity
-    const parsedQuantity = parseInt(quantityValue, 10) || 0;
-    
-    // Get the unit price for this SKU and quantity
+    // Get the unit price for this SKU and quantity using the tiered pricing logic
     const unitPrice = getUnitPriceForSKU(productPrices, sku, parsedQuantity);
     
     // Calculate the total price for this SKU

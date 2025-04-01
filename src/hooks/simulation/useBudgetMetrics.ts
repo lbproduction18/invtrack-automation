@@ -1,7 +1,7 @@
 
 import { useBudgetSettings } from '@/hooks/useBudgetSettings';
 import { useSimulationState } from '@/hooks/useSimulationState';
-import { getUnitPriceForSKU } from '@/hooks/simulation/skuPriceHelpers';
+import { getUnitPriceForSKU as skuPriceHelperGetUnitPrice } from '@/hooks/simulation/skuPriceHelpers';
 import { ProductPrice } from '@/hooks/useProductPrices';
 
 /**
@@ -25,7 +25,7 @@ export function useBudgetMetrics(simulationTotal: number) {
     // Use an empty array for productPrices as it will be populated later
     const dummyProductPrices: ProductPrice[] = [];
     // Call the utility function
-    return getUnitPriceForSKU(dummyProductPrices, sku, numericQuantity);
+    return skuPriceHelperGetUnitPrice(dummyProductPrices, sku, numericQuantity);
   };
   
   return {
