@@ -82,6 +82,7 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
             showQuantityInputs={analysisMode === 'manual'}
             simulationTotal={analysisMode === 'manual' ? simulationTotal : 0}
             analysisMode={analysisMode}
+            analysisItems={analysisItems}
           />
         )}
       </div>

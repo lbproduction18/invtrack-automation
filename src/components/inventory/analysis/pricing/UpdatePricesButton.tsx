@@ -30,25 +30,25 @@ const UpdatePricesButton: React.FC<UpdatePricesButtonProps> = ({
 
   return (
     <Button 
-      variant="outline" 
-      size="sm"
+      variant="default"
+      size="lg"
       disabled={isLoading}
       onClick={handleUpdatePrices}
-      className={`text-xs h-8 border-[#272727] bg-[#161616] hover:bg-[#222] ${className}`}
+      className={`font-medium px-6 py-2 ${className}`}
     >
       {isLoading ? (
         <>
-          <RefreshCw className="mr-2 h-3 w-3 animate-spin" />
+          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
           Mise à jour en cours...
         </>
       ) : isComplete ? (
         <>
-          <Check className="mr-2 h-3 w-3 text-green-500" />
+          <Check className="mr-2 h-4 w-4" />
           Prix mis à jour
         </>
       ) : (
         <>
-          <Tag className="mr-2 h-3 w-3" />
+          <Tag className="mr-2 h-4 w-4" />
           Associer les prix
         </>
       )}

@@ -1,15 +1,13 @@
 
 import React from 'react';
-import { CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { RefreshCw, RotateCw, Loader2 } from "lucide-react";
-import UpdatePricesButton from '../UpdatePricesButton';
+import { Button } from '@/components/ui/button';
+import { RefreshCw, RotateCw } from 'lucide-react';
 import { ProductPrice } from '@/hooks/useProductPrices';
-import { AnalysisItem } from '@/hooks/useAnalysisItems';
+import { type AnalysisItem } from '@/types/analysisItem';
 
 interface PricingGridHeaderProps {
-  handleRefresh: () => Promise<void>;
-  handleResetSimulation: () => Promise<void>;
+  handleRefresh: () => void;
+  handleResetSimulation: () => void;
   isResetting: boolean;
   analysisMode: 'manual' | 'ai';
   productPrices: ProductPrice[];
@@ -21,14 +19,13 @@ const PricingGridHeader: React.FC<PricingGridHeaderProps> = ({
   handleRefresh,
   handleResetSimulation,
   isResetting,
-  analysisMode,
-  productPrices,
-  selectedSKUs,
-  analysisItems
+  analysisMode
 }) => {
   return (
     <div className="flex justify-between items-center">
-      <CardTitle className="text-sm font-medium">Grille Tarifaire</CardTitle>
+      <div className="text-sm font-medium">
+        Grille Tarifaire {analysisMode === 'ai' ? '(Mode AI)' : ''}
+      </div>
       <div className="flex space-x-2">
         <Button 
           variant="outline" 
@@ -46,21 +43,9 @@ const PricingGridHeader: React.FC<PricingGridHeaderProps> = ({
           disabled={isResetting}
           className="text-xs h-8 border-[#272727] bg-[#161616] hover:bg-[#222]"
         >
-          {isResetting ? (
-            <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-          ) : (
-            <RotateCw className="mr-2 h-3 w-3" />
-          )}
-          Réinitialiser
+          <RotateCw className="mr-2 h-3 w-3" />
+          {isResetting ? 'Réinitialisation...' : 'Réinitialiser'}
         </Button>
-        
-        {analysisMode === 'ai' && (
-          <UpdatePricesButton 
-            productPrices={productPrices}
-            selectedSKUs={selectedSKUs}
-            analysisItems={analysisItems}
-          />
-        )}
       </div>
     </div>
   );

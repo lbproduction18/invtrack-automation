@@ -13,6 +13,8 @@ import { ProductPrice } from '@/hooks/useProductPrices';
 import { formatPrice } from './PriceFormatter';
 import PriceTableRow from './PriceTableRow';
 import { Loader2 } from 'lucide-react';
+import UpdatePricesButton from './UpdatePricesButton';
+import { AnalysisItem } from '@/hooks/useAnalysisItems';
 
 interface PriceTableProps {
   productPrices: ProductPrice[];
@@ -29,6 +31,7 @@ interface PriceTableProps {
   showQuantityInputs?: boolean;
   simulationTotal?: number;
   analysisMode?: 'manual' | 'ai';
+  analysisItems?: AnalysisItem[];
 }
 
 const PriceTable: React.FC<PriceTableProps> = ({
@@ -45,7 +48,8 @@ const PriceTable: React.FC<PriceTableProps> = ({
   formatTotalPrice,
   showQuantityInputs = true,
   simulationTotal = 0,
-  analysisMode = 'manual'
+  analysisMode = 'manual',
+  analysisItems = []
 }) => {
   if (isLoading) {
     return (
@@ -133,6 +137,21 @@ const PriceTable: React.FC<PriceTableProps> = ({
             </TableCell>
             <TableCell className="text-right font-bold pr-4 text-primary">
               {formatTotalPrice(simulationTotal)}
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      )}
+      
+      {analysisMode === 'ai' && (
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={8} className="py-6 text-center border-t border-[#272727]">
+              <UpdatePricesButton 
+                productPrices={productPrices}
+                selectedSKUs={selectedSKUs}
+                analysisItems={analysisItems}
+                className="px-8 py-2 mx-auto"
+              />
             </TableCell>
           </TableRow>
         </TableFooter>
