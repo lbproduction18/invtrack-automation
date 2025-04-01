@@ -1,12 +1,12 @@
-
-import React, { useEffect } from 'react';
+import React from 'react';
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronDown, ChevronUp, PlusSquare, Trash } from "lucide-react";
 import { type ProductPrice } from '@/hooks/useProductPrices';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
 import { type SelectedSKU } from '@/types/product';
 import SimulationSKURow from './SimulationSKURow';
-import SKUSelector from './SKUSelector';
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface SimulationProductRowProps {
   productName: string;
@@ -33,89 +33,63 @@ const SimulationProductRow: React.FC<SimulationProductRowProps> = ({
   onRemoveSKU,
   calculateSKUTotal
 }) => {
-  const productPrice = productPrices.find(price => price.product_name === productName);
-  
-  useEffect(() => {
-    console.log(`SimulationProductRow - Product: ${productName}, Available SKUs:`, groupedSKUs);
-  }, [productName, groupedSKUs]);
-  
-  // Prepare the prices object for the product
-  const prices: Record<string, number | null> = {};
-  quantityOptions.forEach(qty => {
-    const priceKey = `price_${qty}` as keyof typeof productPrice;
-    prices[qty.toString()] = productPrice ? productPrice[priceKey] as number | null : null;
-  });
-  
-  // Handle adding a SKU with a specific quantity
-  const handleAddSKUWithQuantity = (productName: string, skuId: string, skuValue: string, quantity: QuantityOption) => {
-    // Find the SKU object
-    console.log(`Adding SKU with quantity - Product: ${productName}, SKU: ${skuValue}, Quantity: ${quantity}`);
-    const skuInfo = groupedSKUs.find(sku => sku.SKU === skuValue);
-    if (!skuInfo) {
-      console.error(`SKU ${skuValue} not found in groupedSKUs`);
-      return;
-    }
-    
-    console.log("Found SKU info:", skuInfo);
-    
-    // Add the SKU
-    onAddSKU(productName, skuInfo);
-    
-    // If adding was successful and we have selectedSKUs for this product
-    if (selectedSKUs[productName]?.length > 0) {
-      // Find the index of the newly added SKU (should be the last one)
-      const newSkuIndex = selectedSKUs[productName].length - 1;
-      
-      // Update its quantity
-      console.log(`Updating quantity for index ${newSkuIndex} to ${quantity}`);
-      onQuantityChange(productName, newSkuIndex, quantity);
-    }
-  };
-  
+  const skusForProduct = selectedSKUs[productName] || [];
+  const hasSKUs = skusForProduct.length > 0;
+
   return (
     <>
-      {/* Main product row */}
-      <TableRow className="border-b border-[#272727]">
-        <TableCell className="font-medium">{productName}</TableCell>
-        
-        {/* Price cells for each quantity option */}
-        {quantityOptions.map(qty => (
-          <TableCell key={qty} className="text-center">
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-            ) : (
-              <>
-                {productPrice && productPrice[`price_${qty}` as keyof typeof productPrice] ? 
-                  `${(productPrice[`price_${qty}` as keyof typeof productPrice] as number).toLocaleString()} $` : 
-                  '—'
-                }
-              </>
-            )}
-          </TableCell>
-        ))}
-        
-        {/* SKU selector cell */}
-        <TableCell>
-          <SKUSelector
-            productName={productName}
-            availableSKUs={groupedSKUs}
-            quantityOptions={quantityOptions}
-            prices={prices}
-            onAdd={handleAddSKUWithQuantity}
-          />
+      <TableRow className="relative">
+        <TableCell className="font-medium pl-4">{productName}</TableCell>
+        <TableCell colSpan={quantityOptions.length + 1} className="p-0 relative">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-20">
+              <Loader2 className="h-5 w-5 animate-spin text-gray-500" />
+            </div>
+          ) : (
+            <div className="flex items-center justify-around">
+              {quantityOptions.map((quantityOption, index) => {
+                const totalForQuantity = skusForProduct.reduce((sum, sku) => {
+                  if (sku.quantityOption.value === quantityOption.value) {
+                    return sum + calculateSKUTotal(sku);
+                  }
+                  return sum;
+                }, 0);
+
+                return (
+                  <div key={index} className="text-center">
+                    {totalForQuantity > 0 ? `$${totalForQuantity.toFixed(2)}` : '-'}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </TableCell>
+        <TableCell className="text-right pr-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <PlusSquare className="h-4 w-4 mr-2" />
+                Ajouter un SKU
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              {groupedSKUs.map(skuInfo => (
+                <DropdownMenuItem key={skuInfo.SKU} onClick={() => onAddSKU(productName, skuInfo)}>
+                  {skuInfo.SKU}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </TableCell>
       </TableRow>
-      
-      {/* SKU rows for this product */}
-      {selectedSKUs[productName]?.map((sku, index) => (
+      {skusForProduct.map((sku, index) => (
         <SimulationSKURow
-          key={`${sku.SKU}-${index}`}
+          key={sku.SKU}
           sku={sku}
           productName={productName}
-          index={index}
           quantityOptions={quantityOptions}
-          onQuantityChange={onQuantityChange}
-          onRemoveSKU={onRemoveSKU}
+          onQuantityChange={(quantity) => onQuantityChange(productName, index, quantity)}
+          onRemoveSKU={() => onRemoveSKU(productName, index)}
           calculateSKUTotal={calculateSKUTotal}
         />
       ))}
