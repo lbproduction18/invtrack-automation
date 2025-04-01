@@ -13,7 +13,7 @@ import { usePricingCalculation } from './usePricingCalculation';
 import PriceTable from './PriceTable';
 import SimulationSummary from './SimulationSummary';
 import UpdatePricesButton from './UpdatePricesButton';
-import { Loader2, RefreshCw, RotateCw } from 'lucide-react';
+import { Loader2, RefreshCw, RotateCw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBudgetSimulation } from '../simulation/useBudgetSimulation';
 import { formatTotalPrice } from './PriceFormatter';
@@ -56,6 +56,9 @@ const PricingGrid: React.FC<PricingGridProps> = ({
   const isLoading = isPricesLoading || isProductsLoading || isAnalysisLoading;
   const [isResetting, setIsResetting] = useState(false);
 
+  // State to track if all products have SKUs assigned in AI mode
+  const [allProductsHaveSKUs, setAllProductsHaveSKUs] = useState(false);
+
   const handleRefresh = async () => {
     await Promise.all([
       refetchPrices(),
@@ -73,6 +76,30 @@ const PricingGrid: React.FC<PricingGridProps> = ({
     } finally {
       setIsResetting(false);
     }
+  };
+
+  // Check if all products have SKUs assigned in AI mode
+  useEffect(() => {
+    if (analysisMode === 'ai' && productPrices.length > 0 && !isLoading) {
+      // Get all product IDs in the pricing grid
+      const productIds = productPrices.map(product => product.id);
+      
+      // Check if all products have at least one SKU assigned
+      const allAssigned = productIds.every(productId => 
+        selectedSKUs[productId] && selectedSKUs[productId].length > 0
+      );
+      
+      setAllProductsHaveSKUs(allAssigned);
+    } else {
+      setAllProductsHaveSKUs(false);
+    }
+  }, [selectedSKUs, productPrices, isLoading, analysisMode]);
+
+  // Handler for the "Lancer l'analyse AI" button
+  const handleLaunchAIAnalysis = () => {
+    // This function would trigger the AI analysis process
+    console.log("Launching AI Analysis...");
+    // Add the actual implementation for launching AI analysis here
   };
 
   useEffect(() => {
@@ -141,31 +168,48 @@ const PricingGrid: React.FC<PricingGridProps> = ({
           </div>
         )}
       
-        <div className="rounded-md border border-[#272727] overflow-hidden mt-4">
-          {isLoading ? (
-            <div className="flex justify-center items-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-2">Chargement des données...</span>
-            </div>
-          ) : (
-            <PriceTable
-              productPrices={productPrices}
-              isLoading={isLoading}
-              selectedSKUs={selectedSKUs}
-              quantities={quantities}
-              calculatedPrices={calculatedPrices}
-              analysisProductSKUs={analysisProductSKUs}
-              handleSKUSelect={handleSKUSelect}
-              handleSKURemove={handleSKURemove}
-              handleQuantityChange={handleQuantityChange}
-              getTotalForProduct={getTotalForProduct}
-              formatTotalPrice={formatTotalPrice}
-              showQuantityInputs={analysisMode === 'manual'}
-              simulationTotal={analysisMode === 'manual' ? simulationTotal : 0}
-              analysisMode={analysisMode}
-            />
-          )}
-        </div>
+        {/* Conditional rendering for AI Analysis mode based on SKU assignment status */}
+        {analysisMode === 'ai' && allProductsHaveSKUs ? (
+          <div className="flex flex-col items-center justify-center px-6 py-12 mt-4 space-y-4">
+            <Button 
+              onClick={handleLaunchAIAnalysis}
+              size="lg"
+              className="py-3 px-6 font-bold text-white transition-all duration-300 transform hover:scale-105"
+            >
+              <Sparkles className="w-5 h-5 mr-2" />
+              Lancer l'analyse AI
+            </Button>
+            <p className="text-center text-sm text-gray-400 max-w-md">
+              Toutes les associations SKU sont complètes. Vous pouvez maintenant lancer l'analyse AI.
+            </p>
+          </div>
+        ) : (
+          <div className="rounded-md border border-[#272727] overflow-hidden mt-4">
+            {isLoading ? (
+              <div className="flex justify-center items-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="ml-2">Chargement des données...</span>
+              </div>
+            ) : (
+              <PriceTable
+                productPrices={productPrices}
+                isLoading={isLoading}
+                selectedSKUs={selectedSKUs}
+                quantities={quantities}
+                calculatedPrices={calculatedPrices}
+                analysisProductSKUs={analysisProductSKUs}
+                handleSKUSelect={handleSKUSelect}
+                handleSKURemove={handleSKURemove}
+                handleQuantityChange={handleQuantityChange}
+                getTotalForProduct={getTotalForProduct}
+                formatTotalPrice={formatTotalPrice}
+                showQuantityInputs={analysisMode === 'manual'}
+                simulationTotal={analysisMode === 'manual' ? simulationTotal : 0}
+                analysisMode={analysisMode}
+              />
+            )}
+          </div>
+        )}
         
         {/* Only show simulation summary in manual mode */}
         {showSimulationSummary && analysisMode === 'manual' && (

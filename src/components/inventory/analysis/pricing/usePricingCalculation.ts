@@ -99,7 +99,7 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     console.log(`Initial price for ${sku}: ${unitPrice} x ${parsedQuantity} = ${totalPrice}`);
   };
 
-  // Reset the entire simulation
+  // Reset the simulation
   const resetSimulation = async () => {
     // Reset frontend state first
     resetSKUSelection();
