@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_simulation_metadata: {
+        Row: {
+          ai_note: string | null
+          budget_max: number
+          created_at: string
+          id: string
+          simulation_label: string | null
+          status: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          ai_note?: string | null
+          budget_max?: number
+          created_at?: string
+          id?: string
+          simulation_label?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          ai_note?: string | null
+          budget_max?: number
+          created_at?: string
+          id?: string
+          simulation_label?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       analysis_items: {
         Row: {
           created_at: string | null

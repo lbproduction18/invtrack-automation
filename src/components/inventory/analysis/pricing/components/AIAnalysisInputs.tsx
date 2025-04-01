@@ -1,10 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Brain } from 'lucide-react';
 import { formatTotalPrice } from '../PriceFormatter';
+import { useAISimulationMetadata } from '@/hooks/useAISimulationMetadata';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 interface AIAnalysisInputsProps {
   budget: number;
@@ -19,8 +22,51 @@ const AIAnalysisInputs: React.FC<AIAnalysisInputsProps> = ({
   notes,
   onNotesChange
 }) => {
+  const { 
+    metadata, 
+    isLoading, 
+    saveSimulationSettings 
+  } = useAISimulationMetadata();
+  const [isSaving, setIsSaving] = useState(false);
+  const [localBudget, setLocalBudget] = useState(budget);
+  const [localNotes, setLocalNotes] = useState(notes);
+
+  // Initialize with database values when they're loaded
+  useEffect(() => {
+    if (metadata && !isLoading) {
+      if (metadata.budget_max && metadata.budget_max !== budget) {
+        setLocalBudget(metadata.budget_max);
+        onBudgetChange(metadata.budget_max);
+      }
+      
+      if (metadata.ai_note !== null && metadata.ai_note !== notes) {
+        setLocalNotes(metadata.ai_note);
+        onNotesChange(metadata.ai_note);
+      }
+    }
+  }, [metadata, isLoading]);
+
   const handleSliderChange = (values: number[]) => {
-    onBudgetChange(values[0]);
+    const newValue = values[0];
+    setLocalBudget(newValue);
+    onBudgetChange(newValue);
+  };
+
+  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setLocalNotes(e.target.value);
+    onNotesChange(e.target.value);
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await saveSimulationSettings({
+        budget_max: localBudget,
+        ai_note: localNotes
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -31,7 +77,7 @@ const AIAnalysisInputs: React.FC<AIAnalysisInputsProps> = ({
             Budget maximum pour cette simulation
           </Label>
           <span className="text-primary font-medium tabular-nums">
-            {formatTotalPrice(budget)}
+            {formatTotalPrice(localBudget)}
           </span>
         </div>
         <Slider
@@ -39,7 +85,7 @@ const AIAnalysisInputs: React.FC<AIAnalysisInputsProps> = ({
           min={0}
           max={1000000}
           step={10000}
-          value={[budget]}
+          value={[localBudget]}
           onValueChange={handleSliderChange}
           className="py-4"
         />
@@ -55,15 +101,31 @@ const AIAnalysisInputs: React.FC<AIAnalysisInputsProps> = ({
         </Label>
         <Textarea 
           id="ai-notes"
-          value={notes}
-          onChange={(e) => onNotesChange(e.target.value)}
+          value={localNotes || ''}
+          onChange={handleNotesChange}
           placeholder="Ex: Favoriser les formats économiques. Éviter les produits à base de caféine."
           className="min-h-[100px] bg-background border border-[#272727] focus:border-primary focus:ring-primary"
         />
       </div>
       
-      <div className="text-xs text-gray-400 italic">
-        Ces données seront utilisées pour guider l'analyse automatisée.
+      <div className="flex justify-between items-center">
+        <div className="text-xs text-gray-400 italic">
+          Ces données seront utilisées pour guider l'analyse automatisée.
+        </div>
+        
+        <Button 
+          onClick={handleSave} 
+          disabled={isSaving || isLoading}
+          size="sm"
+          className="text-xs"
+        >
+          {isSaving ? (
+            <>
+              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+              Sauvegarde...
+            </>
+          ) : "Sauvegarder"}
+        </Button>
       </div>
     </div>
   );
