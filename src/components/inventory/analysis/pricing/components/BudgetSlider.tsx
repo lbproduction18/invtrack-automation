@@ -40,14 +40,14 @@ const BudgetSlider: React.FC<BudgetSliderProps> = ({
   // Determine color based on budget percentage
   const getBudgetColor = () => {
     if (budgetExceeded) return 'text-red-400';
-    if (budgetPercentage > 70) return 'text-yellow-400';
+    if (budgetPercentage > 70) return 'text-orange-400';
     return 'text-green-300';
   };
 
   // Determine progress indicator color
   const getProgressColor = () => {
     if (budgetExceeded) return 'bg-red-400';
-    if (budgetPercentage > 70) return 'bg-yellow-400';
+    if (budgetPercentage > 70) return 'bg-orange-400';
     return undefined; // Default green from the component
   };
   
