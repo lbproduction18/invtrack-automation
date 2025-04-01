@@ -54,6 +54,7 @@ const PricingGrid: React.FC<PricingGridProps> = ({
   } = usePricingCalculation(productPrices);
   
   const isLoading = isPricesLoading || isProductsLoading || isAnalysisLoading;
+  const [isResetting, setIsResetting] = useState(false);
 
   const handleRefresh = async () => {
     await Promise.all([
@@ -62,8 +63,16 @@ const PricingGrid: React.FC<PricingGridProps> = ({
     ]);
   };
 
-  const handleResetSimulation = () => {
-    resetSimulation(); // Call the reset function from the hook
+  const handleResetSimulation = async () => {
+    setIsResetting(true);
+    try {
+      // Call the reset function from the hook that now includes database reset
+      await resetSimulation();
+    } catch (error) {
+      console.error("Error during reset:", error);
+    } finally {
+      setIsResetting(false);
+    }
   };
 
   useEffect(() => {
@@ -89,9 +98,14 @@ const PricingGrid: React.FC<PricingGridProps> = ({
               variant="outline" 
               size="sm"
               onClick={handleResetSimulation}
+              disabled={isResetting}
               className="text-xs h-8 border-[#272727] bg-[#161616] hover:bg-[#222]"
             >
-              <RotateCw className="mr-2 h-3 w-3" />
+              {isResetting ? (
+                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+              ) : (
+                <RotateCw className="mr-2 h-3 w-3" />
+              )}
               Réinitialiser
             </Button>
             

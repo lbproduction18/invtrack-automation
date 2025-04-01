@@ -8,9 +8,11 @@ import { usePriceCalculation } from './hooks/usePriceCalculation';
 import { useQuantityManagement } from './hooks/useQuantityManagement';
 import { getUnitPriceForSKU } from './hooks/utils/priceUtils';
 import { calculateTotalPrice } from '@/hooks/simulation/skuPriceHelpers';
+import { useResetAnalysisItems } from '@/hooks/analysis/useResetAnalysisItems';
 
 export function usePricingCalculation(productPrices: ProductPrice[]) {
   const { toast } = useToast();
+  const { resetAnalysisItems } = useResetAnalysisItems();
   
   // Use our custom hooks for SKU selection, price calculation, and quantity management
   const { 
@@ -98,15 +100,20 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
   };
 
   // Reset the entire simulation
-  const resetSimulation = () => {
+  const resetSimulation = async () => {
+    // Reset frontend state first
     resetSKUSelection();
     resetQuantities();
     resetPriceCalculations();
     
-    toast({
-      title: "Simulation réinitialisée",
-      description: "Toutes les sélections ont été effacées."
-    });
+    // Now reset database values
+    try {
+      await resetAnalysisItems.mutateAsync();
+      console.log("Database reset completed successfully");
+    } catch (error) {
+      console.error("Error during database reset:", error);
+      // UI notification already handled by the mutation hook
+    }
   };
 
   return {
