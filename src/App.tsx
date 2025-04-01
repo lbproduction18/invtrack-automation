@@ -17,8 +17,8 @@ const queryClient = new QueryClient();
 const App = () => (
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="min-h-screen bg-background text-foreground">
+      <div className="min-h-screen bg-background text-foreground">
+        <TooltipProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -28,8 +28,8 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
-        </div>
-      </TooltipProvider>
+        </TooltipProvider>
+      </div>
     </QueryClientProvider>
   </React.StrictMode>
 );
