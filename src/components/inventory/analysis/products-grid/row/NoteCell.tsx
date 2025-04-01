@@ -1,8 +1,7 @@
 
 import React from 'react';
-import { TableCell } from '@/components/ui/table';
-import { FileText } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { TableCell } from "@/components/ui/table";
+import { Info } from 'lucide-react';
 
 interface NoteCellProps {
   note: string | null;
@@ -11,20 +10,19 @@ interface NoteCellProps {
 
 const NoteCell: React.FC<NoteCellProps> = ({ note, toggleNoteExpansion }) => {
   return (
-    <TableCell className="text-center py-3">
+    <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
       {note ? (
-        <button
-          onClick={toggleNoteExpansion}
-          className={cn(
-            "p-1.5 rounded-full transition-colors",
-            "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
-          )}
-          aria-label="Voir la note"
-        >
-          <FileText className="h-4 w-4" />
-        </button>
+        <div className="flex justify-center">
+          <button 
+            onClick={toggleNoteExpansion}
+            className="inline-flex items-center justify-center rounded-full p-1 transition-colors bg-sky-500/10 hover:bg-sky-500/20 text-sky-500"
+            aria-label="Voir la note"
+          >
+            <Info className="h-4 w-4 text-sky-500" />
+          </button>
+        </div>
       ) : (
-        <span className="text-gray-500">—</span>
+        <span className="text-gray-500">-</span>
       )}
     </TableCell>
   );

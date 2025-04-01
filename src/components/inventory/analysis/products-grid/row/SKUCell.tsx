@@ -1,30 +1,20 @@
 
 import React from 'react';
-import { TableCell } from '@/components/ui/table';
-import { Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { TableCell } from "@/components/ui/table";
 
 interface SKUCellProps {
   skuCode: string | null;
   skuLabel: string | null;
-  isComplete?: boolean;
 }
 
-const SKUCell: React.FC<SKUCellProps> = ({ skuCode, skuLabel, isComplete = false }) => {
+const SKUCell: React.FC<SKUCellProps> = ({ skuCode, skuLabel }) => {
   return (
-    <TableCell className="py-3 pl-4">
-      <div className="flex items-center space-x-2">
-        {isComplete && (
-          <span className="text-green-500 bg-green-500/10 p-1 rounded-full">
-            <Check className="h-3.5 w-3.5" />
-          </span>
+    <TableCell className="font-medium whitespace-nowrap pl-4">
+      <div className="flex flex-col">
+        <span>{skuCode || '-'}</span>
+        {skuLabel && (
+          <span className="text-xs text-gray-400">{skuLabel}</span>
         )}
-        <div>
-          <div className="font-semibold text-gray-200">{skuCode || "—"}</div>
-          {skuLabel && (
-            <div className="text-xs text-gray-500 mt-1">{skuLabel}</div>
-          )}
-        </div>
       </div>
     </TableCell>
   );

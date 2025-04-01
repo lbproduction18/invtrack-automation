@@ -7,9 +7,8 @@ import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { type AnalysisProduct } from '@/components/inventory/AnalysisContent';
 import { useNotifications } from '../pricing/hooks/useNotifications';
 import { useEditableFields } from './hooks/useEditableFields';
-import { cn } from '@/lib/utils';
 
-// Import our sub-components
+// Import our new sub-components
 import SKUCell from './row/SKUCell';
 import StockCell from './row/StockCell';
 import NoteCell from './row/NoteCell';
@@ -22,17 +21,13 @@ interface AnalysisProductRowProps {
   handleRowClick: (product: AnalysisProduct) => void;
   toggleNoteExpansion: (e: React.MouseEvent, productId: string) => void;
   refetchAnalysis: () => void;
-  isComplete?: boolean;
-  isAlternate?: boolean;
 }
 
 const AnalysisProductRow: React.FC<AnalysisProductRowProps> = ({
   item,
   handleRowClick,
   toggleNoteExpansion,
-  refetchAnalysis,
-  isComplete = false,
-  isAlternate = false
+  refetchAnalysis
 }) => {
   const { toast } = useToast();
   const { notifyProductRemoved } = useNotifications();
@@ -91,24 +86,15 @@ const AnalysisProductRow: React.FC<AnalysisProductRowProps> = ({
 
   return (
     <TableRow 
-      className={cn(
-        "border-t border-[#2A2A2A] cursor-pointer transition-colors duration-200",
-        isAlternate ? "bg-[#0F0F0F]" : "bg-[#131313]",
-        "hover:bg-[#1A1A1A]",
-        isComplete && "border-l-2 border-l-green-500/50"
-      )}
+      className="hover:bg-[#161616] border-t border-[#272727] cursor-pointer"
       onClick={() => handleRowClick(item)}
     >
-      <SKUCell 
-        skuCode={item.sku_code} 
-        skuLabel={item.sku_label} 
-        isComplete={isComplete}
-      />
+      <SKUCell skuCode={item.sku_code} skuLabel={item.sku_label} />
       
       <StockCell stock={item.stock} threshold={item.threshold} />
       
-      <TableCell className="text-center text-gray-400 py-3">
-        {item.threshold !== null ? item.threshold : '—'}
+      <TableCell className="text-center text-gray-400">
+        {item.threshold !== null ? item.threshold : '-'}
       </TableCell>
 
       <NoteCell 
@@ -116,7 +102,7 @@ const AnalysisProductRow: React.FC<AnalysisProductRowProps> = ({
         toggleNoteExpansion={(e) => toggleNoteExpansion(e, item.id)} 
       />
       
-      <TableCell className="text-center py-3" onClick={(e) => e.stopPropagation()}>
+      <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
         <EditableField
           value={editableValues[`last_order_${item.id}`] || ''}
           onChange={(value) => handleInputChange(`last_order_${item.id}`, value)}
@@ -128,7 +114,7 @@ const AnalysisProductRow: React.FC<AnalysisProductRowProps> = ({
         />
       </TableCell>
       
-      <TableCell className="text-center py-3" onClick={(e) => e.stopPropagation()}>
+      <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
         <DateField
           value={editableValues[`last_order_date_${item.id}`] ? new Date(editableValues[`last_order_date_${item.id}`]) : null}
           onSelect={(date) => updateLastOrderDate(item.id, date)}
@@ -137,7 +123,7 @@ const AnalysisProductRow: React.FC<AnalysisProductRowProps> = ({
         />
       </TableCell>
       
-      <TableCell className="text-center py-3" onClick={(e) => e.stopPropagation()}>
+      <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
         <EditableField
           value={editableValues[`lab_status_${item.id}`] || ''}
           onChange={(value) => handleInputChange(`lab_status_${item.id}`, value)}
@@ -149,7 +135,7 @@ const AnalysisProductRow: React.FC<AnalysisProductRowProps> = ({
         />
       </TableCell>
       
-      <TableCell className="text-center py-3" onClick={(e) => e.stopPropagation()}>
+      <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
         <EditableField
           value={editableValues[`weeks_delivery_${item.id}`] || ''}
           onChange={(value) => handleInputChange(`weeks_delivery_${item.id}`, value)}
@@ -158,11 +144,10 @@ const AnalysisProductRow: React.FC<AnalysisProductRowProps> = ({
           placeholder="Ex: 6, 6-8 semaines"
           isUpdating={isUpdating[`weeks_delivery_${item.id}`]}
           saveSuccess={saveSuccess[`weeks_delivery_${item.id}`]}
-          className="w-36 bg-[#121212] border-[#272727] text-center"
         />
       </TableCell>
       
-      <TableCell className="text-center py-3" onClick={(e) => e.stopPropagation()}>
+      <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
         <RowActions
           onView={() => handleRowClick(item)}
           onRemove={removeFromAnalysis}

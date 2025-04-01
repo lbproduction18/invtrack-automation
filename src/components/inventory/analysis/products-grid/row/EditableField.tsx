@@ -2,7 +2,6 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Loader2, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface EditableFieldProps {
   value: string;
@@ -28,22 +27,16 @@ const EditableField: React.FC<EditableFieldProps> = ({
   return (
     <div className="flex items-center justify-center space-x-2">
       <Input
-        className={cn(
-          className,
-          "rounded-md transition-all duration-200",
-          "focus:border-primary focus:ring-1 focus:ring-primary/30",
-          value ? "hover:border-[#3ECF8E]/30" : "hover:border-red-500/30"
-        )}
+        className={className}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onBlur={onBlur}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
         disabled={isUpdating}
-        aria-label={placeholder}
       />
       {isUpdating && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
-      {saveSuccess && <Check className="w-4 h-4 text-green-500 animate-scale-in" />}
+      {saveSuccess && <Check className="w-4 h-4 text-green-500" />}
     </div>
   );
 };

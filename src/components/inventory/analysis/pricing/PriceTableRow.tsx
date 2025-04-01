@@ -11,7 +11,6 @@ import {
 import SelectedSKUsList from './SelectedSKUsList';
 import { formatTotalPrice } from './PriceFormatter';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
-import { cn } from '@/lib/utils';
 
 interface PriceTableRowProps {
   product: ProductPrice;
@@ -26,7 +25,6 @@ interface PriceTableRowProps {
   formatPrice: (price: number | null) => React.ReactNode;
   formatTotalPrice: (price: number) => string;
   showQuantityInputs?: boolean;
-  isAlternate?: boolean;
 }
 
 const PriceTableRow: React.FC<PriceTableRowProps> = ({
@@ -41,8 +39,7 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
   getTotalForProduct,
   formatPrice,
   formatTotalPrice,
-  showQuantityInputs = true,
-  isAlternate = false
+  showQuantityInputs = true
 }) => {
   // Get analysis items directly from Supabase via the hook
   const { analysisItems } = useAnalysisItems();
@@ -77,36 +74,28 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
 
   // Get the total price for all SKUs in this product row
   const rowTotal = getTotalForProduct(product.id);
-  
-  // For UI styling based on state
-  const hasSKUs = productSelectedSKUs.length > 0;
 
   return (
     <>
-      <TableRow className={cn(
-        "transition-colors duration-200 border-t border-[#2A2A2A]",
-        isAlternate ? "bg-[#161616]" : "bg-[#131313]",
-        "hover:bg-[#1A1A1A]",
-        hasSKUs && "border-b-0"
-      )}>
-        <TableCell className="font-medium pl-4 py-3">{product.product_name}</TableCell>
-        <TableCell className="text-center py-3">{formatPrice(product.price_1000)}</TableCell>
-        <TableCell className="text-center py-3">{formatPrice(product.price_2000)}</TableCell>
-        <TableCell className="text-center py-3">{formatPrice(product.price_3000)}</TableCell>
-        <TableCell className="text-center py-3">{formatPrice(product.price_4000)}</TableCell>
-        <TableCell className="text-center py-3">{formatPrice(product.price_5000)}</TableCell>
-        <TableCell className="text-center py-3">{formatPrice(product.price_8000)}</TableCell>
-        <TableCell className="text-center py-3">
+      <TableRow className="hover:bg-[#161616] border-t border-[#272727]">
+        <TableCell className="font-medium">{product.product_name}</TableCell>
+        <TableCell className="text-center">{formatPrice(product.price_1000)}</TableCell>
+        <TableCell className="text-center">{formatPrice(product.price_2000)}</TableCell>
+        <TableCell className="text-center">{formatPrice(product.price_3000)}</TableCell>
+        <TableCell className="text-center">{formatPrice(product.price_4000)}</TableCell>
+        <TableCell className="text-center">{formatPrice(product.price_5000)}</TableCell>
+        <TableCell className="text-center">{formatPrice(product.price_8000)}</TableCell>
+        <TableCell className="text-center">
           <DropdownMenu>
-            <DropdownMenuTrigger className="w-full px-3 py-2 text-sm border border-[#2A2A2A] rounded-md bg-[#1A1A1A] hover:bg-[#222] hover:border-[#3ECF8E] transition-colors duration-200">
+            <DropdownMenuTrigger className="w-full px-3 py-1 text-sm border border-input rounded-md bg-[#161616] hover:bg-[#272727]">
               {availableSKUsFromAnalysis.length > 0 ? 'Ajouter SKU' : 'Aucun SKU disponible'}
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="max-h-[200px] overflow-y-auto bg-[#1A1A1A] border-[#2A2A2A] z-[100] rounded-md shadow-lg">
+            <DropdownMenuContent className="max-h-[200px] overflow-y-auto bg-[#161616] border-[#272727] z-[100]">
               {availableSKUsFromAnalysis.map((skuItem) => (
                 <DropdownMenuItem 
                   key={skuItem.SKU}
                   onClick={() => handleSKUSelect(product.id, skuItem.SKU)}
-                  className="cursor-pointer hover:bg-[#2A2A2A] transition-colors duration-150"
+                  className="cursor-pointer hover:bg-[#272727]"
                 >
                   {skuItem.SKU}
                 </DropdownMenuItem>
@@ -119,21 +108,14 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
             </DropdownMenuContent>
           </DropdownMenu>
         </TableCell>
-        <TableCell className="text-right font-medium pr-4 py-3">
-          {rowTotal > 0 ? (
-            <span className="text-green-500 font-semibold tabular-nums">{formatTotalPrice(rowTotal)}</span>
-          ) : (
-            <span className="text-gray-500">—</span>
-          )}
+        <TableCell className="text-right font-medium pr-4">
+          {rowTotal > 0 ? formatTotalPrice(rowTotal) : <span className="text-gray-500">—</span>}
         </TableCell>
       </TableRow>
 
       {/* Show the list of selected SKUs */}
       {productSelectedSKUs.length > 0 && (
-        <TableRow className={cn(
-          "hover:bg-transparent border-none",
-          isAlternate ? "bg-[#161616]" : "bg-[#131313]"
-        )}>
+        <TableRow className="hover:bg-transparent border-none">
           <TableCell colSpan={9} className="py-0 px-4">
             <SelectedSKUsList
               productId={product.id}
