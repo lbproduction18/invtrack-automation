@@ -25,6 +25,7 @@ interface PriceTableRowProps {
   formatPrice: (price: number | null) => React.ReactNode;
   formatTotalPrice: (price: number) => string;
   showQuantityInputs?: boolean;
+  analysisMode?: 'manual' | 'ai';
 }
 
 const PriceTableRow: React.FC<PriceTableRowProps> = ({
@@ -39,7 +40,8 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
   getTotalForProduct,
   formatPrice,
   formatTotalPrice,
-  showQuantityInputs = true
+  showQuantityInputs = true,
+  analysisMode = 'manual'
 }) => {
   // Get analysis items directly from Supabase via the hook
   const { analysisItems } = useAnalysisItems();
@@ -108,15 +110,17 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
             </DropdownMenuContent>
           </DropdownMenu>
         </TableCell>
-        <TableCell className="text-right font-medium pr-4">
-          {rowTotal > 0 ? formatTotalPrice(rowTotal) : <span className="text-gray-500">—</span>}
-        </TableCell>
+        {analysisMode === 'manual' && (
+          <TableCell className="text-right font-medium pr-4">
+            {rowTotal > 0 ? formatTotalPrice(rowTotal) : <span className="text-gray-500">—</span>}
+          </TableCell>
+        )}
       </TableRow>
 
       {/* Show the list of selected SKUs */}
       {productSelectedSKUs.length > 0 && (
         <TableRow className="hover:bg-transparent border-none">
-          <TableCell colSpan={9} className="py-0 px-4">
+          <TableCell colSpan={analysisMode === 'manual' ? 9 : 8} className="py-0 px-4">
             <SelectedSKUsList
               productId={product.id}
               skus={productSelectedSKUs}
@@ -126,6 +130,7 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
               onRemoveSKU={handleSKURemove}
               hasOnlyPrice8000={onlyHas8000}
               showQuantityInputs={showQuantityInputs}
+              analysisMode={analysisMode}
             />
           </TableCell>
         </TableRow>

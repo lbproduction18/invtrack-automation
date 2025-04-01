@@ -146,13 +146,15 @@ const PricingGrid: React.FC<PricingGridProps> = ({
               handleQuantityChange={handleQuantityChange}
               getTotalForProduct={getTotalForProduct}
               formatTotalPrice={formatTotalPrice}
-              showQuantityInputs={showSimulationSummary}
-              simulationTotal={simulationTotal}
+              showQuantityInputs={analysisMode === 'manual'}
+              simulationTotal={analysisMode === 'manual' ? simulationTotal : 0}
+              analysisMode={analysisMode}
             />
           )}
         </div>
         
-        {showSimulationSummary && (
+        {/* Only show simulation summary in manual mode */}
+        {showSimulationSummary && analysisMode === 'manual' && (
           <div className="mt-4">
             <SimulationSummary 
               analysisItems={analysisItems}

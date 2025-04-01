@@ -28,6 +28,7 @@ interface PriceTableProps {
   formatTotalPrice: (price: number) => string;
   showQuantityInputs?: boolean;
   simulationTotal?: number;
+  analysisMode?: 'manual' | 'ai';
 }
 
 const PriceTable: React.FC<PriceTableProps> = ({
@@ -43,7 +44,8 @@ const PriceTable: React.FC<PriceTableProps> = ({
   getTotalForProduct,
   formatTotalPrice,
   showQuantityInputs = true,
-  simulationTotal = 0
+  simulationTotal = 0,
+  analysisMode = 'manual'
 }) => {
   if (isLoading) {
     return (
@@ -88,14 +90,16 @@ const PriceTable: React.FC<PriceTableProps> = ({
           <TableHead className="text-center bg-[#161616]">Prix 5000</TableHead>
           <TableHead className="text-center bg-[#161616]">Prix 8000</TableHead>
           <TableHead className="text-center bg-[#161616]">SKU</TableHead>
-          <TableHead className="text-right pr-4 bg-[#161616]">Total (CAD)</TableHead>
+          {analysisMode === 'manual' && (
+            <TableHead className="text-right pr-4 bg-[#161616]">Total (CAD)</TableHead>
+          )}
         </TableRow>
       </TableHeader>
             
       <TableBody>
         {sortedProducts.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={9} className="h-24 text-center text-gray-500">
+            <TableCell colSpan={analysisMode === 'manual' ? 9 : 8} className="h-24 text-center text-gray-500">
               Aucun produit trouvé dans la base de données
             </TableCell>
           </TableRow>
@@ -115,12 +119,13 @@ const PriceTable: React.FC<PriceTableProps> = ({
               formatPrice={formatPrice}
               formatTotalPrice={formatTotalPrice}
               showQuantityInputs={showQuantityInputs}
+              analysisMode={analysisMode}
             />
           ))
         )}
       </TableBody>
       
-      {showQuantityInputs && simulationTotal > 0 && (
+      {analysisMode === 'manual' && showQuantityInputs && simulationTotal > 0 && (
         <TableFooter className="bg-[#161616]">
           <TableRow className="border-t border-[#272727]">
             <TableCell colSpan={8} className="text-right font-semibold pr-4">
