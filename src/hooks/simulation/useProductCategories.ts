@@ -1,39 +1,23 @@
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { Product } from '@/types/product';
 
-// Function to create product categories
 export function useProductCategories(products: Product[]) {
-  const [categories, setCategories] = useState<Record<string, Product[]>>({});
-  
-  useEffect(() => {
-    if (!products.length) return;
+  const categories = useMemo(() => {
+    const categorizedProducts: Record<string, Product[]> = {};
     
-    // Group products by first letter
-    const groupedProducts = products.reduce((acc, product) => {
-      // Extract the first letter of the product name and uppercase it
-      const firstLetter = product.product_name.charAt(0).toUpperCase();
+    products.forEach(product => {
+      // Extract category from product name (first word)
+      const category = product.product_name?.split(' ')[0] || 'Other';
       
-      // Initialize the category array if it doesn't exist
-      if (!acc[firstLetter]) {
-        acc[firstLetter] = [];
+      if (!categorizedProducts[category]) {
+        categorizedProducts[category] = [];
       }
       
-      // Add the product to its category
-      acc[firstLetter].push(product);
-      
-      return acc;
-    }, {} as Record<string, Product[]>);
+      categorizedProducts[category].push(product);
+    });
     
-    // Sort categories alphabetically
-    const sortedCategories = Object.keys(groupedProducts)
-      .sort()
-      .reduce((obj, key) => {
-        obj[key] = groupedProducts[key];
-        return obj;
-      }, {} as Record<string, Product[]>);
-    
-    setCategories(sortedCategories);
+    return categorizedProducts;
   }, [products]);
   
   return { categories };

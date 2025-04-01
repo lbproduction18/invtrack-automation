@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -26,7 +27,7 @@ const PricingGrid: React.FC<PricingGridProps> = ({
   const { products, isLoading: isProductsLoading } = useProducts('analysis');
   const { analysisItems, isLoading: isAnalysisLoading, refetch: refetchAnalysis } = useAnalysisItems();
   
-  const { getUnitPriceForSKU } = useBudgetSimulation(() => {});
+  const { getUnitPriceForSKU } = useBudgetSimulation();
   
   const analysisProductSKUs = products.map(product => ({
     id: product.id,

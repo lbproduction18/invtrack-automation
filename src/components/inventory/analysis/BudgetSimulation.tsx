@@ -26,9 +26,11 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ simulation, onBack 
   // Use the useBudgetSimulation hook
   const {
     products,
-    budgetSettings,
+    productPrices,
+    isLoading,
     isPricesLoading,
     isBudgetLoading,
+    budgetSettings,
     selectedQuantities,
     simulationTotal,
     activeTab,
@@ -40,7 +42,6 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ simulation, onBack 
     budgetPercentage,
     groupedAnalysisProducts,
     selectedSKUs,
-    productPrices,
     quantityOptions,
     handleAddSKU,
     handleRemoveSKU,
@@ -89,18 +90,20 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ simulation, onBack 
   };
 
   const calculateSKUTotalWrapper = (productName: string, sku: { productId: string; SKU: string; productName: string; quantity: QuantityOption; price: number; }) => {
-    return sku.quantity * sku.price;
+    return sku.quantity ? Number(sku.quantity) * sku.price : 0;
   };
   
   // Transform the grouped products to the expected format
   const transformedGroupedProducts: Record<string, { id: string; SKU: string; productName: string; }[]> = {};
   
-  Object.entries(groupedAnalysisProducts).forEach(([category, products]) => {
-    transformedGroupedProducts[category] = products.map(product => ({
-      id: product.id,
-      SKU: product.SKU,
-      productName: product.product_name || ''
-    }));
+  Object.entries(groupedAnalysisProducts || {}).forEach(([category, products]) => {
+    if (Array.isArray(products)) {
+      transformedGroupedProducts[category] = products.map(product => ({
+        id: product.id,
+        SKU: product.SKU,
+        productName: product.product_name || ''
+      }));
+    }
   });
 
   return (
