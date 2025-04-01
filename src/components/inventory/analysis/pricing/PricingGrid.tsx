@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { useBudgetSimulation } from '../simulation/useBudgetSimulation';
 import { formatTotalPrice } from './PriceFormatter';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import BudgetSlider from './components/BudgetSlider';
 
 interface PricingGridProps {
   showSimulationSummary?: boolean;
@@ -119,6 +120,13 @@ const PricingGrid: React.FC<PricingGridProps> = ({
       </CardHeader>
       
       <CardContent className="p-0">
+        {/* Budget Slider - Only visible in manual mode */}
+        {analysisMode === 'manual' && (
+          <div className="mx-4 mt-4 p-2 rounded-md border border-[#272727] bg-[#161616]">
+            <BudgetSlider simulationTotal={simulationTotal} />
+          </div>
+        )}
+      
         <div className="rounded-md border border-[#272727] overflow-hidden mt-4">
           {isLoading ? (
             <div className="flex justify-center items-center p-8">
