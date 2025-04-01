@@ -12,9 +12,8 @@ export function useResetAnalysisItems() {
 
   const resetAnalysisItems = useMutation({
     mutationFn: async () => {
-      console.log('Resetting all price and quantity data in analysis_items table...');
+      console.log('Resetting price and quantity data in analysis_items table while preserving SKU information...');
       
-      // Instead of using .is(), we'll use .eq() to compare the status column with 'analysis'
       const { data, error } = await supabase
         .from('analysis_items')
         .update({
@@ -24,9 +23,8 @@ export function useResetAnalysisItems() {
           price_4000: null,
           price_5000: null,
           price_8000: null,
-          quantity_selected: null,
-          sku_code: null,
-          sku_label: null
+          quantity_selected: null
+          // We're no longer resetting sku_code and sku_label to preserve product associations
         })
         .eq('status', 'analysis');
       
