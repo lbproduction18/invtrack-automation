@@ -10,7 +10,7 @@ import {
   TableFooter
 } from "@/components/ui/table";
 import { ProductPrice } from '@/hooks/useProductPrices';
-import { formatPrice } from './PriceFormatter';
+import { formatPrice, formatTotalPrice } from './PriceFormatter';
 import PriceTableRow from './PriceTableRow';
 import { Loader2 } from 'lucide-react';
 import { AnalysisItem } from '@/hooks/useAnalysisItems';
@@ -26,7 +26,8 @@ interface PriceTableProps {
   handleSKURemove: (productId: string, sku: string) => void;
   handleQuantityChange: (productId: string, sku: string, quantityValue: string) => void;
   getTotalForProduct: (productId: string) => number;
-  formatTotalPrice: (price: number) => string;
+  formatTotalPrice?: (price: number) => string;
+  formatPrice?: (price: number | null) => React.ReactNode;
   showQuantityInputs?: boolean;
   simulationTotal?: number;
   analysisMode?: 'manual' | 'ai';
@@ -44,7 +45,8 @@ const PriceTable: React.FC<PriceTableProps> = ({
   handleSKURemove,
   handleQuantityChange,
   getTotalForProduct,
-  formatTotalPrice,
+  formatTotalPrice = (price: number) => `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+  formatPrice: formatPriceProp = formatPrice,
   showQuantityInputs = true,
   simulationTotal = 0,
   analysisMode = 'manual',
@@ -119,7 +121,7 @@ const PriceTable: React.FC<PriceTableProps> = ({
               handleSKURemove={handleSKURemove}
               handleQuantityChange={handleQuantityChange}
               getTotalForProduct={getTotalForProduct}
-              formatPrice={formatPrice}
+              formatPrice={formatPriceProp}
               formatTotalPrice={formatTotalPrice}
               showQuantityInputs={showQuantityInputs}
               analysisMode={analysisMode}
@@ -140,8 +142,6 @@ const PriceTable: React.FC<PriceTableProps> = ({
           </TableRow>
         </TableFooter>
       )}
-      
-      {/* Removed the UpdatePricesButton from the footer in AI mode */}
     </Table>
   );
 };

@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import SelectedSKUsList from './SelectedSKUsList';
-import { formatTotalPrice } from './PriceFormatter';
+import { formatPrice, formatTotalPrice } from './PriceFormatter';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 
 interface PriceTableRowProps {
