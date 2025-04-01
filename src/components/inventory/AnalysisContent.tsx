@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { useAnalysisItems, type AnalysisItem } from '@/hooks/useAnalysisItems';
 import { useProducts } from '@/hooks/useProducts';
-import AnalysisProductsGrid from './analysis/AnalysisProductsGrid';
+import AnalysisProductsGrid from './analysis/products-grid/AnalysisProductsGrid';
 import AnalysisMethodSection from './analysis/AnalysisMethodSection';
+import BudgetSimulationContainer from './analysis/BudgetSimulationContainer';
 
 // Define QuantityOption type consistently in this file
 export type QuantityOption = 1000 | 2000 | 3000 | 4000 | 5000 | 8000;
@@ -51,6 +51,8 @@ export const AnalysisContent: React.FC = () => {
         refetchAnalysis={refetchAnalysis}
       />
       
+      <BudgetSimulationContainer />
+
       <AnalysisMethodSection />
     </div>
   );
