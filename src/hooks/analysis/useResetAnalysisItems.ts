@@ -1,4 +1,3 @@
-
 import { useMutation } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +13,7 @@ export function useResetAnalysisItems() {
         // Get all analysis items
         const { data: analysisItems, error: fetchError } = await supabase
           .from('analysis_items')
-          .select('id');
+          .select('id, sku_code, sku_label');
           
         if (fetchError) {
           throw fetchError;
@@ -28,14 +27,15 @@ export function useResetAnalysisItems() {
         // For each item, reset all price-related fields but preserve SKU data
         const updates = analysisItems.map(item => ({
           id: item.id,
-          // Reset price and quantity fields only, preserve sku_code and sku_label
+          // KEEP the sku_code and sku_label values untouched
+          // Only reset price and quantity fields
           price_1000: null,
           price_2000: null,
           price_3000: null,
           price_4000: null,
           price_5000: null,
           price_8000: null,
-          quantity_selected: null
+          quantity_selected: null,
         }));
         
         // Perform the update
@@ -50,7 +50,7 @@ export function useResetAnalysisItems() {
           }
         }
         
-        console.log('Reset complete for all analysis items');
+        console.log('Reset complete for all analysis items, SKU associations preserved');
         
         return { success: true };
       } catch (error) {
@@ -61,7 +61,7 @@ export function useResetAnalysisItems() {
     onSuccess: () => {
       toast({
         title: "Réinitialisation réussie",
-        description: "Les données de prix et quantités ont été réinitialisées.",
+        description: "Les données de prix et quantités ont été réinitialisées. Les associations SKU ont été préservées.",
         variant: "default"
       });
     },

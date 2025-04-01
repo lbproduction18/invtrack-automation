@@ -102,9 +102,11 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
   // Reset the simulation
   const resetSimulation = async () => {
     // Reset frontend state first
-    resetSKUSelection();
     resetQuantities();
     resetPriceCalculations();
+    
+    // We will not reset SKU selections in AI mode
+    // The SKU associations are preserved while price/quantity data is reset
     
     // Now reset database values
     try {

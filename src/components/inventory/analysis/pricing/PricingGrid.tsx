@@ -80,15 +80,27 @@ const PricingGrid: React.FC<PricingGridProps> = ({
 
   // Check if all products have SKUs assigned in AI mode
   useEffect(() => {
-    if (analysisMode === 'ai' && productPrices.length > 0 && !isLoading) {
-      // Get all product IDs in the pricing grid
-      const productIds = productPrices.map(product => product.id);
+    if (analysisMode === 'ai' && !isLoading) {
+      console.log("Checking if all products have SKUs assigned...");
+      console.log("Product Prices:", productPrices);
+      console.log("Selected SKUs:", selectedSKUs);
       
-      // Check if all products have at least one SKU assigned
-      const allAssigned = productIds.every(productId => 
-        selectedSKUs[productId] && selectedSKUs[productId].length > 0
-      );
+      // Only consider products that are visible in the grid
+      const visibleProductIds = productPrices.map(product => product.id);
       
+      if (visibleProductIds.length === 0) {
+        setAllProductsHaveSKUs(false);
+        return;
+      }
+      
+      // Check if each visible product has at least one SKU assigned
+      const allAssigned = visibleProductIds.every(productId => {
+        const hasSKU = selectedSKUs[productId] && selectedSKUs[productId].length > 0;
+        console.log(`Product ${productId} has SKU: ${hasSKU}`);
+        return hasSKU;
+      });
+      
+      console.log("All products have SKUs assigned:", allAssigned);
       setAllProductsHaveSKUs(allAssigned);
     } else {
       setAllProductsHaveSKUs(false);
@@ -136,25 +148,12 @@ const PricingGrid: React.FC<PricingGridProps> = ({
               Réinitialiser
             </Button>
             
-            {analysisMode === 'ai' ? (
+            {analysisMode === 'ai' && (
               <UpdatePricesButton 
                 productPrices={productPrices}
                 selectedSKUs={selectedSKUs}
                 analysisItems={analysisItems}
               />
-            ) : (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="w-[130px]">
-                      {/* Empty div to maintain spacing/layout */}
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Disponible en mode Analyse AI uniquement</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
             )}
           </div>
         </div>
