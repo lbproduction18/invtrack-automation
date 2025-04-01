@@ -4,12 +4,13 @@ import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { useProducts } from '@/hooks/useProducts';
 import { useProductPrices } from '@/hooks/useProductPrices';
 import { QuantityOption } from '@/components/inventory/AnalysisContent';
+import { SelectedSKU } from '@/types/product';
 
 /**
  * Hook to sync SKUs from analysis items to simulation
  */
 export function useSyncSkuFromAnalysis(
-  setSelectedSKUs: React.Dispatch<React.SetStateAction<Record<string, any[]>>>,
+  setSelectedSKUs: React.Dispatch<React.SetStateAction<Record<string, SelectedSKU[]>>>,
   handleOrderQuantityChange: (productId: string, quantityValue: string) => void
 ) {
   const { analysisItems } = useAnalysisItems();
@@ -24,7 +25,7 @@ export function useSyncSkuFromAnalysis(
     const quantities: Record<string, string> = {};
     
     // Also prepare to sync SKUs from analysis_items
-    const syncedSKUs: Record<string, any[]> = {};
+    const syncedSKUs: Record<string, SelectedSKU[]> = {};
     
     analysisItems.forEach(item => {
       if (item.product_id && item.quantity_selected) {
@@ -53,7 +54,7 @@ export function useSyncSkuFromAnalysis(
             }
             
             // Get appropriate price based on quantity
-            const quantity = item.quantity_selected as QuantityOption || 1000;
+            const quantity = item.quantity_selected as unknown as QuantityOption || 1000;
             const priceField = `price_${quantity}` as keyof typeof matchingPrice;
             const price = matchingPrice[priceField] as number || 0;
             
@@ -61,7 +62,7 @@ export function useSyncSkuFromAnalysis(
               productId: item.product_id,
               SKU: item.sku_code,
               productName: item.sku_label,
-              quantity: quantity,
+              quantity: quantity as number,
               price: price
             });
           }

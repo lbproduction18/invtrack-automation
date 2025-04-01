@@ -51,11 +51,15 @@ export function useBudgetSimulation(onCreateOrder: () => void) {
   } = useBudgetMetrics(simulationTotal);
   
   // Sync SKUs from analysis items - fixed the issue with setSelectedQuantities
-  useSyncSkuFromAnalysis(setSelectedSKUs, handleOrderQuantityChange);
+  // We need to ensure handleOrderQuantityChange is properly cast to accept a QuantityOption
+  const adaptedHandleOrderQuantityChange = (productId: string, quantityValue: string) => {
+    // Convert string to QuantityOption
+    const qty = Number(quantityValue) as QuantityOption;
+    return handleOrderQuantityChange(productId, qty);
+  };
   
-  // Predefined quantity options
-  const standardQuantities: QuantityOption[] = [1000, 2000, 3000, 4000, 5000, 8000];
-
+  useSyncSkuFromAnalysis(setSelectedSKUs, adaptedHandleOrderQuantityChange);
+  
   // Handle refresh button click
   const handleRefresh = async (): Promise<void> => {
     return refetch();
