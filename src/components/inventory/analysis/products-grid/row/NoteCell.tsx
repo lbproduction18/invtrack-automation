@@ -16,7 +16,7 @@ const NoteCell: React.FC<NoteCellProps> = ({ note, noteType, toggleNoteExpansion
         <NoteIconButton
           hasNote={!!note}
           noteType={noteType}
-          onClick={toggleNoteExpansion}
+          onClick={(e) => toggleNoteExpansion(e)}
         />
       </div>
     </TableCell>

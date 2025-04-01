@@ -1,13 +1,15 @@
 
 import React, { useState } from 'react';
 import { type AnalysisProduct } from '@/components/inventory/AnalysisContent';
-import ProductDetailDrawer from '../ProductDetailDrawer';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Button } from '@/components/ui/button';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import AnalysisProductsTable from './AnalysisProductsTable';
-import useGridState from './hooks/useGridState';
-import { useNotifications } from '../pricing/hooks/useNotifications';
+import ProductDetailsDrawer from '../product-details';
 
 interface AnalysisProductsGridProps {
-  analysisProducts: AnalysisProduct[];
+  analysisProducts: AnalysisProduct[]; 
   isLoading: boolean;
   refetchAnalysis: () => void;
 }
@@ -17,50 +19,66 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
   isLoading,
   refetchAnalysis
 }) => {
-  const { 
-    selectedProduct, 
-    isDetailDrawerOpen, 
-    expandedNoteId,
-    setSelectedProduct,
-    setIsDetailDrawerOpen,
-    setExpandedNoteId
-  } = useGridState();
+  const [isOpen, setIsOpen] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<AnalysisProduct | null>(null);
+  const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
   
-  // Handle click on product row to show details
-  const handleRowClick = (product: AnalysisProduct) => {
+  const handleToggleExpand = () => {
+    setIsOpen(!isOpen);
+  };
+  
+  const handleProductClick = (product: AnalysisProduct) => {
     setSelectedProduct(product);
-    setIsDetailDrawerOpen(true);
+  };
+  
+  const handleCloseDetails = () => {
+    setSelectedProduct(null);
   };
 
-  // Toggle note expansion
-  const toggleNoteExpansion = (e: React.MouseEvent, productId: string) => {
+  const handleToggleNoteExpansion = (e: React.MouseEvent, productId: string) => {
     e.stopPropagation();
     setExpandedNoteId(expandedNoteId === productId ? null : productId);
   };
-
+  
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-medium">Produits en analyse ({analysisProducts.length})</h2>
-        {/* Refresh button removed as requested */}
-      </div>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between py-4">
+        <CardTitle className="text-xl font-bold">Produits en analyse</CardTitle>
+        <CollapsibleTrigger asChild onClick={handleToggleExpand}>
+          <Button variant="ghost" size="sm" className="w-9 p-0">
+            {isOpen ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </Button>
+        </CollapsibleTrigger>
+      </CardHeader>
       
-      <AnalysisProductsTable
-        analysisProducts={analysisProducts}
-        isLoading={isLoading}
-        expandedNoteId={expandedNoteId}
-        handleRowClick={handleRowClick}
-        toggleNoteExpansion={toggleNoteExpansion}
-        refetchAnalysis={refetchAnalysis}
-      />
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <CollapsibleContent>
+          <CardContent className="p-4">
+            <AnalysisProductsTable 
+              analysisProducts={analysisProducts}
+              isLoading={isLoading}
+              expandedNoteId={expandedNoteId}
+              handleRowClick={handleProductClick}
+              toggleNoteExpansion={handleToggleNoteExpansion}
+              refetchAnalysis={refetchAnalysis}
+            />
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
       
-      {/* Product Detail Drawer */}
-      <ProductDetailDrawer
-        isOpen={isDetailDrawerOpen}
-        onOpenChange={setIsDetailDrawerOpen}
-        product={selectedProduct}
-      />
-    </div>
+      {selectedProduct && (
+        <ProductDetailsDrawer 
+          product={selectedProduct} 
+          open={!!selectedProduct} 
+          onClose={handleCloseDetails}
+          refetchAnalysis={refetchAnalysis}
+        />
+      )}
+    </Card>
   );
 };
 

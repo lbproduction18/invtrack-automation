@@ -55,19 +55,14 @@ const AnalysisProductsTable: React.FC<AnalysisProductsTableProps> = ({
             </TableRow>
           ) : (
             analysisProducts.map((item) => (
-              <React.Fragment key={item.id}>
-                <AnalysisProductRow 
-                  item={item}
-                  handleRowClick={handleRowClick}
-                  toggleNoteExpansion={toggleNoteExpansion}
-                  refetchAnalysis={refetchAnalysis}
-                />
-                
-                {/* Expanded note row */}
-                {expandedNoteId === item.id && item.note && (
-                  <ExpandedNoteRow note={item.note} dateAdded={item.date_added || item.created_at} />
-                )}
-              </React.Fragment>
+              <AnalysisProductRow
+                key={item.id}
+                item={item}
+                handleRowClick={handleRowClick}
+                toggleNoteExpansion={toggleNoteExpansion}
+                expandedNoteId={expandedNoteId}
+                refetchAnalysis={refetchAnalysis}
+              />
             ))
           )}
         </TableBody>

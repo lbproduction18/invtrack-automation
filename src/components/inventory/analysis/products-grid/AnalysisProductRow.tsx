@@ -22,6 +22,7 @@ interface AnalysisProductRowProps {
   item: AnalysisProduct;
   handleRowClick: (product: AnalysisProduct) => void;
   toggleNoteExpansion: (e: React.MouseEvent, productId: string) => void;
+  expandedNoteId: string | null;
   refetchAnalysis: () => void;
 }
 
@@ -29,6 +30,7 @@ const AnalysisProductRow: React.FC<AnalysisProductRowProps> = ({
   item,
   handleRowClick,
   toggleNoteExpansion,
+  expandedNoteId,
   refetchAnalysis
 }) => {
   const { toast } = useToast();
@@ -70,8 +72,8 @@ const AnalysisProductRow: React.FC<AnalysisProductRowProps> = ({
 
   const handleToggleNote = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsNoteExpanded(!isNoteExpanded);
-    if (!isNoteExpanded && !isEditingNote && !note) {
+    toggleNoteExpansion(e, item.id);
+    if (!note && !isEditingNote) {
       handleEditNote();
     }
   };
@@ -182,7 +184,7 @@ const AnalysisProductRow: React.FC<AnalysisProductRowProps> = ({
         </TableCell>
       </TableRow>
 
-      {isNoteExpanded && (
+      {expandedNoteId === item.id && (
         <TableRow className="hover:bg-transparent bg-[#161616]">
           <TableCell colSpan={9} className="py-0 px-4">
             <NoteEditor
@@ -194,7 +196,7 @@ const AnalysisProductRow: React.FC<AnalysisProductRowProps> = ({
               onCancel={() => {
                 handleCancelNote();
                 if (!note) {
-                  setIsNoteExpanded(false);
+                  toggleNoteExpansion(new MouseEvent('click') as unknown as React.MouseEvent, item.id);
                 }
               }}
               onSave={handleSaveNote}

@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 interface NoteIconButtonProps {
   hasNote: boolean;
   noteType?: 'info' | 'warning';
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
   className?: string;
 }
 
@@ -52,10 +52,7 @@ const NoteIconButton: React.FC<NoteIconButtonProps> = ({
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            onClick={(e) => {
-              e.stopPropagation();
-              onClick();
-            }}
+            onClick={onClick}
             size="sm"
             variant="ghost"
             className={cn(
