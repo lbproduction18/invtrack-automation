@@ -10,6 +10,7 @@ import { AnalysisItem } from '@/hooks/useAnalysisItems';
 import { Product } from '@/types/product';
 import { formatTotalPrice } from '../PriceFormatter';
 import UpdatePricesButton from '../UpdatePricesButton';
+import { Separator } from '@/components/ui/separator';
 
 interface PricingGridContentProps {
   analysisMode: 'manual' | 'ai';
@@ -93,17 +94,14 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
         )}
       </div>
       
-      {/* Buttons container - Always visible but content changes based on mode */}
-      <div className="mt-6 flex justify-center items-center gap-4">
-        {/* For AI mode, we show both buttons side by side */}
+      {/* Separator for visual clarity */}
+      <Separator className="my-6 bg-[#272727]" />
+      
+      {/* Buttons container - New layout with buttons side by side at bottom */}
+      <div className="flex justify-center items-center gap-4 mt-6">
+        {/* For AI mode, we show Reset button first, then Update Prices button */}
         {analysisMode === 'ai' && (
           <>
-            <UpdatePricesButton 
-              productPrices={productPrices}
-              selectedSKUs={selectedSKUs}
-              analysisItems={analysisItems}
-              className="min-w-40"
-            />
             <Button 
               variant="outline" 
               size="lg"
@@ -114,6 +112,13 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
               <RotateCw className="mr-2 h-4 w-4" />
               {isResetting ? 'Réinitialisation...' : 'Réinitialiser'}
             </Button>
+            
+            <UpdatePricesButton 
+              productPrices={productPrices}
+              selectedSKUs={selectedSKUs}
+              analysisItems={analysisItems}
+              className="min-w-40"
+            />
           </>
         )}
         
