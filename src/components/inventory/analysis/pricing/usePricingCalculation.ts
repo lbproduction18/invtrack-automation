@@ -39,6 +39,9 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     getTotalForProduct
   } = usePriceCalculation();
 
+  // State to track if all products have at least one price defined
+  const [allProductsHavePrices, setAllProductsHavePrices] = useState(false);
+
   // Handle quantity change for a selected SKU with price calculation
   const handleQuantityChangeWithPrice = (productId: string, sku: string, quantityValue: string) => {
     // Validate the quantity value
@@ -116,6 +119,34 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     }
   };
 
+  // Check if all products have at least one price defined
+  const checkAllProductsHavePrices = () => {
+    // If there are no product prices, return false
+    if (productPrices.length === 0) {
+      return false;
+    }
+
+    // Check each product to see if it has at least one price defined
+    const allHavePrices = productPrices.every(product => {
+      return (
+        (product.price_1000 !== null && product.price_1000 !== undefined && product.price_1000 > 0) ||
+        (product.price_2000 !== null && product.price_2000 !== undefined && product.price_2000 > 0) ||
+        (product.price_3000 !== null && product.price_3000 !== undefined && product.price_3000 > 0) ||
+        (product.price_4000 !== null && product.price_4000 !== undefined && product.price_4000 > 0) ||
+        (product.price_5000 !== null && product.price_5000 !== undefined && product.price_5000 > 0) ||
+        (product.price_8000 !== null && product.price_8000 !== undefined && product.price_8000 > 0)
+      );
+    });
+
+    return allHavePrices;
+  };
+
+  // Update the allProductsHavePrices state whenever productPrices changes
+  useEffect(() => {
+    const result = checkAllProductsHavePrices();
+    setAllProductsHavePrices(result);
+  }, [productPrices]);
+
   return {
     selectedSKUs,
     quantities,
@@ -127,5 +158,6 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     getTotalForProduct,
     getUnitPriceForSKU: (sku: string, quantity: number) => getUnitPriceForSKU(productPrices, sku, quantity),
     resetSimulation,
+    allProductsHavePrices,
   };
 }
