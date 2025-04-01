@@ -98,12 +98,6 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
         {/* For AI mode, we show both buttons side by side */}
         {analysisMode === 'ai' && (
           <>
-            <UpdatePricesButton 
-              productPrices={productPrices}
-              selectedSKUs={selectedSKUs}
-              analysisItems={analysisItems}
-              className="min-w-40"
-            />
             <Button 
               variant="outline" 
               size="lg"
@@ -114,6 +108,12 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
               <RotateCw className="mr-2 h-4 w-4" />
               {isResetting ? 'Réinitialisation...' : 'Réinitialiser'}
             </Button>
+            <UpdatePricesButton 
+              productPrices={productPrices}
+              selectedSKUs={selectedSKUs}
+              analysisItems={analysisItems}
+              className="min-w-40"
+            />
           </>
         )}
         

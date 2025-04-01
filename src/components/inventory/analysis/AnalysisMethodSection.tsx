@@ -1,9 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import AnalysisModeSelector from './pricing/AnalysisModeSelector';
 import PricingGrid from './pricing/PricingGrid';
 import AIAnalysisInputs from './pricing/components/AIAnalysisInputs';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type AnalysisMode = 'manual' | 'ai' | null;
 
@@ -60,23 +59,12 @@ const AnalysisMethodSection: React.FC = () => {
       {/* AI Analysis Mode */}
       {selectedMode === 'ai' && (
         <div className={`transition-opacity duration-200 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-          <div className="space-y-6">
-            <PricingGrid 
-              showSimulationSummary={false} 
-              analysisMode="ai"
-            />
-            
-            <Card className="border border-[#272727] bg-[#131313]">
-              <CardHeader className="px-4 py-3 border-b border-[#272727]">
-                <CardTitle className="text-sm font-medium">Analyse AI</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <p className="text-gray-400 text-center py-8">
-                  AI analysis output will be generated in the next step, including recommendations and data visualizations.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <PricingGrid 
+            showSimulationSummary={false} 
+            analysisMode="ai"
+          />
+          
+          {/* Removed the "Analyse AI" card */}
         </div>
       )}
     </div>

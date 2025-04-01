@@ -13,7 +13,6 @@ import { ProductPrice } from '@/hooks/useProductPrices';
 import { formatPrice } from './PriceFormatter';
 import PriceTableRow from './PriceTableRow';
 import { Loader2 } from 'lucide-react';
-import UpdatePricesButton from './UpdatePricesButton';
 import { AnalysisItem } from '@/hooks/useAnalysisItems';
 
 interface PriceTableProps {
@@ -142,20 +141,7 @@ const PriceTable: React.FC<PriceTableProps> = ({
         </TableFooter>
       )}
       
-      {analysisMode === 'ai' && (
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={8} className="py-6 text-center border-t border-[#272727]">
-              <UpdatePricesButton 
-                productPrices={productPrices}
-                selectedSKUs={selectedSKUs}
-                analysisItems={analysisItems}
-                className="px-8 py-2 mx-auto"
-              />
-            </TableCell>
-          </TableRow>
-        </TableFooter>
-      )}
+      {/* Removed the UpdatePricesButton from the footer in AI mode */}
     </Table>
   );
 };
