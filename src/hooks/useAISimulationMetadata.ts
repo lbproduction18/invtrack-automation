@@ -1,269 +1,23 @@
 
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from './use-toast';
-import { nanoid } from 'nanoid';
+import { useSimulationQuery } from './simulation/useSimulationQuery';
+import { useSimulationSave } from './simulation/useSimulationSave';
+import { useSimulationDelete } from './simulation/useSimulationDelete';
+import { DEFAULT_METADATA } from '@/types/simulationMetadata';
+import { useSimulationCreate } from './simulation/useSimulationCreate';
 
-interface AISimulationMetadata {
-  id?: string;
-  budget_max: number;
-  ai_note: string;
-  simulation_label: string;
-  status: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-const DEFAULT_METADATA: AISimulationMetadata = {
-  budget_max: 500000,
-  ai_note: '',
-  simulation_label: 'Default Simulation',
-  status: 'pending'
-};
-
+/**
+ * Hook for managing AI simulation metadata
+ */
 export function useAISimulationMetadata() {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [isCreating, setIsCreating] = useState(false);
+  const { data: metadata, isLoading, error, refetch } = useSimulationQuery();
+  const { isCreating } = useSimulationCreate();
+  const { saveSimulationSettings } = useSimulationSave();
+  const { deleteMetadata } = useSimulationDelete();
 
-  const { data: metadata, isLoading, error, refetch } = useQuery({
-    queryKey: ['aiSimulationMetadata'],
-    queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from('ai_simulation_metadata')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(1);
-
-        if (error) {
-          console.error('Error fetching AI simulation metadata:', error);
-          throw error;
-        }
-
-        return data && data.length > 0 ? data[0] as AISimulationMetadata : DEFAULT_METADATA;
-      } catch (err) {
-        console.error('Exception when fetching AI simulation metadata:', err);
-        throw err;
-      }
-    }
-  });
-
-  const createMetadata = useMutation({
-    mutationFn: async (newMetadata: Partial<AISimulationMetadata>) => {
-      setIsCreating(true);
-      try {
-        const completeMetadata: AISimulationMetadata = {
-          id: nanoid(),
-          ...DEFAULT_METADATA,
-          ...newMetadata,
-          created_at: new Date().toISOString()
-        };
-
-        const { data, error } = await supabase
-          .from('ai_simulation_metadata')
-          .insert(completeMetadata)
-          .select();
-
-        if (error) {
-          console.error('Error creating AI simulation metadata:', error);
-          throw error;
-        }
-
-        return data?.[0] as AISimulationMetadata;
-      } catch (err) {
-        console.error('Exception when creating AI simulation metadata:', err);
-        throw err;
-      } finally {
-        setIsCreating(false);
-      }
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: ['aiSimulationMetadata']
-      });
-      toast({
-        title: "Configuration de simulation sauvegardée",
-        description: "Les paramètres de simulation AI ont été enregistrés."
-      });
-      return data;
-    },
-    onError: (error) => {
-      console.error('Mutation error:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de sauvegarder les paramètres de simulation.",
-        variant: "destructive"
-      });
-    }
-  });
-
-  const updateMetadata = useMutation({
-    mutationFn: async (updatedMetadata: Partial<AISimulationMetadata>) => {
-      try {
-        if (metadata?.id) {
-          const { data, error } = await supabase
-            .from('ai_simulation_metadata')
-            .update({
-              ...updatedMetadata,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', metadata.id)
-            .select();
-
-          if (error) {
-            console.error('Error updating AI simulation metadata:', error);
-            throw error;
-          }
-
-          return data?.[0] as AISimulationMetadata;
-        } else {
-          const { data: latestData, error: fetchError } = await supabase
-            .from('ai_simulation_metadata')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .limit(1);
-
-          if (fetchError) {
-            console.error('Error fetching latest AI simulation metadata:', fetchError);
-            throw fetchError;
-          }
-
-          if (latestData && latestData.length > 0) {
-            const latestRecord = latestData[0];
-            const { data, error } = await supabase
-              .from('ai_simulation_metadata')
-              .update({
-                ...updatedMetadata,
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', latestRecord.id)
-              .select();
-
-            if (error) {
-              console.error('Error updating AI simulation metadata:', error);
-              throw error;
-            }
-
-            return data?.[0] as AISimulationMetadata;
-          } else {
-            return createMetadata.mutateAsync(updatedMetadata);
-          }
-        }
-      } catch (err) {
-        console.error('Exception when updating AI simulation metadata:', err);
-        throw err;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['aiSimulationMetadata']
-      });
-      toast({
-        title: "Configuration mise à jour",
-        description: "Les paramètres de simulation AI ont été mis à jour."
-      });
-    },
-    onError: (error) => {
-      console.error('Mutation error:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de mettre à jour les paramètres de simulation.",
-        variant: "destructive"
-      });
-    }
-  });
-
-  const deleteMetadata = useMutation({
-    mutationFn: async () => {
-      try {
-        if (metadata?.id) {
-          const { error } = await supabase
-            .from('ai_simulation_metadata')
-            .delete()
-            .eq('id', metadata.id);
-
-          if (error) {
-            console.error('Error deleting AI simulation metadata:', error);
-            throw error;
-          }
-          
-          return { success: true };
-        } else {
-          const { data: latestData, error: fetchError } = await supabase
-            .from('ai_simulation_metadata')
-            .select('id')
-            .order('created_at', { ascending: false })
-            .limit(1);
-
-          if (fetchError) {
-            console.error('Error fetching latest AI simulation metadata:', fetchError);
-            throw fetchError;
-          }
-
-          if (latestData && latestData.length > 0) {
-            const latestId = latestData[0].id;
-            const { error } = await supabase
-              .from('ai_simulation_metadata')
-              .delete()
-              .eq('id', latestId);
-
-            if (error) {
-              console.error('Error deleting AI simulation metadata:', error);
-              throw error;
-            }
-            
-            return { success: true };
-          }
-          
-          return { success: false, reason: 'No records found' };
-        }
-      } catch (err) {
-        console.error('Exception when deleting AI simulation metadata:', err);
-        throw err;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['aiSimulationMetadata']
-      });
-      toast({
-        title: "Simulation réinitialisée",
-        description: "Les paramètres de simulation AI ont été supprimés."
-      });
-    },
-    onError: (error) => {
-      console.error('Delete mutation error:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de supprimer les paramètres de simulation.",
-        variant: "destructive"
-      });
-    }
-  });
-
-  const saveSimulationSettings = async (data: Partial<AISimulationMetadata>) => {
-    // Check if there's any existing metadata row in Supabase
-    const { data: existingData, error: checkError } = await supabase
-      .from('ai_simulation_metadata')
-      .select('count')
-      .limit(1);
-      
-    if (checkError) {
-      console.error('Error checking existence of metadata:', checkError);
-      throw checkError;
-    }
-    
-    const hasExistingRecord = existingData && existingData.length > 0;
-    
-    if (hasExistingRecord) {
-      // If a record exists, update it
-      return updateMetadata.mutateAsync(data);
-    } else {
-      // If no record exists (e.g., after deletion), create a new one
-      return createMetadata.mutateAsync(data);
-    }
+  // Wrapper function that includes the current metadata in the save operation
+  const saveSettings = async (data: Partial<typeof metadata>) => {
+    return saveSimulationSettings(data, metadata);
   };
 
   return {
@@ -271,7 +25,7 @@ export function useAISimulationMetadata() {
     isLoading,
     isCreating,
     error,
-    saveSimulationSettings,
+    saveSimulationSettings: saveSettings,
     deleteMetadata,
     refetch
   };
