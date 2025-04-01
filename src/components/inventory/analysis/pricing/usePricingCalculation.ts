@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { type ProductPrice } from '@/hooks/useProductPrices';
@@ -55,7 +56,7 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     const unitPrice = getUnitPriceForSKU(productPrices, sku, parsedQuantity);
     
     // Calculate the total price for this SKU
-    const totalPrice = calculateTotalPrice(unitPrice, parsedQuantity);
+    const totalPrice = calculateTotalPrice(sku, parsedQuantity, productPrices);
     
     // Update the calculated price for this SKU
     setCalculatedPrice(productId, sku, totalPrice);
@@ -87,7 +88,7 @@ export function usePricingCalculation(productPrices: ProductPrice[]) {
     // Calculate the initial price
     const parsedQuantity = parseInt(initialQuantity, 10);
     const unitPrice = getUnitPriceForSKU(productPrices, sku, parsedQuantity);
-    const totalPrice = calculateTotalPrice(unitPrice, parsedQuantity);
+    const totalPrice = calculateTotalPrice(sku, parsedQuantity, productPrices);
     
     // Set the calculated price
     setCalculatedPrice(productId, sku, totalPrice);
