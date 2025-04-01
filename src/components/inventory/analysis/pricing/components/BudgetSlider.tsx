@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Slider } from "@/components/ui/slider";
 import { useBudgetSettings } from '@/hooks/useBudgetSettings';
 import { formatTotalPrice } from '../PriceFormatter';
-import { DollarSign } from 'lucide-react';
+import { DollarSign, Percent } from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
 
 interface BudgetSliderProps {
   simulationTotal: number;
@@ -30,6 +31,11 @@ const BudgetSlider: React.FC<BudgetSliderProps> = ({
   
   const remainingBudget = Math.max(0, sliderValue - simulationTotal);
   const budgetExceeded = simulationTotal > sliderValue && sliderValue > 0;
+  
+  // Calculate budget percentage used
+  const budgetPercentage = sliderValue > 0 
+    ? Math.min(100, Math.round((simulationTotal / sliderValue) * 100)) 
+    : 0;
   
   return (
     <div className={`space-y-4 py-4 px-2 animate-fade-in ${className}`}>
@@ -70,6 +76,26 @@ const BudgetSlider: React.FC<BudgetSliderProps> = ({
           </div>
         )}
       </div>
+      
+      {/* Budget percentage used section */}
+      {sliderValue > 0 && (
+        <div className="mt-3">
+          <div className="flex justify-between items-center mb-1">
+            <div className="flex items-center text-sm font-medium text-gray-300">
+              <Percent className="h-4 w-4 mr-1 text-green-400" />
+              <span>Utilisation du budget:</span>
+            </div>
+            <span className={`font-mono font-medium ${budgetExceeded ? 'text-red-400' : 'text-green-300'}`}>
+              {budgetPercentage}%
+            </span>
+          </div>
+          <Progress 
+            value={budgetPercentage} 
+            className="h-2"
+            indicatorClassName={budgetExceeded ? 'bg-red-400' : undefined}
+          />
+        </div>
+      )}
     </div>
   );
 };
