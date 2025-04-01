@@ -39,7 +39,16 @@ export function usePricingCalculation(
       itemTotals: {} as Record<string, number>,
       simulationTotal: 0,
       itemsByPriceTier: {} as Record<string, AnalysisItem[]>,
-      totalsByPriceTier: {} as Record<string, number>
+      totalsByPriceTier: {} as Record<string, number>,
+      // Ajout des propriétés attendues par PricingGrid
+      selectedSKUs: {},
+      quantities: {},
+      calculatedPrices: {},
+      handleSKUSelect: () => {},
+      handleSKURemove: () => {},
+      handleQuantityChange: () => {},
+      getTotalForProduct: () => 0,
+      resetSimulation: async () => {}
     };
 
     if (!analysisItems) {
