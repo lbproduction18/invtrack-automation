@@ -1,3 +1,4 @@
+
 import React from 'react';
 import BudgetLoadingState from './budget/BudgetLoadingState';
 import BudgetSimulationLayout from './simulation/BudgetSimulationLayout';
@@ -101,28 +102,6 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ simulation, onBack 
       productName: product.product_name || ''
     }));
   });
-
-  const renderProductCategory = (category: { name: string; products: Array<{ id: string; product_name: string }> }) => {
-    return (
-      <div key={category.name} className="mb-6">
-        <h3 className="font-medium text-lg mb-2">{category.name}</h3>
-        <div className="space-y-2">
-          {category.products.map(product => (
-            <div key={product.id} className="flex items-center justify-between">
-              <span>{product.product_name}</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => addProductToSimulation(product.id, product.product_name)}
-              >
-                Ajouter
-              </Button>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="space-y-4">

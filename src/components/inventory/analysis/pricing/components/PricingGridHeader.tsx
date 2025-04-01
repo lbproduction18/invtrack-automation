@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, RotateCw } from 'lucide-react';
 import { ProductPrice } from '@/hooks/useProductPrices';
 import { type AnalysisItem } from '@/types/analysisItem';
 
@@ -17,6 +17,7 @@ interface PricingGridHeaderProps {
 
 const PricingGridHeader: React.FC<PricingGridHeaderProps> = ({
   handleRefresh,
+  handleResetSimulation,
   isResetting,
   analysisMode
 }) => {
@@ -41,11 +42,11 @@ const PricingGridHeader: React.FC<PricingGridHeaderProps> = ({
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => {}}
+            onClick={handleResetSimulation}
             disabled={isResetting}
             className="text-xs h-8 border-[#272727] bg-[#161616] hover:bg-[#222]"
           >
-            <RefreshCw className="mr-2 h-3 w-3" />
+            <RotateCw className="mr-2 h-3 w-3" />
             {isResetting ? 'Réinitialisation...' : 'Réinitialiser'}
           </Button>
         )}
