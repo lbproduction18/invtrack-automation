@@ -1,34 +1,34 @@
+import { useProducts } from '@/hooks/useProducts';
 
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Product } from '@/types/product';
-
-export const useProductCategories = () => {
-  const { data = [], isLoading, error } = useQuery({
-    queryKey: ['productCategories'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select('id, product_name, category')
-        .not('category', 'is', null);
-      
-      if (error) throw error;
-      
-      // Extract unique categories
-      const categories = Array.from(new Set(data.map(product => product.category))).filter(Boolean);
-      
-      // Create category data structure
-      return categories.map(category => ({
-        name: category as string,
-        products: data
-          .filter(product => product.category === category)
-          .map(product => ({
-            id: product.id,
-            product_name: product.product_name,
-          })),
-      }));
-    },
-  });
-
-  return { categories: data, isLoading, error };
-};
+/**
+ * Hook to group analysis products by category
+ */
+export function useProductCategories() {
+  const { products } = useProducts('analysis');
+  
+  // Group analysis products by category
+  const groupedAnalysisProducts = products.reduce((acc, product) => {
+    // Extract category from SKU (e.g., "COLLAGENE" from "COLLAGENE-LOTUS")
+    const skuParts = product.SKU.split('-');
+    const category = skuParts[0] || 'Other';
+    
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    
+    acc[category].push({
+      id: product.id,
+      SKU: product.SKU,
+      productName: product.product_name, // Using product_name from product
+      // Other properties that might be needed
+      ...product
+    });
+    
+    return acc;
+  }, {} as Record<string, typeof products>);
+  
+  return {
+    products,
+    groupedAnalysisProducts
+  };
+}

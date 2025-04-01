@@ -7,7 +7,7 @@ import { useToast } from './use-toast';
 import { nanoid } from 'nanoid';
 
 // Define interface for AISimulationMetadata
-export interface AISimulationMetadata {
+interface AISimulationMetadata {
   id?: string;
   budget_max: number;
   ai_note: string;

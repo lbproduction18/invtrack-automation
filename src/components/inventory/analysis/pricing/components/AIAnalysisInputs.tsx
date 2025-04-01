@@ -1,12 +1,13 @@
 
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Save } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Brain } from 'lucide-react';
+import { formatTotalPrice } from '../PriceFormatter';
 import { useAISimulationMetadata } from '@/hooks/useAISimulationMetadata';
-import { formatPrice } from '../PriceFormatter';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 interface AIAnalysisInputsProps {
   budget: number;
@@ -21,72 +22,112 @@ const AIAnalysisInputs: React.FC<AIAnalysisInputsProps> = ({
   notes,
   onNotesChange
 }) => {
-  const { metadata, saveMetadata } = useAISimulationMetadata();
+  const { 
+    metadata, 
+    isLoading, 
+    saveSimulationSettings 
+  } = useAISimulationMetadata();
+  const [isSaving, setIsSaving] = useState(false);
+  const [localBudget, setLocalBudget] = useState(budget);
+  const [localNotes, setLocalNotes] = useState(notes);
 
-  const handleBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    if (!isNaN(value) && value > 0) {
-      onBudgetChange(value);
+  // Initialize with database values when they're loaded
+  useEffect(() => {
+    if (metadata && !isLoading) {
+      if (metadata.budget_max && metadata.budget_max !== budget) {
+        setLocalBudget(metadata.budget_max);
+        onBudgetChange(metadata.budget_max);
+      }
+      
+      if (metadata.ai_note !== null && metadata.ai_note !== notes) {
+        setLocalNotes(metadata.ai_note);
+        onNotesChange(metadata.ai_note);
+      }
     }
+  }, [metadata, isLoading]);
+
+  const handleSliderChange = (values: number[]) => {
+    const newValue = values[0];
+    setLocalBudget(newValue);
+    onBudgetChange(newValue);
   };
 
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setLocalNotes(e.target.value);
     onNotesChange(e.target.value);
   };
 
-  const handleSaveSettings = async () => {
-    await saveMetadata({
-      budget_max: budget,
-      ai_note: notes
-    });
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await saveSimulationSettings({
+        budget_max: localBudget,
+        ai_note: localNotes
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
-    <Card className="border border-[#272727] bg-[#131313]">
-      <CardContent className="p-4 space-y-4">
-        <div className="space-y-2">
-          <label htmlFor="budget" className="text-sm font-medium">
-            Budget maximal
-          </label>
-          <div className="flex items-center gap-3">
-            <Input
-              id="budget"
-              type="number"
-              value={budget}
-              onChange={handleBudgetChange}
-              className="bg-[#161616] border-[#272727] text-white"
-            />
-            <div className="text-sm text-muted-foreground whitespace-nowrap">
-              {formatPrice(budget)}
-            </div>
-          </div>
+    <div className="rounded-md border border-[#272727] bg-[#161616] p-5 space-y-5 shadow-sm">
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <Label htmlFor="budget-slider" className="text-sm font-medium text-gray-300">
+            Budget maximum pour cette simulation
+          </Label>
+          <span className="text-primary font-medium tabular-nums">
+            {formatTotalPrice(localBudget)}
+          </span>
         </div>
-        
-        <div className="space-y-2">
-          <label htmlFor="ai-notes" className="text-sm font-medium">
-            Notes pour l'analyse AI
-          </label>
-          <Textarea
-            id="ai-notes"
-            placeholder="Ajoutez des détails ou des instructions spécifiques pour l'analyse..."
-            rows={5}
-            value={notes}
-            onChange={handleNotesChange}
-            className="bg-[#161616] border-[#272727] text-white"
-          />
+        <Slider
+          id="budget-slider"
+          min={0}
+          max={1000000}
+          step={10000}
+          value={[localBudget]}
+          onValueChange={handleSliderChange}
+          className="py-4"
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label 
+          htmlFor="ai-notes" 
+          className="flex items-center gap-2 text-sm font-medium text-gray-300"
+        >
+          <Brain className="h-4 w-4 text-primary" />
+          Notes importantes à transmettre à l'IA
+        </Label>
+        <Textarea 
+          id="ai-notes"
+          value={localNotes || ''}
+          onChange={handleNotesChange}
+          placeholder="Ex: Favoriser les formats économiques. Éviter les produits à base de caféine."
+          className="min-h-[100px] bg-background border border-[#272727] focus:border-primary focus:ring-primary"
+        />
+      </div>
+      
+      <div className="flex justify-between items-center">
+        <div className="text-xs text-gray-400 italic">
+          Ces données seront utilisées pour guider l'analyse automatisée.
         </div>
         
         <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleSaveSettings}
-          className="ml-auto flex items-center gap-1"
+          onClick={handleSave} 
+          disabled={isSaving || isLoading}
+          size="sm"
+          className="text-xs"
         >
-          <Save size={16} />
-          <span>Sauvegarder</span>
+          {isSaving ? (
+            <>
+              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+              Sauvegarde...
+            </>
+          ) : "Sauvegarder"}
         </Button>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
