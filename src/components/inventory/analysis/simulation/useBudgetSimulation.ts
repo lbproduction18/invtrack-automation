@@ -1,95 +1,80 @@
-
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useProducts } from '@/hooks/useProducts';
 import { useProductPrices } from '@/hooks/useProductPrices';
-import { useBudgetSettings } from '@/hooks/useBudgetSettings';
-import { useAnalysisItems } from '@/hooks/useAnalysisItems';
-import { useSimulationState } from '@/hooks/useSimulationState';
-import { useSimulationSKUs } from '@/hooks/useSimulationSKUs';
-import { useQuantitySelection } from '@/hooks/simulation/useQuantitySelection';
-import { useSimulationTabs } from '@/hooks/simulation/useSimulationTabs';
-import { useBudgetMetrics } from '@/hooks/simulation/useBudgetMetrics';
 import { useProductCategories } from '@/hooks/simulation/useProductCategories';
-import { useSyncSkuFromAnalysis } from '@/hooks/simulation/useSyncSkuFromAnalysis';
-import { type QuantityOption } from '@/components/inventory/AnalysisContent';
+import { Product } from '@/types/product';
 
-export function useBudgetSimulation(onCreateOrder: () => void) {
-  const { productPrices, productPricesByName, isLoading: isPricesLoading, refetch } = useProductPrices();
-  const { budgetSettings, isLoading: isBudgetLoading } = useBudgetSettings();
+export function useBudgetSimulation() {
+  const { products, isLoading: productsLoading } = useProducts();
+  const { productPrices, isLoading: pricesLoading } = useProductPrices();
+  const [simulationItems, setSimulationItems] = useState<any[]>([]);
   
-  // Use our custom hooks for simulation state and management
-  const { activeTab, setActiveTab } = useSimulationTabs();
-  const { products, groupedAnalysisProducts } = useProductCategories();
+  // Use the product categories hook
+  const { categories } = useProductCategories(products || []);
   
-  // Use our simulation state hook
-  const {
-    simulationTotal,
-    selectedSKUs,
-    setSelectedSKUs,
-    calculateSKUTotal,
-    calculateBudgetPercentage
-  } = useSimulationState();
+  // Additional logic for simulation
+  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+  const [budget, setBudget] = useState<number>(500000);
+  const [currentTotal, setCurrentTotal] = useState<number>(0);
   
-  // Use our SKU management hook
-  const {
-    quantityOptions,
-    handleAddSKU,
-    handleRemoveSKU,
-    handleQuantityChange,
-  } = useSimulationSKUs(selectedSKUs, setSelectedSKUs, productPrices);
+  // Calculate current total whenever selected products change
+  useEffect(() => {
+    if (!selectedProducts.length || !productPrices) {
+      setCurrentTotal(0);
+      return;
+    }
+    
+    const total = selectedProducts.reduce((sum, product) => {
+      const price = productPrices.find(p => p.product_id === product.id)?.price || 0;
+      return sum + price;
+    }, 0);
+    
+    setCurrentTotal(total);
+  }, [selectedProducts, productPrices]);
   
-  // Use our quantity selection hook
-  const { selectedQuantities, handleOrderQuantityChange } = useQuantitySelection();
-  
-  // Use our budget metrics hook
-  const {
-    totalBudget,
-    depositPercentage,
-    depositAmount,
-    remainingBudget,
-    budgetPercentage,
-    getUnitPriceWrapper
-  } = useBudgetMetrics(simulationTotal);
-  
-  // Sync SKUs from analysis items - fixed the issue with setSelectedQuantities
-  // We need to ensure handleOrderQuantityChange is properly cast to accept a QuantityOption
-  const adaptedHandleOrderQuantityChange = (productId: string, quantityValue: string) => {
-    // Convert string to QuantityOption
-    const qty = Number(quantityValue) as QuantityOption;
-    return handleOrderQuantityChange(productId, qty);
+  // Add product to simulation
+  const addProduct = (product: Product) => {
+    if (!selectedProducts.find(p => p.id === product.id)) {
+      setSelectedProducts(prev => [...prev, product]);
+    }
   };
   
-  useSyncSkuFromAnalysis(setSelectedSKUs, adaptedHandleOrderQuantityChange);
-  
-  // Handle refresh button click
-  const handleRefresh = async (): Promise<void> => {
-    return refetch();
+  // Remove product from simulation
+  const removeProduct = (productId: string) => {
+    setSelectedProducts(prev => prev.filter(p => p.id !== productId));
   };
-
+  
+  // Check if adding a product would exceed budget
+  const wouldExceedBudget = (product: Product): boolean => {
+    if (!productPrices) return false;
+    
+    const productPrice = productPrices.find(p => p.product_id === product.id)?.price || 0;
+    return currentTotal + productPrice > budget;
+  };
+  
+  // Get remaining budget
+  const remainingBudget = useMemo(() => {
+    return budget - currentTotal;
+  }, [budget, currentTotal]);
+  
+  // Update budget
+  const updateBudget = (newBudget: number) => {
+    setBudget(newBudget);
+  };
+  
   return {
     products,
-    budgetSettings,
-    isPricesLoading,
-    isBudgetLoading,
-    selectedQuantities,
-    simulationTotal,
-    setSimulationTotal: (value: number) => simulationTotal,
-    activeTab,
-    setActiveTab,
-    totalBudget,
-    depositPercentage,
-    depositAmount,
-    remainingBudget,
-    budgetPercentage,
-    groupedAnalysisProducts,
-    selectedSKUs,
     productPrices,
-    quantityOptions,
-    handleAddSKU,
-    handleRemoveSKU,
-    handleQuantityChange,
-    handleOrderQuantityChange,
-    handleRefresh,
-    calculateSKUTotal,
-    getUnitPriceForSKU: getUnitPriceWrapper // Using the wrapper function
+    simulationItems,
+    categories,
+    isLoading: productsLoading || pricesLoading,
+    selectedProducts,
+    addProduct,
+    removeProduct,
+    budget,
+    updateBudget,
+    currentTotal,
+    remainingBudget,
+    wouldExceedBudget
   };
 }

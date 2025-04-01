@@ -25,7 +25,7 @@ const AIAnalysisInputs: React.FC<AIAnalysisInputsProps> = ({
   const { 
     metadata, 
     isLoading, 
-    saveSimulationSettings 
+    saveMetadata 
   } = useAISimulationMetadata();
   const [isSaving, setIsSaving] = useState(false);
   const [localBudget, setLocalBudget] = useState(budget);
@@ -39,7 +39,7 @@ const AIAnalysisInputs: React.FC<AIAnalysisInputsProps> = ({
         onBudgetChange(metadata.budget_max);
       }
       
-      if (metadata.ai_note !== null && metadata.ai_note !== notes) {
+      if (metadata.ai_note && (!notes || notes === 'Budget initial')) {
         setLocalNotes(metadata.ai_note);
         onNotesChange(metadata.ai_note);
       }
@@ -60,7 +60,7 @@ const AIAnalysisInputs: React.FC<AIAnalysisInputsProps> = ({
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await saveSimulationSettings({
+      await saveMetadata({
         budget_max: localBudget,
         ai_note: localNotes
       });
