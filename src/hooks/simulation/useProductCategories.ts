@@ -1,34 +1,33 @@
+
+import { useEffect, useMemo } from 'react';
+import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { useProducts } from '@/hooks/useProducts';
 
-/**
- * Hook to group analysis products by category
- */
 export function useProductCategories() {
-  const { products } = useProducts('analysis');
+  const { products: allProducts, isLoading } = useProducts();
+  const { analysisItems } = useAnalysisItems();
   
-  // Group analysis products by category
-  const groupedAnalysisProducts = products.reduce((acc, product) => {
-    // Extract category from SKU (e.g., "COLLAGENE" from "COLLAGENE-LOTUS")
-    const skuParts = product.SKU.split('-');
-    const category = skuParts[0] || 'Other';
-    
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    
-    acc[category].push({
-      id: product.id,
-      SKU: product.SKU,
-      productName: product.product_name, // Using product_name from product
-      // Other properties that might be needed
-      ...product
-    });
-    
-    return acc;
-  }, {} as Record<string, typeof products>);
+  // Group products by their category
+  const products = useMemo(() => {
+    if (!allProducts) return [];
+    return allProducts;
+  }, [allProducts]);
   
+  // Group analysis products by their category for the simulation
+  const groupedAnalysisProducts = useMemo(() => {
+    if (!analysisItems) return [];
+    
+    return analysisItems.map(item => ({
+      id: item.id,
+      product_name: item.sku_label || 'Unknown Product',
+      sku: item.sku_code || '',
+      category: 'analysis'
+    }));
+  }, [analysisItems]);
+
   return {
     products,
+    isLoading,
     groupedAnalysisProducts
   };
 }

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -243,7 +244,26 @@ export function useAISimulationMetadata() {
   });
 
   const saveSimulationSettings = async (data: Partial<AISimulationMetadata>) => {
-    return updateMetadata.mutateAsync(data);
+    // Check if there's any existing metadata row in Supabase
+    const { data: existingData, error: checkError } = await supabase
+      .from('ai_simulation_metadata')
+      .select('count')
+      .limit(1);
+      
+    if (checkError) {
+      console.error('Error checking existence of metadata:', checkError);
+      throw checkError;
+    }
+    
+    const hasExistingRecord = existingData && existingData.length > 0;
+    
+    if (hasExistingRecord) {
+      // If a record exists, update it
+      return updateMetadata.mutateAsync(data);
+    } else {
+      // If no record exists (e.g., after deletion), create a new one
+      return createMetadata.mutateAsync(data);
+    }
   };
 
   return {
