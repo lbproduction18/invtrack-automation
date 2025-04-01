@@ -34,7 +34,7 @@ export const calculateSKUTotalPrice = (
 };
 
 /**
- * Re-export the getUnitPriceForSKU function from skuPriceHelpers
+ * Export the getUnitPriceForSKU function from skuPriceHelpers
  * to maintain the same interface for components using this module
  */
 export const getUnitPriceForSKU = (

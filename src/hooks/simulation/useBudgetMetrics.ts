@@ -22,8 +22,10 @@ export function useBudgetMetrics(simulationTotal: number) {
   const getUnitPriceWrapper = (productId: string, sku: string, quantity?: string): number => {
     // When no quantity is provided, default to 1000
     const numericQuantity = quantity ? parseInt(quantity, 10) : 1000;
-    // Ignore productId as it's not used in the original function
-    return getUnitPriceForSKU([], sku, numericQuantity);
+    // Use an empty array for productPrices as it will be populated later
+    const dummyProductPrices: ProductPrice[] = [];
+    // Call the utility function
+    return getUnitPriceForSKU(dummyProductPrices, sku, numericQuantity);
   };
   
   return {

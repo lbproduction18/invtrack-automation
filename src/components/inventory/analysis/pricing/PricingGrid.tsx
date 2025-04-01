@@ -17,13 +17,16 @@ import { Loader2, RefreshCw, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBudgetSimulation } from '../simulation/useBudgetSimulation';
 import { formatTotalPrice } from './PriceFormatter';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface PricingGridProps {
   showSimulationSummary?: boolean;
+  analysisMode?: 'manual' | 'ai';
 }
 
 const PricingGrid: React.FC<PricingGridProps> = ({ 
-  showSimulationSummary = true 
+  showSimulationSummary = true,
+  analysisMode = 'manual'
 }) => {
   const { productPrices, isLoading: isPricesLoading, refetch: refetchPrices } = useProductPrices();
   const { products, isLoading: isProductsLoading } = useProducts('analysis');
@@ -90,11 +93,27 @@ const PricingGrid: React.FC<PricingGridProps> = ({
               <RotateCw className="mr-2 h-3 w-3" />
               Réinitialiser
             </Button>
-            <UpdatePricesButton 
-              productPrices={productPrices}
-              selectedSKUs={selectedSKUs}
-              analysisItems={analysisItems}
-            />
+            
+            {analysisMode === 'ai' ? (
+              <UpdatePricesButton 
+                productPrices={productPrices}
+                selectedSKUs={selectedSKUs}
+                analysisItems={analysisItems}
+              />
+            ) : (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="w-[130px]">
+                      {/* Empty div to maintain spacing/layout */}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Disponible en mode Analyse AI uniquement</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </div>
         </div>
       </CardHeader>

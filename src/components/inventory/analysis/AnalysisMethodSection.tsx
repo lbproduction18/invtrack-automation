@@ -35,7 +35,10 @@ const AnalysisMethodSection: React.FC = () => {
       {/* Manual Analysis Mode */}
       {selectedMode === 'manual' && (
         <div className={`transition-opacity duration-200 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-          <PricingGrid showSimulationSummary={true} />
+          <PricingGrid 
+            showSimulationSummary={true} 
+            analysisMode="manual"
+          />
         </div>
       )}
       
@@ -43,7 +46,10 @@ const AnalysisMethodSection: React.FC = () => {
       {selectedMode === 'ai' && (
         <div className={`transition-opacity duration-200 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
           <div className="space-y-6">
-            <PricingGrid showSimulationSummary={false} />
+            <PricingGrid 
+              showSimulationSummary={false} 
+              analysisMode="ai"
+            />
             
             <Card className="border border-[#272727] bg-[#131313]">
               <CardHeader className="px-4 py-3 border-b border-[#272727]">

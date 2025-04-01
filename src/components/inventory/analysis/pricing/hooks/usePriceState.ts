@@ -46,8 +46,11 @@ export function usePriceState(productPrices: ProductPrice[]) {
 
     // Calculate price based on quantity and update calculated prices
     const parsedQuantity = parseInt(quantityValue, 10) || 0;
-    const unitPrice = getUnitPriceForSKUWrapper(sku, parsedQuantity);
-    const totalPrice = parsedQuantity * unitPrice;
+    const totalPrice = calculateSKUTotalPrice(
+      sku, 
+      parsedQuantity, 
+      productPrices
+    );
 
     // Update the calculated price
     setCalculatedPrice(productId, sku, totalPrice);
@@ -58,12 +61,6 @@ export function usePriceState(productPrices: ProductPrice[]) {
     // Clean up associated data
     clearQuantityForSKU(productId, sku);
     clearPriceForSKU(productId, sku);
-
-    // Update simulation total
-    const quantityValue = quantities[productId]?.[sku] || '0';
-    const parsedQuantity = parseInt(quantityValue, 10) || 0;
-    const unitPrice = getUnitPriceForSKUWrapper(sku, parsedQuantity);
-    const skuTotal = parsedQuantity * unitPrice;
     
     // Now remove the SKU
     handleSKURemove(productId, sku);
@@ -75,7 +72,7 @@ export function usePriceState(productPrices: ProductPrice[]) {
     const totalPrice = calculateSKUTotalPrice(
       sku, 
       parsedQuantity, 
-      productPrices  // Pass the productPrices array directly
+      productPrices
     );
 
     setCalculatedPrice(productId, sku, totalPrice);
