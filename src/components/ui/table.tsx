@@ -22,8 +22,14 @@ const Table = React.forwardRef<
       
       const target = e.target as HTMLElement;
       if (target.tagName === 'TD') {
-        const currentRow = target.closest('tr');
-        const cellIndex = Array.from(currentRow?.cells || []).indexOf(target);
+        // Cast to proper TableCellElement type
+        const currentCell = target as HTMLTableCellElement;
+        const currentRow = currentCell.closest('tr');
+        
+        if (!currentRow) return;
+        
+        // Find cell index in the row properly
+        const cellIndex = Array.from(currentRow.cells).indexOf(currentCell);
         
         // Find all rows above and including this one
         const allRows = Array.from(table.querySelectorAll('tbody tr'));
@@ -31,10 +37,12 @@ const Table = React.forwardRef<
         
         // Add highlight class to cells in the same column up to the current row
         for (let i = 0; i <= currentRowIndex; i++) {
-          const row = allRows[i];
-          const cell = row.cells[cellIndex];
-          if (cell) {
-            cell.classList.add('column-hovered');
+          const row = allRows[i] as HTMLTableRowElement;
+          if (row && row.cells && cellIndex >= 0 && cellIndex < row.cells.length) {
+            const cell = row.cells[cellIndex];
+            if (cell) {
+              cell.classList.add('column-hovered');
+            }
           }
         }
       }
