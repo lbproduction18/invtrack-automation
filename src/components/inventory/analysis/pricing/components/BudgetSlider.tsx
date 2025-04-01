@@ -52,7 +52,7 @@ const BudgetSlider: React.FC<BudgetSliderProps> = ({
       <Slider
         defaultValue={[0]}
         value={[sliderValue]}
-        max={1000000}
+        max={700000}
         step={1000}
         onValueChange={handleSliderChange}
         className="w-full"
