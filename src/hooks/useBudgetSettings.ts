@@ -28,7 +28,7 @@ export function useBudgetSettings() {
       // Return default values since we can't properly type the Supabase query yet
       return {
         id: '1',
-        total_budget: 300000,
+        total_budget: 500000,
         deposit_percentage: 50,
         notes: 'Budget initial',
         created_at: new Date().toISOString(),
