@@ -36,16 +36,19 @@ const PricingGridHeader: React.FC<PricingGridHeaderProps> = ({
           <RefreshCw className="mr-2 h-3 w-3" />
           Rafraîchir
         </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={handleResetSimulation}
-          disabled={isResetting}
-          className="text-xs h-8 border-[#272727] bg-[#161616] hover:bg-[#222]"
-        >
-          <RotateCw className="mr-2 h-3 w-3" />
-          {isResetting ? 'Réinitialisation...' : 'Réinitialiser'}
-        </Button>
+        {/* Only show Réinitialiser button in manual mode */}
+        {analysisMode === 'manual' && (
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleResetSimulation}
+            disabled={isResetting}
+            className="text-xs h-8 border-[#272727] bg-[#161616] hover:bg-[#222]"
+          >
+            <RotateCw className="mr-2 h-3 w-3" />
+            {isResetting ? 'Réinitialisation...' : 'Réinitialiser'}
+          </Button>
+        )}
       </div>
     </div>
   );

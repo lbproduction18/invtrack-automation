@@ -28,6 +28,8 @@ interface PricingGridContentProps {
   handleLaunchAIAnalysis: () => void;
   getTotalForProduct: (productId: string) => number;
   getUnitPriceForSKU: (productId: string, sku: string, quantity?: string) => number;
+  handleResetSimulation: () => void;
+  isResetting: boolean;
 }
 
 const PricingGridContent: React.FC<PricingGridContentProps> = ({
@@ -48,7 +50,9 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
   handleQuantityChange,
   handleLaunchAIAnalysis,
   getTotalForProduct,
-  getUnitPriceForSKU
+  getUnitPriceForSKU,
+  handleResetSimulation,
+  isResetting
 }) => {
   return (
     <>
@@ -83,6 +87,8 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
             simulationTotal={analysisMode === 'manual' ? simulationTotal : 0}
             analysisMode={analysisMode}
             analysisItems={analysisItems}
+            onReset={handleResetSimulation}
+            isResetting={isResetting}
           />
         )}
       </div>

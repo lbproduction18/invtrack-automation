@@ -1,34 +1,40 @@
-import { useProducts } from '@/hooks/useProducts';
 
-/**
- * Hook to group analysis products by category
- */
-export function useProductCategories() {
-  const { products } = useProducts('analysis');
+import { useEffect, useState } from 'react';
+import { Product } from '@/types/product';
+
+// Function to create product categories
+export function useProductCategories(products: Product[]) {
+  const [categories, setCategories] = useState<Record<string, Product[]>>({});
   
-  // Group analysis products by category
-  const groupedAnalysisProducts = products.reduce((acc, product) => {
-    // Extract category from SKU (e.g., "COLLAGENE" from "COLLAGENE-LOTUS")
-    const skuParts = product.SKU.split('-');
-    const category = skuParts[0] || 'Other';
+  useEffect(() => {
+    if (!products.length) return;
     
-    if (!acc[category]) {
-      acc[category] = [];
-    }
+    // Group products by first letter
+    const groupedProducts = products.reduce((acc, product) => {
+      // Extract the first letter of the product name and uppercase it
+      const firstLetter = product.product_name.charAt(0).toUpperCase();
+      
+      // Initialize the category array if it doesn't exist
+      if (!acc[firstLetter]) {
+        acc[firstLetter] = [];
+      }
+      
+      // Add the product to its category
+      acc[firstLetter].push(product);
+      
+      return acc;
+    }, {} as Record<string, Product[]>);
     
-    acc[category].push({
-      id: product.id,
-      SKU: product.SKU,
-      productName: product.product_name, // Using product_name from product
-      // Other properties that might be needed
-      ...product
-    });
+    // Sort categories alphabetically
+    const sortedCategories = Object.keys(groupedProducts)
+      .sort()
+      .reduce((obj, key) => {
+        obj[key] = groupedProducts[key];
+        return obj;
+      }, {} as Record<string, Product[]>);
     
-    return acc;
-  }, {} as Record<string, typeof products>);
+    setCategories(sortedCategories);
+  }, [products]);
   
-  return {
-    products,
-    groupedAnalysisProducts
-  };
+  return { categories };
 }

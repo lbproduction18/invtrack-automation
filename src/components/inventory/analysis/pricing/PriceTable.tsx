@@ -32,6 +32,8 @@ interface PriceTableProps {
   simulationTotal?: number;
   analysisMode?: 'manual' | 'ai';
   analysisItems?: AnalysisItem[];
+  onReset?: () => void;
+  isResetting?: boolean;
 }
 
 const PriceTable: React.FC<PriceTableProps> = ({
@@ -49,7 +51,9 @@ const PriceTable: React.FC<PriceTableProps> = ({
   showQuantityInputs = true,
   simulationTotal = 0,
   analysisMode = 'manual',
-  analysisItems = []
+  analysisItems = [],
+  onReset,
+  isResetting
 }) => {
   if (isLoading) {
     return (
@@ -151,6 +155,9 @@ const PriceTable: React.FC<PriceTableProps> = ({
                 selectedSKUs={selectedSKUs}
                 analysisItems={analysisItems}
                 className="px-8 py-2 mx-auto"
+                showResetButton={analysisMode === 'ai'}
+                onReset={onReset}
+                isResetting={isResetting}
               />
             </TableCell>
           </TableRow>
