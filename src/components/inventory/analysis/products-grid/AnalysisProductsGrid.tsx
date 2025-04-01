@@ -4,7 +4,7 @@ import { type AnalysisProduct } from '@/components/inventory/AnalysisContent';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, FilePlus } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import AnalysisProductsTable from './AnalysisProductsTable';
 import { ProductDetailsDrawer } from '../product-details';
 import { type Product } from '@/types/product';
@@ -74,15 +74,13 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between py-4">
         <CardTitle className="text-xl font-bold">Produits en analyse</CardTitle>
-        <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="sm" className="w-9 p-0" onClick={handleToggleExpand}>
-            {isOpen ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
+        <Button variant="ghost" size="sm" className="w-9 p-0" onClick={handleToggleExpand}>
+          {isOpen ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : (
+            <ChevronDown className="h-4 w-4" />
+          )}
+        </Button>
       </CardHeader>
       
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
