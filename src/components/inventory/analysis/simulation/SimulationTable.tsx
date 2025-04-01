@@ -15,9 +15,9 @@ interface SimulationTableProps {
   isLoading: boolean;
   quantityOptions: QuantityOption[];
   selectedSKUs: Record<string, SelectedSKU[]>;
-  groupedAnalysisProducts: Record<string, Array<{ id: string, SKU: string, productName: string | null }>>;
+  groupedAnalysisProducts: Record<string, Array<{ id: string, SKU: string, productName: string }>>;
   simulationTotal: number;
-  onAddSKU: (productName: string, skuInfo: { id: string, SKU: string, productName: string | null }) => void;
+  onAddSKU: (productName: string, skuInfo: { id: string, SKU: string, productName: string }) => void;
   onQuantityChange: (productName: string, skuIndex: number, quantity: QuantityOption) => void;
   onRemoveSKU: (productName: string, skuIndex: number) => void;
   calculateSKUTotal: (sku: SelectedSKU) => number;

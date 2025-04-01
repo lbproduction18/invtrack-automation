@@ -1,4 +1,3 @@
-
 import { useProducts } from '@/hooks/useProducts';
 
 /**
@@ -17,7 +16,14 @@ export function useProductCategories() {
       acc[category] = [];
     }
     
-    acc[category].push(product);
+    acc[category].push({
+      id: product.id,
+      SKU: product.SKU,
+      product_name: product.product_name,
+      // Other properties that might be needed
+      ...product
+    });
+    
     return acc;
   }, {} as Record<string, typeof products>);
   

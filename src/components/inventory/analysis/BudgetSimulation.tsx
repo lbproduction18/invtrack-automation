@@ -91,6 +91,17 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ simulation, onBack 
   const calculateSKUTotalWrapper = (productName: string, sku: { productId: string; SKU: string; productName: string; quantity: QuantityOption; price: number; }) => {
     return sku.quantity * sku.price;
   };
+  
+  // Transform the grouped products to the expected format
+  const transformedGroupedProducts: Record<string, { id: string; SKU: string; productName: string; }[]> = {};
+  
+  Object.entries(groupedAnalysisProducts).forEach(([category, products]) => {
+    transformedGroupedProducts[category] = products.map(product => ({
+      id: product.id,
+      SKU: product.SKU,
+      productName: product.product_name || ''
+    }));
+  });
 
   return (
     <div className="space-y-4">
@@ -130,7 +141,7 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ simulation, onBack 
             onRefresh={handleRefresh}
             quantityOptions={quantityOptions}
             selectedSKUs={selectedSKUs}
-            groupedAnalysisProducts={groupedAnalysisProducts}
+            groupedAnalysisProducts={transformedGroupedProducts}
             simulationTotal={simulationTotal}
             onAddSKU={handleAddSKUWrapper}
             onQuantityChange={handleQuantityChangeWrapper}
