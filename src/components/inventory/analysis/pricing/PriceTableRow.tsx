@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import SelectedSKUsList from './SelectedSKUsList';
-import { formatTotalPrice } from './PriceFormatter';
+import { formatPrice, formatTotalPrice } from './PriceFormatter';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 
 interface PriceTableRowProps {
@@ -23,6 +23,7 @@ interface PriceTableRowProps {
   handleQuantityChange: (productId: string, sku: string, quantityValue: string) => void;
   getTotalForProduct: (productId: string) => number;
   formatPrice: (price: number | null) => React.ReactNode;
+  formatTotalPrice: (price: number) => string;
   showQuantityInputs?: boolean;
   analysisMode?: 'manual' | 'ai';
 }
@@ -38,6 +39,7 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
   handleQuantityChange,
   getTotalForProduct,
   formatPrice,
+  formatTotalPrice,
   showQuantityInputs = true,
   analysisMode = 'manual'
 }) => {

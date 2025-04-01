@@ -3,8 +3,19 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 import PriceTable from '../PriceTable';
 import SimulationSummary from '../SimulationSummary';
-import LoadingIndicator from './LoadingIndicator';
 import AINoteDisplay from './AINoteDisplay';
+import { formatPrice, formatTotalPrice } from '../PriceFormatter';
+
+interface LoadingIndicatorProps {
+  message: string;
+}
+
+const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({ message }) => (
+  <div className="flex justify-center items-center p-8">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    <span className="ml-2">{message}</span>
+  </div>
+);
 
 interface PricingGridContentProps {
   analysisMode: 'manual' | 'ai';
@@ -22,7 +33,7 @@ interface PricingGridContentProps {
   isResetting: boolean;
   handleSKUSelect: (productId: string, sku: string) => void;
   handleSKURemove: (productId: string, sku: string) => void;
-  handleQuantityChange: (productId: string, sku: string, quantity: string) => void;
+  handleQuantityChange: (productId: string, sku: string, quantityValue: string) => void;
   handleLaunchAIAnalysis: () => void;
   handleResetSimulation: () => void;
   getTotalForProduct: (productId: string) => number;
@@ -72,9 +83,10 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
           handleSKURemove={handleSKURemove}
           handleQuantityChange={handleQuantityChange}
           getTotalForProduct={getTotalForProduct}
+          formatTotalPrice={formatTotalPrice}
+          formatPrice={formatPrice}
+          showQuantityInputs={true}
           analysisMode={analysisMode}
-          simulationTotal={simulationTotal}
-          analysisItems={analysisItems}
         />
       </div>
       

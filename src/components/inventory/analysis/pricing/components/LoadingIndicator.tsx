@@ -3,16 +3,13 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 
 interface LoadingIndicatorProps {
-  message: string;
+  loading: boolean;
 }
 
-const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({ message }) => {
-  return (
-    <div className="flex flex-col items-center justify-center p-12 space-y-4">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      <p className="text-gray-400">{message}</p>
-    </div>
-  );
+const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({ loading }) => {
+  if (!loading) return null;
+  
+  return <Loader2 className="h-4 w-4 animate-spin ml-2" />;
 };
 
 export default LoadingIndicator;
