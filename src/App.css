@@ -51,50 +51,49 @@ table {
 /* Style de l'effet hover sur les lignes */
 table tr:hover {
   background-color: rgba(155, 255, 200, 0.08);
-  transition: background-color 0.2s ease;
 }
 
-/* Style de base pour les cellules */
-table td, table th {
-  position: relative;
-  transition: background-color 0.2s ease;
-}
-
-/* Effet d'intersection - cellule active */
-table td:hover, table th:hover {
-  background-color: rgba(155, 255, 200, 0.15);
-  position: relative;
-  z-index: 2;
-}
-
-/* Effet pour la ligne entière */
-tr:hover td {
-  background-color: rgba(155, 255, 200, 0.08);
-}
-
-/* Effet pour les cellules de colonne au-dessus de la position de la souris */
-tbody tr td:hover::before {
+/* Style de l'effet hover sur les colonnes */
+table td:hover::after,
+table th:hover::after {
   content: "";
   position: absolute;
   background-color: rgba(155, 255, 200, 0.08);
   left: 0;
-  top: -10000px; /* Assez grand pour atteindre le haut du tableau */
-  height: 10000px; /* Limite la hauteur pour s'arrêter à la cellule actuelle */
+  top: 0;
+  height: 100%;
   width: 100%;
   z-index: -1;
-  pointer-events: none;
 }
 
-/* Effet sur l'en-tête de colonne correspondant */
-tbody tr td:hover ~ thead tr th:nth-of-type(var(--column-index)), 
-tbody tr td:hover ~ tbody tr:nth-of-type(-n + var(--row-index)) td:nth-of-type(var(--column-index)) {
+/* Effet pour la colonne entière */
+tbody tr td:hover::before,
+thead tr th:hover::before {
+  content: "";
+  position: absolute;
   background-color: rgba(155, 255, 200, 0.08);
+  left: 0;
+  top: -10000px;
+  height: 20000px;
+  width: 100%;
+  z-index: -1;
 }
 
-/* Style pour la cellule en surbrillance (intersection) */
+/* Effet pour la ligne entière */
+tr:hover td::after {
+  content: "";
+  position: absolute;
+  background-color: rgba(155, 255, 200, 0.08);
+  left: -10000px;
+  top: 0;
+  height: 100%;
+  width: 20000px;
+  z-index: -2;
+}
+
+/* Effet croisé - cellule en surbrillance */
 tr:hover td:hover {
-  background-color: rgba(155, 255, 200, 0.25);
+  background-color: rgba(155, 255, 200, 0.15);
   position: relative;
-  z-index: 3;
+  z-index: 1;
 }
-

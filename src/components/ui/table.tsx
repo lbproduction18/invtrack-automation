@@ -6,61 +6,15 @@ import { cn } from "@/lib/utils"
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => {
-  const tableRef = React.useRef<HTMLTableElement>(null);
-  
-  React.useEffect(() => {
-    const table = tableRef.current;
-    if (!table) return;
-    
-    const handleMouseMove = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'TD' || target.tagName === 'TH') {
-        // Find the cell's position
-        const cell = target.closest('td, th');
-        if (!cell) return;
-        
-        const row = cell.closest('tr');
-        if (!row) return;
-        
-        // Get index of the cell (column)
-        const cellIndex = Array.from(row.cells).indexOf(cell as HTMLTableCellElement);
-        // Get index of the row
-        const rowIndex = Array.from(table.rows).indexOf(row as HTMLTableRowElement);
-        
-        // Set CSS variables
-        table.style.setProperty('--column-index', `${cellIndex + 1}`);
-        table.style.setProperty('--row-index', `${rowIndex}`);
-      }
-    };
-    
-    table.addEventListener('mousemove', handleMouseMove);
-    
-    return () => {
-      table.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
-  
-  return (
-    <div className="relative w-full overflow-auto">
-      <table
-        ref={(node) => {
-          // Merge refs
-          if (typeof ref === 'function') {
-            ref(node);
-          } else if (ref) {
-            ref.current = node;
-          }
-          if (tableRef) {
-            tableRef.current = node;
-          }
-        }}
-        className={cn("w-full caption-bottom text-sm border-collapse hover-highlight-table", className)}
-        {...props}
-      />
-    </div>
-  )
-})
+>(({ className, ...props }, ref) => (
+  <div className="relative w-full overflow-auto">
+    <table
+      ref={ref}
+      className={cn("w-full caption-bottom text-sm border-collapse hover-highlight-table", className)}
+      {...props}
+    />
+  </div>
+))
 Table.displayName = "Table"
 
 const TableHeader = React.forwardRef<
@@ -106,6 +60,7 @@ const TableRow = React.forwardRef<
     ref={ref}
     className={cn(
       "border-b border-border/20 transition-colors hover:bg-muted/40 data-[state=selected]:bg-muted/60",
+      "has-[td:hover]:bg-primary/10",
       className
     )}
     {...props}
@@ -120,7 +75,8 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-10 px-0 text-left align-middle text-xs font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 border-r border-[#403E43] last:border-r-0 bg-inherit relative",
+      "h-10 px-0 text-left align-middle text-xs font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 border-r border-[#403E43] last:border-r-0 bg-inherit",
+      "group-hover:[&:nth-of-type(--highlighted-column)]:bg-primary/10",
       className
     )}
     {...props}
@@ -135,7 +91,8 @@ const TableCell = React.forwardRef<
   <td
     ref={ref}
     className={cn(
-      "px-0 py-1 align-middle [&:has([role=checkbox])]:pr-0 border-r border-[#403E43] last:border-r-0 relative", 
+      "px-0 py-1 align-middle [&:has([role=checkbox])]:pr-0 border-r border-[#403E43] last:border-r-0", 
+      "hover:bg-primary/10 hover:z-[1] group-hover:[&:nth-of-type(--highlighted-column)]:bg-primary/10",
       className
     )}
     {...props}
