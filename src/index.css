@@ -125,7 +125,6 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Custom Utility Classes */
   .glass {
     @apply bg-background/60 backdrop-blur-lg border border-white/10 shadow-glass;
   }
@@ -212,7 +211,6 @@
     @apply p-4 rounded-lg bg-card border border-border card-hover;
   }
 
-  /* Styles pour les flèches de navigation du carousel */
   .carousel-arrow {
     position: fixed;
     top: 50%;
@@ -249,7 +247,6 @@
     cursor: not-allowed;
   }
 
-  /* Nouvelles classes pour l'effet de survol dans les tableaux */
   .hover-highlight-table {
     counter-reset: column;
   }
@@ -298,5 +295,24 @@
     height: 100%;
     z-index: -2;
     pointer-events: none;
+  }
+
+  .hover-highlight-table tbody tr td {
+    transition: background-color 0.15s ease;
+  }
+
+  .hover-highlight-table tbody tr td.column-hovered {
+    position: relative;
+    background-color: rgba(34, 51, 34, 0.3);
+  }
+
+  .hover-highlight-table tbody tr:hover td.column-hovered {
+    background-color: rgba(34, 51, 34, 0.5);
+  }
+
+  .hover-highlight-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
 }

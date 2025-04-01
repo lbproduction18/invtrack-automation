@@ -6,15 +6,77 @@ import { cn } from "@/lib/utils"
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto">
-    <table
-      ref={ref}
-      className={cn("w-full caption-bottom text-sm border-collapse hover-highlight-table", className)}
-      {...props}
-    />
-  </div>
-))
+>(({ className, ...props }, ref) => {
+  const tableRef = React.useRef<HTMLTableElement>(null);
+  
+  React.useEffect(() => {
+    const table = tableRef.current;
+    if (!table) return;
+    
+    // Function to handle cell hover
+    const handleCellHover = (e: MouseEvent) => {
+      // Reset all previously highlighted cells
+      table.querySelectorAll('td.column-hovered').forEach(cell => {
+        cell.classList.remove('column-hovered');
+      });
+      
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'TD') {
+        const currentRow = target.closest('tr');
+        const cellIndex = Array.from(currentRow?.cells || []).indexOf(target);
+        
+        // Find all rows above and including this one
+        const allRows = Array.from(table.querySelectorAll('tbody tr'));
+        const currentRowIndex = allRows.indexOf(currentRow as HTMLTableRowElement);
+        
+        // Add highlight class to cells in the same column up to the current row
+        for (let i = 0; i <= currentRowIndex; i++) {
+          const row = allRows[i];
+          const cell = row.cells[cellIndex];
+          if (cell) {
+            cell.classList.add('column-hovered');
+          }
+        }
+      }
+    };
+    
+    // Function to handle mouse leave
+    const handleTableLeave = () => {
+      // Clear all highlights when mouse leaves the table
+      table.querySelectorAll('td.column-hovered').forEach(cell => {
+        cell.classList.remove('column-hovered');
+      });
+    };
+    
+    // Add event listeners
+    table.addEventListener('mouseover', handleCellHover);
+    table.addEventListener('mouseleave', handleTableLeave);
+    
+    return () => {
+      // Clean up event listeners
+      table.removeEventListener('mouseover', handleCellHover);
+      table.removeEventListener('mouseleave', handleTableLeave);
+    };
+  }, []);
+  
+  return (
+    <div className="relative w-full overflow-auto">
+      <table
+        ref={(node) => {
+          // Assign to both refs
+          if (typeof ref === 'function') {
+            ref(node);
+          } else if (ref) {
+            ref.current = node;
+          }
+          tableRef.current = node;
+        }}
+        className={cn("w-full caption-bottom text-sm border-collapse", className)}
+        {...props}
+      />
+    </div>
+  );
+})
 Table.displayName = "Table"
 
 const TableHeader = React.forwardRef<
@@ -60,7 +122,6 @@ const TableRow = React.forwardRef<
     ref={ref}
     className={cn(
       "border-b border-border/20 transition-colors hover:bg-muted/40 data-[state=selected]:bg-muted/60",
-      "has-[td:hover]:bg-primary/10",
       className
     )}
     {...props}
@@ -76,7 +137,6 @@ const TableHead = React.forwardRef<
     ref={ref}
     className={cn(
       "h-10 px-0 text-left align-middle text-xs font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 border-r border-[#403E43] last:border-r-0 bg-inherit",
-      "group-hover:[&:nth-of-type(--highlighted-column)]:bg-primary/10",
       className
     )}
     {...props}
@@ -92,7 +152,7 @@ const TableCell = React.forwardRef<
     ref={ref}
     className={cn(
       "px-0 py-1 align-middle [&:has([role=checkbox])]:pr-0 border-r border-[#403E43] last:border-r-0", 
-      "hover:bg-primary/10 hover:z-[1] group-hover:[&:nth-of-type(--highlighted-column)]:bg-primary/10",
+      "hover:z-[1]",
       className
     )}
     {...props}
