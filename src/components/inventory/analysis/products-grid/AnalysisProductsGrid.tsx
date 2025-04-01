@@ -44,15 +44,13 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between py-4">
         <CardTitle className="text-xl font-bold">Produits en analyse</CardTitle>
-        <CollapsibleTrigger asChild onClick={handleToggleExpand}>
-          <Button variant="ghost" size="sm" className="w-9 p-0">
-            {isOpen ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </Button>
-        </CollapsibleTrigger>
+        <Button variant="ghost" size="sm" className="w-9 p-0" onClick={handleToggleExpand}>
+          {isOpen ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : (
+            <ChevronDown className="h-4 w-4" />
+          )}
+        </Button>
       </CardHeader>
       
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -72,10 +70,16 @@ const AnalysisProductsGrid: React.FC<AnalysisProductsGridProps> = ({
       
       {selectedProduct && (
         <ProductDetailsDrawer 
-          product={selectedProduct} 
-          open={!!selectedProduct} 
-          onClose={handleCloseDetails}
-          refetchAnalysis={refetchAnalysis}
+          isOpen={!!selectedProduct}
+          onOpenChange={(isOpen) => !isOpen && handleCloseDetails()}
+          selectedProduct={selectedProduct}
+          selectedProductIndex={0}
+          productsCount={1}
+          onNavigate={() => {}}
+          onQuantityChange={() => {}}
+          onUpdateProduct={() => {}}
+          getTotalPrice={() => 0}
+          onCreateOrder={() => {}}
         />
       )}
     </Card>
