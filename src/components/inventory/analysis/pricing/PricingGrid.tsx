@@ -13,6 +13,7 @@ import { useBudgetSimulation } from '../simulation/useBudgetSimulation';
 import { useSKUAssignmentCheck } from './hooks/useSKUAssignmentCheck';
 import PricingGridHeader from './components/PricingGridHeader';
 import PricingGridContent from './components/PricingGridContent';
+import { formatTotalPrice, formatPrice } from './PriceFormatter';
 
 interface PricingGridProps {
   showSimulationSummary?: boolean;
@@ -132,6 +133,8 @@ const PricingGrid: React.FC<PricingGridProps> = ({
           handleResetSimulation={handleResetSimulation}
           getTotalForProduct={getTotalForProduct}
           getUnitPriceForSKU={getUnitPriceWrapper}
+          formatPrice={formatPrice}
+          formatTotalPrice={formatTotalPrice}
         />
       </CardContent>
     </Card>

@@ -38,6 +38,8 @@ interface PricingGridContentProps {
   handleResetSimulation: () => void;
   getTotalForProduct: (productId: string) => number;
   getUnitPriceForSKU: (productId: string, sku: string, quantity?: string) => number;
+  formatPrice: (price: number) => string;
+  formatTotalPrice: (price: number) => string;
 }
 
 const PricingGridContent: React.FC<PricingGridContentProps> = ({
@@ -60,7 +62,9 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
   handleLaunchAIAnalysis,
   handleResetSimulation,
   getTotalForProduct,
-  getUnitPriceForSKU
+  getUnitPriceForSKU,
+  formatPrice,
+  formatTotalPrice
 }) => {
   if (isLoading || isResetting) {
     return <LoadingIndicator message={isResetting ? "Réinitialisation..." : "Chargement des données..."} />;
