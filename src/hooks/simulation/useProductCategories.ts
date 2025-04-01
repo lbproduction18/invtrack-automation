@@ -15,11 +15,11 @@ export function useProductCategories() {
   
   // Group analysis products by their category for the simulation
   const groupedAnalysisProducts = useMemo(() => {
-    if (!analysisItems) return [];
+    if (!analysisItems || analysisItems.length === 0) return [];
     
     // Ensure we return an array of products transformed from analysisItems
     return analysisItems.map(item => ({
-      id: item.id,
+      id: item.id || "",
       product_name: item.sku_label || 'Unknown Product',
       sku: item.sku_code || '',
       category: 'analysis'

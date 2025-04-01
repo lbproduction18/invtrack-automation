@@ -97,12 +97,13 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ simulation, onBack 
   
   // Ensure groupedAnalysisProducts is treated as an array
   const analysisProductsArray = Array.isArray(groupedAnalysisProducts) ? 
-    groupedAnalysisProducts : [groupedAnalysisProducts].filter(Boolean);
+    groupedAnalysisProducts : 
+    groupedAnalysisProducts ? [groupedAnalysisProducts] : [];
   
   // Create a single category for all analysis products
   if (analysisProductsArray.length > 0) {
     transformedGroupedProducts["analysis"] = analysisProductsArray.map(product => ({
-      id: product.id,
+      id: product.id || "",
       SKU: product.sku || "",
       productName: product.product_name || ""
     }));
