@@ -122,7 +122,7 @@ const PricingGrid: React.FC<PricingGridProps> = ({
       <CardContent className="p-0">
         {/* Budget Slider - Only visible in manual mode */}
         {analysisMode === 'manual' && (
-          <div className="mx-4 mt-4 p-2 rounded-md border border-[#272727] bg-[#161616]">
+          <div className="sticky top-0 z-10 mx-4 mt-4 p-2 rounded-md border border-[#272727] bg-[#161616]">
             <BudgetSlider simulationTotal={simulationTotal} />
           </div>
         )}
