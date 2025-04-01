@@ -8,6 +8,7 @@ import {
 import { ProgressSteps } from '@/components/carousel/ProgressSteps';
 import { CarouselNavigationArrows } from '@/components/carousel/CarouselNavigationArrows';
 import { InventoryCarouselContent } from '@/components/carousel/InventoryCarouselContent';
+import { Pagination } from '@/components/product/Pagination';
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -73,6 +74,16 @@ const Index = () => {
         totalSteps={totalSteps}
         carouselApi={carouselApi}
       />
+
+      {/* Pagination au bas de page */}
+      <div className="mt-4 mb-8 max-w-[calc(100%-80px)] mx-auto">
+        <Pagination 
+          filteredCount={1} 
+          totalCount={totalSteps} 
+          isLoading={false} 
+          currentPage={currentStep + 1} 
+        />
+      </div>
     </div>
   );
 };

@@ -13,19 +13,19 @@ interface PricingGridContentProps {
   simulationTotal: number;
   showSimulationSummary: boolean;
   productPrices: any[];
-  selectedSKUs: string[];
-  quantities: Record<string, string>;
-  calculatedPrices: Record<string, number>;
+  selectedSKUs: Record<string, string[]>;
+  quantities: Record<string, Record<string, string>>;
+  calculatedPrices: Record<string, Record<string, number | string>>;
   analysisProductSKUs: any[];
   analysisItems: any[];
   products: any[];
   isResetting: boolean;
-  handleSKUSelect: (sku: string) => void;
-  handleSKURemove: (sku: string) => void;
-  handleQuantityChange: (sku: string, quantity: string) => void;
+  handleSKUSelect: (productId: string, sku: string) => void;
+  handleSKURemove: (productId: string, sku: string) => void;
+  handleQuantityChange: (productId: string, sku: string, quantity: string) => void;
   handleLaunchAIAnalysis: () => void;
   handleResetSimulation: () => void;
-  getTotalForProduct: (sku: string) => number;
+  getTotalForProduct: (productId: string) => number;
   getUnitPriceForSKU: (productId: string, sku: string, quantity?: string) => number;
 }
 
@@ -72,6 +72,9 @@ const PricingGridContent: React.FC<PricingGridContentProps> = ({
           handleSKURemove={handleSKURemove}
           handleQuantityChange={handleQuantityChange}
           getTotalForProduct={getTotalForProduct}
+          analysisMode={analysisMode}
+          simulationTotal={simulationTotal}
+          analysisItems={analysisItems}
         />
       </div>
       

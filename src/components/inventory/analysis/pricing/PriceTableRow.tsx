@@ -23,7 +23,6 @@ interface PriceTableRowProps {
   handleQuantityChange: (productId: string, sku: string, quantityValue: string) => void;
   getTotalForProduct: (productId: string) => number;
   formatPrice: (price: number | null) => React.ReactNode;
-  formatTotalPrice: (price: number) => string;
   showQuantityInputs?: boolean;
   analysisMode?: 'manual' | 'ai';
 }
@@ -39,7 +38,6 @@ const PriceTableRow: React.FC<PriceTableRowProps> = ({
   handleQuantityChange,
   getTotalForProduct,
   formatPrice,
-  formatTotalPrice,
   showQuantityInputs = true,
   analysisMode = 'manual'
 }) => {
