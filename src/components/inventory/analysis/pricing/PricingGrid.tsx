@@ -84,6 +84,11 @@ const PricingGrid: React.FC<PricingGridProps> = ({
     // Add the actual implementation for launching AI analysis here
   };
 
+  // Create a wrapper for getUnitPriceForSKU to make the types compatible
+  const getUnitPriceWrapper = (sku: string, quantity: number): number => {
+    return getUnitPriceForSKU(sku, quantity);
+  };
+
   useEffect(() => {
     handleRefresh();
   }, []);
@@ -121,7 +126,7 @@ const PricingGrid: React.FC<PricingGridProps> = ({
           handleQuantityChange={handleQuantityChange}
           handleLaunchAIAnalysis={handleLaunchAIAnalysis}
           getTotalForProduct={getTotalForProduct}
-          getUnitPriceForSKU={getUnitPriceForSKU}
+          getUnitPriceForSKU={getUnitPriceWrapper}
         />
       </CardContent>
     </Card>
