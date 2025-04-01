@@ -6,7 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import AnalysisProductsTable from './AnalysisProductsTable';
-import ProductDetailsDrawer from '../product-details';
+import { ProductDetailsDrawer } from '../product-details';
 
 interface AnalysisProductsGridProps {
   analysisProducts: AnalysisProduct[]; 

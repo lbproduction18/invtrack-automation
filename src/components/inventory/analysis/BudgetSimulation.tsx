@@ -155,6 +155,7 @@ const BudgetSimulation: React.FC = () => {
                           item={analysisProduct}
                           handleRowClick={handleRowClick}
                           toggleNoteExpansion={toggleNoteExpansion}
+                          expandedNoteId={expandedNoteId}
                           refetchAnalysis={refetchAnalysis}
                         />
                       );
@@ -177,6 +178,7 @@ const BudgetSimulation: React.FC = () => {
                     item={analysisProduct}
                     handleRowClick={handleRowClick}
                     toggleNoteExpansion={toggleNoteExpansion}
+                    expandedNoteId={expandedNoteId}
                     refetchAnalysis={refetchAnalysis}
                   />
                 );

@@ -1,2 +1,4 @@
 
-export { default as ProductDetailsDrawer } from './ProductDetailsDrawer';
+import ProductDetailsDrawer from './ProductDetailsDrawer';
+
+export { ProductDetailsDrawer };
