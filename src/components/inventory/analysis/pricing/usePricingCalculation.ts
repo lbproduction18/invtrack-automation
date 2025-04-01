@@ -1,7 +1,32 @@
 
 import { useMemo } from 'react';
 import { AnalysisItem } from '@/types/analysisItem';
-import { calculateItemTotal, calculateSimulationTotal } from './utils/priceCalculationUtils';
+
+// Utility functions for price calculation
+function calculateItemTotal(item: AnalysisItem, quantity: number): number {
+  if (!item || quantity === 0) return 0;
+  
+  // Determine which price tier to use based on quantity
+  let price = 0;
+  if (quantity <= 1000 && item.price_1000) price = item.price_1000;
+  else if (quantity <= 2000 && item.price_2000) price = item.price_2000;
+  else if (quantity <= 3000 && item.price_3000) price = item.price_3000;
+  else if (quantity <= 4000 && item.price_4000) price = item.price_4000;
+  else if (quantity <= 5000 && item.price_5000) price = item.price_5000;
+  else if (item.price_8000) price = item.price_8000;
+  
+  return price * quantity;
+}
+
+function calculateSimulationTotal(items: AnalysisItem[], quantities: Record<string, number>): number {
+  if (!items || !quantities) return 0;
+  
+  return items.reduce((total, item) => {
+    if (!item.id) return total;
+    const quantity = quantities[item.id] || 0;
+    return total + calculateItemTotal(item, quantity);
+  }, 0);
+}
 
 export function usePricingCalculation(
   analysisItems: AnalysisItem[],
