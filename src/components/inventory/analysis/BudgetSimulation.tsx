@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import BudgetLoadingState from './budget/BudgetLoadingState';
 import BudgetSimulationLayout from './simulation/BudgetSimulationLayout';
 import BudgetSidePanel from './budget/BudgetSidePanel';
@@ -53,6 +53,11 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ simulation, onBack 
     console.log("Create order callback");
   });
 
+  // Log for debugging
+  useEffect(() => {
+    console.log("BudgetSimulation rendered with groupedAnalysisProducts:", groupedAnalysisProducts);
+  }, [groupedAnalysisProducts]);
+
   // Override the total budget with the simulation's budget if provided
   const totalBudget = simulation?.budget_max || defaultTotalBudget;
 
@@ -95,18 +100,32 @@ const BudgetSimulation: React.FC<BudgetSimulationProps> = ({ simulation, onBack 
   // Transform the grouped products to the expected format
   const transformedGroupedProducts: Record<string, { id: string; SKU: string; productName: string; }[]> = {};
   
-  // Ensure groupedAnalysisProducts is treated as an array
-  const analysisProductsArray = Array.isArray(groupedAnalysisProducts) ? 
-    groupedAnalysisProducts : 
-    groupedAnalysisProducts ? [groupedAnalysisProducts] : [];
-  
-  // Create a single category for all analysis products
-  if (analysisProductsArray.length > 0) {
-    transformedGroupedProducts["analysis"] = analysisProductsArray.map(product => ({
-      id: product.id || "",
-      SKU: product.sku || "",
-      productName: product.product_name || ""
-    }));
+  // Safely handle groupedAnalysisProducts, ensuring it's always treated as an array
+  // and protecting against null/undefined values
+  try {
+    // First check if it's defined
+    if (groupedAnalysisProducts) {
+      // Convert to array if it's not already
+      const analysisProductsArray = Array.isArray(groupedAnalysisProducts) ? 
+        groupedAnalysisProducts : [groupedAnalysisProducts];
+      
+      // Filter out any null/undefined entries and ensure all required props have fallbacks
+      if (analysisProductsArray.length > 0) {
+        transformedGroupedProducts["analysis"] = analysisProductsArray
+          .filter(product => product !== null && product !== undefined)
+          .map(product => ({
+            id: product.id || "",
+            SKU: product.sku || "",
+            productName: product.product_name || "Unknown Product"
+          }));
+        
+        console.log("Transformed analysis products:", transformedGroupedProducts["analysis"]);
+      }
+    }
+  } catch (error) {
+    console.error("Error transforming groupedAnalysisProducts:", error);
+    // Provide fallback empty array for the analysis category
+    transformedGroupedProducts["analysis"] = [];
   }
 
   return (
