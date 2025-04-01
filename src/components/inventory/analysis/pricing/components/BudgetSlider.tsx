@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Slider } from "@/components/ui/slider";
 import { useBudgetSettings } from '@/hooks/useBudgetSettings';
@@ -52,7 +51,7 @@ const BudgetSlider: React.FC<BudgetSliderProps> = ({
       <Slider
         defaultValue={[0]}
         value={[sliderValue]}
-        max={700000}
+        max={500000}
         step={1000}
         onValueChange={handleSliderChange}
         className="w-full"
