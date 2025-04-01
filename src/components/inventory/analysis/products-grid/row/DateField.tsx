@@ -1,15 +1,20 @@
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+import React, { useState, useRef } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { CalendarIcon, Loader2, Check } from 'lucide-react';
+import { Calendar as CalendarIcon, Loader2, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 interface DateFieldProps {
   value: Date | null;
-  onSelect: (date: Date | null) => void;
+  onSelect: (date: Date) => void;
   isUpdating: boolean;
   saveSuccess: boolean;
 }
@@ -20,36 +25,63 @@ const DateField: React.FC<DateFieldProps> = ({
   isUpdating,
   saveSuccess
 }) => {
-  return (
-    <div className="flex flex-col items-center justify-center space-y-1">
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-full max-w-[120px] mx-auto bg-[#121212] border-[#272727] h-10 justify-between"
-            disabled={isUpdating}
-          >
-            {value ? (
-              format(new Date(value), 'P', { locale: fr })
-            ) : (
-              <span className="text-gray-500">Date</span>
-            )}
-            <CalendarIcon className="ml-2 h-4 w-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="bg-[#161616] border-[#272727] p-0">
-          <Calendar
-            mode="single"
-            selected={value ? new Date(value) : undefined}
-            onSelect={onSelect}
-            className="bg-[#161616] pointer-events-auto"
-          />
-        </PopoverContent>
-      </Popover>
+  const [open, setOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const handleSelect = (date: Date | undefined) => {
+    if (date) {
+      onSelect(date);
+      setOpen(false);
       
-      {isUpdating && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
-      {saveSuccess && <Check className="w-4 h-4 text-green-500" />}
-    </div>
+      // Focus on the button after selecting
+      setTimeout(() => {
+        if (buttonRef.current) {
+          buttonRef.current.focus();
+        }
+      }, 100);
+    }
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          ref={buttonRef}
+          variant="outline"
+          size="sm"
+          disabled={isUpdating}
+          className={cn(
+            "w-32 bg-[#121212] border-[#272727] h-9",
+            "hover:bg-[#1A1A1A] hover:border-[#3A3A3A] rounded-md transition-all duration-200",
+            "focus:ring-1 focus:ring-primary/30 focus:border-primary",
+            !value && "text-gray-400"
+          )}
+          aria-label="Sélectionner une date"
+        >
+          {isUpdating ? (
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          ) : saveSuccess ? (
+            <Check className="h-4 w-4 text-green-500 mr-2" />
+          ) : (
+            <CalendarIcon className="h-4 w-4 mr-2 text-gray-400" />
+          )}
+          {value ? format(value, 'dd MMM yyyy', { locale: fr }) : "Choisir date"}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent 
+        className="p-0 bg-[#161616] border-[#2A2A2A] rounded-md shadow-lg" 
+        align="center"
+      >
+        <Calendar
+          mode="single"
+          selected={value || undefined}
+          onSelect={handleSelect}
+          initialFocus
+          locale={fr}
+          className="bg-[#161616] rounded-md"
+        />
+      </PopoverContent>
+    </Popover>
   );
 };
 

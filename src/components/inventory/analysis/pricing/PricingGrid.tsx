@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { useBudgetSimulation } from '../simulation/useBudgetSimulation';
 import { formatTotalPrice } from './PriceFormatter';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from '@/lib/utils';
 
 interface PricingGridProps {
   showSimulationSummary?: boolean;
@@ -51,18 +52,26 @@ const PricingGrid: React.FC<PricingGridProps> = ({
     getTotalForProduct,
     resetSimulation,
   } = usePricingCalculation(productPrices);
+
+  // Animation states for buttons
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   
   const isLoading = isPricesLoading || isProductsLoading || isAnalysisLoading;
 
   const handleRefresh = async () => {
+    setIsRefreshing(true);
     await Promise.all([
       refetchPrices(),
       refetchAnalysis()
     ]);
+    setTimeout(() => setIsRefreshing(false), 500);
   };
 
   const handleResetSimulation = () => {
-    resetSimulation(); // Call the reset function from the hook
+    setIsResetting(true);
+    resetSimulation(); 
+    setTimeout(() => setIsResetting(false), 500);
   };
 
   useEffect(() => {
@@ -70,27 +79,41 @@ const PricingGrid: React.FC<PricingGridProps> = ({
   }, []);
 
   return (
-    <Card className="border border-[#272727] bg-[#131313]">
-      <CardHeader className="px-4 py-3 border-b border-[#272727]">
+    <Card className="border border-[#272727] bg-[#131313] rounded-lg shadow-md overflow-hidden">
+      <CardHeader className="px-5 py-4 border-b border-[#272727] bg-gradient-to-r from-[#151515] to-[#1A1A1A]">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-sm font-medium">Grille Tarifaire</CardTitle>
-          <div className="flex space-x-2">
+          <CardTitle className="text-md font-medium tracking-wide">Grille Tarifaire</CardTitle>
+          <div className="flex space-x-3">
             <Button 
               variant="outline" 
               size="sm"
               onClick={handleRefresh}
-              className="text-xs h-8 border-[#272727] bg-[#161616] hover:bg-[#222]"
+              disabled={isRefreshing}
+              className={cn(
+                "text-xs h-9 border-[#272727] bg-[#161616] hover:bg-[#222] transition-all duration-200",
+                "hover:scale-105 focus:ring-1 focus:ring-primary/30 rounded-md"
+              )}
             >
-              <RefreshCw className="mr-2 h-3 w-3" />
+              <RefreshCw className={cn(
+                "mr-2 h-3.5 w-3.5 transition-transform",
+                isRefreshing && "animate-spin"
+              )} />
               Rafraîchir
             </Button>
             <Button 
               variant="outline" 
               size="sm"
               onClick={handleResetSimulation}
-              className="text-xs h-8 border-[#272727] bg-[#161616] hover:bg-[#222]"
+              disabled={isResetting}
+              className={cn(
+                "text-xs h-9 border-[#272727] bg-[#161616] hover:bg-[#222] transition-all duration-200",
+                "hover:scale-105 focus:ring-1 focus:ring-primary/30 rounded-md"
+              )}
             >
-              <RotateCw className="mr-2 h-3 w-3" />
+              <RotateCw className={cn(
+                "mr-2 h-3.5 w-3.5 transition-transform",
+                isResetting && "animate-spin"
+              )} />
               Réinitialiser
             </Button>
             
@@ -108,7 +131,7 @@ const PricingGrid: React.FC<PricingGridProps> = ({
                       {/* Empty div to maintain spacing/layout */}
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent>
+                  <TooltipContent className="bg-[#1A1A1A] border-[#2A2A2A] text-xs rounded-md py-1.5">
                     <p>Disponible en mode Analyse AI uniquement</p>
                   </TooltipContent>
                 </Tooltip>
@@ -119,11 +142,11 @@ const PricingGrid: React.FC<PricingGridProps> = ({
       </CardHeader>
       
       <CardContent className="p-0">
-        <div className="rounded-md border border-[#272727] overflow-hidden mt-4">
+        <div className="rounded-md border border-[#272727] overflow-hidden m-4 shadow-sm">
           {isLoading ? (
-            <div className="flex justify-center items-center p-8">
+            <div className="flex justify-center items-center p-10">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-2">Chargement des données...</span>
+              <span className="ml-3 text-gray-300">Chargement des données...</span>
             </div>
           ) : (
             <PriceTable
@@ -145,7 +168,7 @@ const PricingGrid: React.FC<PricingGridProps> = ({
         </div>
         
         {showSimulationSummary && (
-          <div className="mt-4">
+          <div className="m-4 mt-6">
             <SimulationSummary 
               analysisItems={analysisItems}
               products={products}

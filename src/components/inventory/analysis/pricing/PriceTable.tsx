@@ -78,17 +78,17 @@ const PriceTable: React.FC<PriceTableProps> = ({
 
   return (
     <Table>
-      <TableHeader className="bg-[#161616] sticky top-0 z-50">
-        <TableRow className="hover:bg-transparent">
-          <TableHead className="text-left w-[20%] pl-4 bg-[#161616]">Produit</TableHead>
-          <TableHead className="text-center bg-[#161616]">Prix 1000</TableHead>
-          <TableHead className="text-center bg-[#161616]">Prix 2000</TableHead>
-          <TableHead className="text-center bg-[#161616]">Prix 3000</TableHead>
-          <TableHead className="text-center bg-[#161616]">Prix 4000</TableHead>
-          <TableHead className="text-center bg-[#161616]">Prix 5000</TableHead>
-          <TableHead className="text-center bg-[#161616]">Prix 8000</TableHead>
-          <TableHead className="text-center bg-[#161616]">SKU</TableHead>
-          <TableHead className="text-right pr-4 bg-[#161616]">Total (CAD)</TableHead>
+      <TableHeader className="bg-[#1D1D1D] sticky top-0 z-50 rounded-t-md">
+        <TableRow className="hover:bg-transparent border-b border-[#2A2A2A]">
+          <TableHead className="text-left w-[20%] pl-4 bg-gradient-to-r from-[#1D1D1D] to-[#222] tracking-wide">Produit</TableHead>
+          <TableHead className="text-center bg-gradient-to-r from-[#1D1D1D] to-[#222] tracking-wide">Prix 1000</TableHead>
+          <TableHead className="text-center bg-gradient-to-r from-[#1D1D1D] to-[#222] tracking-wide">Prix 2000</TableHead>
+          <TableHead className="text-center bg-gradient-to-r from-[#1D1D1D] to-[#222] tracking-wide">Prix 3000</TableHead>
+          <TableHead className="text-center bg-gradient-to-r from-[#1D1D1D] to-[#222] tracking-wide">Prix 4000</TableHead>
+          <TableHead className="text-center bg-gradient-to-r from-[#1D1D1D] to-[#222] tracking-wide">Prix 5000</TableHead>
+          <TableHead className="text-center bg-gradient-to-r from-[#1D1D1D] to-[#222] tracking-wide">Prix 8000</TableHead>
+          <TableHead className="text-center bg-gradient-to-r from-[#1D1D1D] to-[#222] tracking-wide">SKU</TableHead>
+          <TableHead className="text-right pr-4 bg-gradient-to-r from-[#1D1D1D] to-[#222] tracking-wide">Total (CAD)</TableHead>
         </TableRow>
       </TableHeader>
             
@@ -100,7 +100,7 @@ const PriceTable: React.FC<PriceTableProps> = ({
             </TableCell>
           </TableRow>
         ) : (
-          sortedProducts.map(product => (
+          sortedProducts.map((product, index) => (
             <PriceTableRow
               key={product.id}
               product={product}
@@ -115,18 +115,19 @@ const PriceTable: React.FC<PriceTableProps> = ({
               formatPrice={formatPrice}
               formatTotalPrice={formatTotalPrice}
               showQuantityInputs={showQuantityInputs}
+              isAlternate={index % 2 === 1}
             />
           ))
         )}
       </TableBody>
       
       {showQuantityInputs && simulationTotal > 0 && (
-        <TableFooter className="bg-[#161616]">
-          <TableRow className="border-t border-[#272727]">
-            <TableCell colSpan={8} className="text-right font-semibold pr-4">
+        <TableFooter className="bg-[#1D1D1D]">
+          <TableRow className="border-t border-[#2A2A2A]">
+            <TableCell colSpan={8} className="text-right font-semibold pr-4 py-4 tracking-wide">
               Total Général (CAD)
             </TableCell>
-            <TableCell className="text-right font-bold pr-4 text-primary">
+            <TableCell className="text-right font-bold pr-4 py-4 text-green-500 text-lg tabular-nums">
               {formatTotalPrice(simulationTotal)}
             </TableCell>
           </TableRow>

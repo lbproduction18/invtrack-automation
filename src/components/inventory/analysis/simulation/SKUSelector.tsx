@@ -1,119 +1,83 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+} from '@/components/ui/select';
 import { type QuantityOption } from '@/components/inventory/AnalysisContent';
+import { cn } from '@/lib/utils';
 
-export interface SKUSelectorProps {
+interface SKUSelectorProps {
   productName: string;
-  skus?: Array<{ id: string; SKU: string; productName: string | null }>;
-  availableSKUs?: Array<{ id: string; SKU: string; productName: string | null }>;
+  availableSKUs: Array<{ id: string; SKU: string; productName: string | null }>;
   quantityOptions: QuantityOption[];
-  prices?: Record<string, number | null>;
+  prices: Record<string, number | null>;
   onAdd: (productName: string, skuId: string, skuValue: string, quantity: QuantityOption) => void;
 }
 
 const SKUSelector: React.FC<SKUSelectorProps> = ({
   productName,
+  availableSKUs,
   quantityOptions,
-  onAdd,
-  availableSKUs = [],
-  skus = [],
-  prices = {}
+  prices,
+  onAdd
 }) => {
-  const [selectedSKU, setSelectedSKU] = useState<string>('');
-  const [selectedSKUObject, setSelectedSKUObject] = useState<{ id: string; SKU: string; productName: string | null } | null>(null);
-  const [selectedQuantity, setSelectedQuantity] = useState<QuantityOption | null>(null);
-
-  // Use either availableSKUs or skus depending on what's provided
-  const skusToDisplay = availableSKUs.length > 0 ? availableSKUs : skus;
-
-  useEffect(() => {
-    console.log("SKUs to display in selector:", skusToDisplay);
-  }, [skusToDisplay]);
-
+  const [selectedSKU, setSelectedSKU] = React.useState<string>('');
+  const [selectedQuantity, setSelectedQuantity] = React.useState<QuantityOption>(1000);
+  
+  const handleAddSKU = () => {
+    if (selectedSKU) {
+      const skuObj = availableSKUs.find(sku => sku.SKU === selectedSKU);
+      if (skuObj) {
+        onAdd(productName, skuObj.id, selectedSKU, selectedQuantity);
+        setSelectedSKU('');
+      }
+    }
+  };
+  
   const handleSKUChange = (value: string) => {
-    console.log("SKU selected:", value);
     setSelectedSKU(value);
-    const skuObject = skusToDisplay.find(sku => sku.SKU === value) || null;
-    console.log("Found SKU object:", skuObject);
-    setSelectedSKUObject(skuObject);
-    setSelectedQuantity(null); // Reset quantity when SKU changes
-  };
-
-  const handleQuantityChange = (value: string) => {
-    console.log("Quantity selected:", value);
-    setSelectedQuantity(Number(value) as QuantityOption);
-  };
-
-  const handleAddClick = () => {
-    if (selectedSKU && selectedQuantity && selectedSKUObject) {
-      console.log("Adding SKU to selection:", {
-        productName,
-        skuId: selectedSKUObject.id,
-        sku: selectedSKU,
-        quantity: selectedQuantity
-      });
-      onAdd(productName, selectedSKUObject.id, selectedSKU, selectedQuantity);
-      // Reset after adding
-      setSelectedSKU('');
-      setSelectedSKUObject(null);
-      setSelectedQuantity(null);
+    // If a SKU is selected, automatically add it
+    if (value) {
+      const skuObj = availableSKUs.find(sku => sku.SKU === value);
+      if (skuObj) {
+        onAdd(productName, skuObj.id, value, selectedQuantity);
+        setSelectedSKU('');
+      }
     }
   };
 
   return (
-    <div className="flex space-x-2 items-center">
-      <div className="w-40">
-        <Select value={selectedSKU} onValueChange={handleSKUChange}>
-          <SelectTrigger className="w-full bg-[#161616] border-[#272727]">
-            <SelectValue placeholder="Sélectionner" />
-          </SelectTrigger>
-          <SelectContent className="bg-[#161616] border-[#272727] z-[100]">
-            {skusToDisplay.map((sku) => (
-              <SelectItem key={sku.id} value={sku.SKU}>
+    <div className="flex items-center justify-center space-x-2">
+      <Select value={selectedSKU} onValueChange={handleSKUChange}>
+        <SelectTrigger 
+          className={cn(
+            "w-full bg-[#1A1A1A] border-[#2A2A2A] rounded-md",
+            "hover:bg-[#222] hover:border-[#3ECF8E] transition-colors duration-200",
+            "focus:ring-1 focus:ring-primary/30"
+          )}
+        >
+          <SelectValue placeholder="Ajouter SKU" />
+        </SelectTrigger>
+        <SelectContent className="max-h-[300px] overflow-y-auto bg-[#1A1A1A] border-[#2A2A2A] rounded-md shadow-lg">
+          {availableSKUs.length === 0 ? (
+            <div className="py-2 px-2 text-sm text-gray-500">Aucun SKU disponible</div>
+          ) : (
+            availableSKUs.map((sku) => (
+              <SelectItem 
+                key={sku.SKU} 
+                value={sku.SKU}
+                className="cursor-pointer hover:bg-[#2A2A2A]"
+              >
                 {sku.SKU}
               </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {selectedSKU && (
-        <>
-          <div className="w-24">
-            <Select onValueChange={handleQuantityChange}>
-              <SelectTrigger className="w-full bg-[#161616] border-[#272727]">
-                <SelectValue placeholder="Qté" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#161616] border-[#272727] z-[100]">
-                {quantityOptions.map((qty) => (
-                  <SelectItem key={qty} value={qty.toString()}>
-                    {qty.toLocaleString()}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={handleAddClick}
-            disabled={!selectedQuantity}
-            className="h-9 w-9"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </>
-      )}
+            ))
+          )}
+        </SelectContent>
+      </Select>
     </div>
   );
 };

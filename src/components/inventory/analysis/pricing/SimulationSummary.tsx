@@ -1,19 +1,26 @@
 
 import React from 'react';
-import { AnalysisItem } from '@/types/analysisItem';
-import { Product } from '@/types/product';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
   TableRow,
-  TableFooter
 } from "@/components/ui/table";
-import { formatTotalPrice, formatPrice } from './PriceFormatter';
-import { Loader2 } from 'lucide-react';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Clipboard, CalendarDays, FileText, AlertTriangle } from 'lucide-react';
+import { formatTotalPrice } from './PriceFormatter';
 import SimulationTotal from './components/SimulationTotal';
+import { type AnalysisItem } from '@/types/analysisItem';
+import { type Product } from '@/types/product';
+import { type ProductPrice } from '@/hooks/useProductPrices';
 
 interface SimulationSummaryProps {
   analysisItems: AnalysisItem[];
@@ -22,7 +29,7 @@ interface SimulationSummaryProps {
   selectedSKUs: Record<string, string[]>;
   quantities: Record<string, Record<string, string>>;
   calculatedPrices: Record<string, Record<string, number | string>>;
-  productPrices: any[];
+  productPrices: ProductPrice[];
   getUnitPriceForSKU: (productId: string, sku: string, quantity?: string) => number;
 }
 
@@ -36,150 +43,140 @@ const SimulationSummary: React.FC<SimulationSummaryProps> = ({
   productPrices,
   getUnitPriceForSKU
 }) => {
-  // Find the corresponding product for each analysis item
-  const getProductDetails = (analysisItem: AnalysisItem) => {
-    const product = products.find(p => p.id === analysisItem.product_id);
-    return {
-      sku: analysisItem.sku_code || product?.SKU || '-',
-      name: product?.product_name || '-',
-      quantity: analysisItem.quantity_selected || 0,
-      unitPrice: calculateUnitPrice(analysisItem, product),
-      totalPrice: calculateTotalPrice(analysisItem, product)
-    };
-  };
+  // Combined selected SKUs across all products
+  const allSelectedSKUs = Object.entries(selectedSKUs).flatMap(([productId, skus]) => {
+    return skus.map(sku => ({
+      productId,
+      sku,
+      quantity: quantities[productId]?.[sku] || "0",
+      calculatedPrice: calculatedPrices[productId]?.[sku] || 0
+    }));
+  });
 
-  // Calculate unit price based on selected quantity
-  const calculateUnitPrice = (analysisItem: AnalysisItem, product?: Product) => {
-    if (!analysisItem.quantity_selected) return 0;
-    
-    const quantity = analysisItem.quantity_selected;
-    const priceField = `price_${quantity}` as keyof typeof analysisItem;
-    
-    // Try to get price from analysis item first
-    if (analysisItem[priceField] && typeof analysisItem[priceField] === 'number') {
-      return analysisItem[priceField] as number;
-    }
-    
-    // Fall back to product prices if needed
-    if (product) {
-      const productPriceField = `price_${quantity}` as keyof typeof product;
-      if (product[productPriceField] && typeof product[productPriceField] === 'number') {
-        return product[productPriceField] as number;
-      }
-    }
-    
-    return 0;
-  };
-
-  // Calculate total price (quantity × unit price)
-  const calculateTotalPrice = (analysisItem: AnalysisItem, product?: Product) => {
-    const unitPrice = calculateUnitPrice(analysisItem, product);
-    const quantity = analysisItem.quantity_selected || 0;
-    return unitPrice * quantity;
-  };
-
-  // Extract details from the selectedSKUs and related data
-  const getSelectedSKUDetails = () => {
-    const details: Array<{
-      sku: string;
-      productName: string | null;
-      quantity: string;
-      unitPrice: number;
-      totalPrice: number;
-    }> = [];
-
-    // Go through each product and its selected SKUs
-    Object.entries(selectedSKUs).forEach(([productId, skus]) => {
-      const product = productPrices.find(p => p.id === productId);
-      
-      skus.forEach(sku => {
-        const quantity = quantities[productId]?.[sku] || '0';
-        
-        // Skip invalid entries (quantity must be a valid number > 0)
-        if (quantity && parseInt(quantity) > 0) {
-          const unitPrice = getUnitPriceForSKU(productId, sku, quantity);
-          const totalPrice = typeof calculatedPrices[productId]?.[sku] === 'number' 
-            ? calculatedPrices[productId][sku] as number 
-            : 0;
-          
-          details.push({
-            sku,
-            productName: product?.product_name || null,
-            quantity,
-            unitPrice,
-            totalPrice
-          });
-        }
-      });
-    });
-    
-    return details;
-  };
-
-  // Filter analysis items that have sku_code and quantity_selected
-  const validAnalysisItems = analysisItems.filter(item => 
-    item.sku_code && item.quantity_selected && item.quantity_selected > 0
+  // Only show items that have quantities and prices
+  const itemsWithValues = allSelectedSKUs.filter(item => 
+    item.quantity && 
+    item.quantity !== "0" && 
+    item.calculatedPrice && 
+    item.calculatedPrice !== 0
   );
 
-  // Get selected SKU details from the current selection
-  const selectedSKUDetails = getSelectedSKUDetails();
+  // Get the product name for a SKU
+  const getProductNameForSKU = (sku: string): string => {
+    // Extract product category from SKU (e.g., "BNT" from "BNT-LOTUS")
+    const skuParts = sku.split('-');
+    const category = skuParts[0];
+    
+    // Find matching product from product prices
+    const matchingPrice = productPrices.find(price => {
+      const normalizedName = price.product_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      const normalizedCategory = category.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      return normalizedName.includes(normalizedCategory) || normalizedCategory.includes(normalizedName);
+    });
+    
+    return matchingPrice?.product_name || sku;
+  };
   
-  // Determine if we have any items to display (either from analysis or current selection)
-  const hasItemsToDisplay = selectedSKUDetails.length > 0;
-  const isLoading = false; // We could add loading state later if needed
+  // Get analysis item details for a SKU
+  const getAnalysisItemForSKU = (sku: string): AnalysisItem | undefined => {
+    return analysisItems.find(item => item.sku_code === sku);
+  };
 
   return (
-    <div className="mt-4 rounded-md border border-[#272727] overflow-hidden">
-      <div className="p-4 bg-[#161616] border-b border-[#272727]">
-        <h3 className="text-sm font-medium">Récapitulatif détaillé</h3>
-      </div>
+    <Card className="border border-[#272727] rounded-lg shadow-md overflow-hidden bg-[#0F0F0F]">
+      <CardHeader className="px-5 py-4 border-b border-[#272727] bg-gradient-to-r from-[#131313] to-[#181818]">
+        <CardTitle className="text-md font-medium flex items-center tracking-wide">
+          <Clipboard className="h-4 w-4 mr-2" /> 
+          Récapitulatif de la simulation
+        </CardTitle>
+      </CardHeader>
       
-      {isLoading ? (
-        <div className="flex justify-center items-center p-8">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          <span className="ml-2">Chargement des données...</span>
-        </div>
-      ) : (
-        <Table>
-          <TableHeader className="bg-[#161616] sticky top-0 z-10">
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="text-left">SKU</TableHead>
-              <TableHead className="text-left">Produit</TableHead>
-              <TableHead className="text-center">Quantité</TableHead>
-              <TableHead className="text-center">Prix unitaire</TableHead>
-              <TableHead className="text-right">Total</TableHead>
-            </TableRow>
-          </TableHeader>
-          
-          <TableBody>
-            {!hasItemsToDisplay ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-gray-500">
-                  Aucun produit sélectionné dans la simulation
-                </TableCell>
-              </TableRow>
-            ) : (
-              selectedSKUDetails.map(item => (
-                <TableRow key={item.sku} className="hover:bg-[#1a1a1a]">
-                  <TableCell className="py-1">{item.sku}</TableCell>
-                  <TableCell className="py-1">{item.productName || '-'}</TableCell>
-                  <TableCell className="py-1 text-center">{item.quantity}</TableCell>
-                  <TableCell className="py-1 text-center">{formatPrice(item.unitPrice)}</TableCell>
-                  <TableCell className="py-1 text-right">{formatTotalPrice(item.totalPrice)}</TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-          
-          {/* Only show the footer if we have items or a non-zero total */}
-          {(hasItemsToDisplay || simulationTotal > 0) && (
-            <TableFooter className="bg-[#161616] border-t border-[#272727]">
-              <SimulationTotal simulationTotal={simulationTotal} />
-            </TableFooter>
-          )}
-        </Table>
-      )}
-    </div>
+      <CardContent className="p-4">
+        {itemsWithValues.length === 0 ? (
+          <div className="p-6 text-center flex flex-col items-center text-gray-400">
+            <AlertTriangle className="h-8 w-8 mb-2 text-yellow-500 opacity-70" />
+            <p>Aucun SKU sélectionné pour la simulation</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Veuillez ajouter des SKUs à la simulation pour voir le récapitulatif
+            </p>
+          </div>
+        ) : (
+          <div className="rounded-md border border-[#272727] shadow-inner bg-[#121212] overflow-hidden">
+            <ScrollArea className="h-[250px]">
+              <Table>
+                <TableHeader className="bg-[#161616] sticky top-0 z-10">
+                  <TableRow className="hover:bg-transparent border-b border-[#272727]">
+                    <TableHead className="text-left tracking-wide">SKU</TableHead>
+                    <TableHead className="text-center tracking-wide">
+                      <div className="flex items-center justify-center">
+                        <CalendarDays className="h-3.5 w-3.5 mr-1.5 text-gray-400" /> 
+                        Délai (semaines)
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-center tracking-wide">
+                      <div className="flex items-center justify-center">
+                        <FileText className="h-3.5 w-3.5 mr-1.5 text-gray-400" /> 
+                        Note
+                      </div>
+                    </TableHead>
+                    <TableHead className="text-center tracking-wide">Quantité</TableHead>
+                    <TableHead className="text-right tracking-wide">Total (CAD)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                
+                <TableBody>
+                  {itemsWithValues.map((item, index) => {
+                    const analysisItem = getAnalysisItemForSKU(item.sku);
+                    const productName = getProductNameForSKU(item.sku);
+                    const numericQuantity = parseInt(item.quantity, 10);
+                    const unitPrice = getUnitPriceForSKU(item.productId, item.sku, item.quantity);
+                    const price = typeof item.calculatedPrice === 'number' ? 
+                      item.calculatedPrice : 
+                      parseFloat(item.calculatedPrice as string) || 0;
+                      
+                    return (
+                      <TableRow 
+                        key={`${item.sku}-${index}`} 
+                        className={`hover:bg-[#1A1A1A] transition-colors duration-150 ${
+                          index % 2 === 1 ? 'bg-[#0F0F0F]' : 'bg-[#121212]'
+                        } ${index < itemsWithValues.length - 1 ? 'border-b border-[#272727]/60' : ''}`}
+                      >
+                        <TableCell className="font-medium">
+                          <div>
+                            <div className="font-medium text-gray-200">{item.sku}</div>
+                            <div className="text-xs text-gray-400 mt-0.5">{productName}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center text-sm">
+                          {analysisItem?.weeks_delivery || "—"}
+                        </TableCell>
+                        <TableCell className="text-center text-sm">
+                          <div className="max-w-[200px] truncate">
+                            {analysisItem?.note ? (
+                              <span className="text-gray-400">{analysisItem.note}</span>
+                            ) : (
+                              <span className="text-gray-500">—</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center font-medium tabular-nums">
+                          {numericQuantity.toLocaleString()}
+                        </TableCell>
+                        <TableCell className="text-right tabular-nums text-green-500 font-semibold">
+                          {formatTotalPrice(price)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  
+                  <SimulationTotal simulationTotal={simulationTotal} />
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
