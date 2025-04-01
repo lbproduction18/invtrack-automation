@@ -24,6 +24,12 @@ const PricingGrid: React.FC = () => {
   const { products, isLoading: isProductsLoading } = useProducts('analysis');
   const { analysisItems, isLoading: isAnalysisLoading, refetch: refetchAnalysis } = useAnalysisItems();
   
+  // Define the price tiers array
+  const priceTiers = ['price_1000', 'price_2000', 'price_3000', 'price_4000', 'price_5000', 'price_8000'];
+  
+  // Initialize quantities with an empty record
+  const initialQuantities: Record<string, number> = {};
+  
   // Use the budget simulation hook to get the wrapper function
   const { getUnitPriceForSKU } = useBudgetSimulation(() => {});
   
@@ -42,7 +48,7 @@ const PricingGrid: React.FC = () => {
     handleQuantityChange,
     getTotalForProduct,
     resetSimulation,
-  } = usePricingCalculation(productPrices);
+  } = usePricingCalculation(analysisItems, initialQuantities, priceTiers);
   
   const isLoading = isPricesLoading || isProductsLoading || isAnalysisLoading;
 
