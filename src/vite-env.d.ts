@@ -1,5 +1,5 @@
 
 /// <reference types="vite/client" />
 
-// Add module declarations for any packages that TypeScript has trouble finding
+// Add proper module declarations for Supabase packages
 declare module '@supabase/supabase-js';
