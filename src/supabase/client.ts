@@ -21,3 +21,5 @@ export const supabase = createClient(
     },
   }
 );
+
+console.log('Supabase client initialized with URL:', SUPABASE_URL);
