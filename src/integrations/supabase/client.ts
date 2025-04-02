@@ -1,17 +1,13 @@
-// src/integrations/supabase/client.ts
-// (Si ce fichier est régénéré automatiquement, vous devrez peut-être
-// l'adapter dans le code qui le génère, mais voici un exemple qui fonctionne.)
 
+// src/integrations/supabase/client.ts
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../types';
 
-// Remplacez par l'URL de votre projet Supabase :
-const SUPABASE_URL = 'https://votre-projet.supabase.co';
-// Remplacez par votre clé anonyme publique (public anon key) :
-const SUPABASE_ANON_KEY = 'votre_cle_anon_key';
+// Supabase project details
+const SUPABASE_URL = 'https://wiqfhqmemoektnuvxirq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpcWZocW1lbW9la3RudXZ4aXJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI5OTI5NTgsImV4cCI6MjA1ODU2ODk1OH0.nBgezD7vtgg8SOsX1yBQ1JfPzkIoPizXfbRAfxnS9fc';
 
-// Si vous avez défini une interface Database dans '../types',
-// vous pouvez la passer en paramètre générique au createClient :
+// Create and export the Supabase client
 export const supabase = createClient<Database>(
   SUPABASE_URL,
   SUPABASE_ANON_KEY,
