@@ -1,4 +1,3 @@
-
 // src/integrations/supabase/client.ts
 import { createClient } from '@supabase/supabase-js';
 
