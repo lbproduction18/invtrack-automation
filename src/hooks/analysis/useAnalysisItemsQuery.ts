@@ -1,6 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/supabase/client';
 import { type AnalysisItem } from '@/types/analysisItem';
 import { useToast } from '@/hooks/use-toast';
 

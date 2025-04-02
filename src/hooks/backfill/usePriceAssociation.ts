@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { type AnalysisItem } from '@/types/analysisItem';
 

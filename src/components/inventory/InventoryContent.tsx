@@ -5,7 +5,7 @@ import { FilteredProductsList, type SortOption } from '@/components/product/Filt
 import { useProducts } from '@/hooks/useProducts';
 import { type ColumnVisibility } from '@/components/product/ColumnVisibilityDropdown';
 import { Product, DatabasePriorityLevel } from '@/types/product';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { InventoryFilterSection } from './InventoryFilterSection';
 import { InventoryTable } from './InventoryTable';

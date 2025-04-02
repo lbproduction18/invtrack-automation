@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { type AnalysisItem } from '@/types/analysisItem';
 import { ProductPrice } from '@/hooks/useProductPrices';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/supabase/client';
 import { useWebhookTrigger } from './useWebhookTrigger';
 
 interface UsePriceUpdaterProps {

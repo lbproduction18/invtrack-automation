@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/supabase/client';
 import { type Product, type PriorityLevel, type DatabasePriorityLevel } from '@/types/product';
 
 export function useProducts(statusFilter: string = 'low_stock') {

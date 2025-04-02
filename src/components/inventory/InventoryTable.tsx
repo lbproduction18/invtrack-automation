@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Product } from '@/types/product';
 import { type ColumnVisibility } from '@/components/product/ColumnVisibilityDropdown';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/supabase/client';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { SelectedProductsBar } from './SelectedProductsBar';
 import { DeleteProductsDialog } from './DeleteProductsDialog';

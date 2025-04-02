@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/supabase/client';
 import { AISimulationMetadata } from '@/types/simulationMetadata';
 import { useSimulationCreate } from './useSimulationCreate';
 import { useSimulationUpdate } from './useSimulationUpdate';

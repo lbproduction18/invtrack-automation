@@ -13,7 +13,7 @@ import { ProductTableContainer } from '@/components/product/ProductTableContaine
 import { Pagination } from '@/components/product/Pagination';
 import { FilteredProductsList, type SortOption } from '@/components/product/FilteredProductsList';
 import { type ColumnVisibility } from '@/components/product/ColumnVisibilityDropdown';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { type Product, type DatabasePriorityLevel } from '@/types/product';
 

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { TableRow, TableCell } from "@/components/ui/table";
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAnalysisItems } from '@/hooks/useAnalysisItems';
 import { type AnalysisProduct } from '@/components/inventory/AnalysisContent';
