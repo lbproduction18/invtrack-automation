@@ -1,3 +1,4 @@
+
 // src/integrations/supabase/client.ts
 import { createBrowserClient } from "@supabase/ssr";
 
