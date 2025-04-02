@@ -1,6 +1,6 @@
 
 // src/integrations/supabase/client.ts
-import { createClient } from '@supabase/supabase-js/dist/module'
+import { createClient } from '@supabase/supabase-js';
 
 // Supabase project details
 const SUPABASE_URL = 'https://wiqfhqmemoektnuvxirq.supabase.co';
